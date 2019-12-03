@@ -1,0 +1,170 @@
+﻿@{
+    var roleList = ViewBag.RoleListInfo as List<HTAdmin.Models.RoleModel>;
+    var userInfo = ViewBag.SystemUserInfo as HTAdmin.Models.AdminUserModel;
+    string url = "/Admin/AddSystemUser";
+    string userId = string.Empty;
+    if (userInfo != null)
+    {
+        url = "/Admin/UpdateSystemUser";
+        userId = userInfo.UserId;
+    }
+
+}
+@section styles{
+    <link rel="stylesheet" href="@Url.Content("~/lay/style/vendor.css")" media="all">
+    <style>
+        html {
+            background-color: white;
+        }
+
+        .layui-card {
+            box-shadow: none;
+        }
+
+        .layui-form-select dl {
+            max-height: 200px;
+        }
+
+        .layui-inline {
+            width: 350px;
+        }
+    </style>
+}
+<div class="layui-fluid" style="padding:0 0 50px 0;">
+    <div class="layui-card">
+        <br />
+        <div class="layui-card-body">
+            <form class="layui-form">
+                <input type="hidden" value="@userId" name="UserId" />
+                <div class="layui-form-item">
+                    <label class="layui-form-label">姓名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="RealName" value="@(userInfo==null?"":userInfo.Name)" lay-verify="required" autocomplete="off" placeholder="请输入姓名" class="layui-input">
+                    </div>
+
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">手机号码</label>
+                    <div class="layui-input-block">
+                        <input type="tel" name="Mobile" value="@(userInfo==null?"":userInfo.Mobile)" @(userInfo == null ? "" : "readonly='readonly'") lay-verify="phone" autocomplete="off" placeholder="请输入手机号码" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+
+                    <label class="layui-form-label">密码</label>
+                    <div class="layui-input-block">
+                        <input type="password" name="Password" lay-verify="required" autocomplete="off" placeholder="请输入密码" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+
+                    <label class="layui-form-label">角色</label>
+                    <div class="layui-input-block">
+                        <select name="RoleId" lay-filter="aihao">
+                            @foreach (var item in roleList)
+                            {
+                                if (userInfo != null && userInfo.RoleId == item.RoleId)
+                                {
+                                    <option value="@item.RoleId" selected="selected">@item.RoleName</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.RoleId">@item.RoleName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否启用</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" @((userInfo == null || userInfo.IsEnable) ? "checked='checked'" : "") name="Enabled" lay-skin="switch" lay-filter="component-form-switchTest" lay-text="启用|禁用">
+                    </div>
+                </div>
+
+                <div class="layui-footer" style="text-align:right;">
+                    <div class="layui-btngroup" style="width:auto;float:right;padding:5px 30px 5px 5px;">
+                        <button type="button" class="layui-btn layui-btn-primary" id="btnCancel">取消</button>
+                        <button class="layui-btn layui-btn-normal" lay-submit lay-filter="*" style="" id="btnOk">
+                            @if (userInfo == null)
+                            {
+                                @("确定")
+                            }
+                            else
+                            {
+                                @("保存")
+                            }
+                        </button>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+
+        function checkCookie() {
+            username = getCookie('username')
+            if (username != null && username != "") { alert('Welcome again ' + username + '!') }
+            else {
+                username = prompt('Please enter your name:', "")
+                if (username != null && username != "") {
+                    setCookie('username', username, 365)
+                }
+            }
+        }
+        function setCookie(c_name, value, expiredays) {
+            var exdate = new Date()
+            exdate.setDate(exdate.getDate() + expiredays)
+            document.cookie = c_name + "=" + escape(value) +
+                ((expiredays == null) ? "" : ";expires=" + exdate.toGMTString())
+        }
+
+        function getCookie(c_name) {
+            if (document.cookie.length > 0) {
+                c_start = document.cookie.indexOf(c_name + "=")
+                if (c_start != -1) {
+                    c_start = c_start + c_name.length + 1
+                    c_end = document.cookie.indexOf(";", c_start)
+                    if (c_end == -1) c_end = document.cookie.length
+                    return unescape(document.cookie.substring(c_start, c_end))
+                }
+            }
+            return "";
+        }
+
+        $(function () {
+            var layer = layui.layer,
+                form = layui.form;
+
+            form.on('submit(*)', function (data) {
+                $.post('@url', {
+                    RealName: $("input[name='RealName']").val(),
+                    Mobile: $("input[name='Mobile']").val(),
+                    Password: $("input[name='Password']").val(),
+                    Enabled: $("input[name='Enabled']").prop("checked"),
+                    RoleId: $("select[name='RoleId']").val(),
+                    UserId:$("input[name='UserId']").val()
+                }, function (r) {
+                    if (r.status == 1) {
+                        ShowSuccessMsg(r.message,true,true);
+                    }
+                    else
+                    {
+                        ShowErrorMsg(r.message);
+                    }
+                });
+                return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+            });
+            $("#btnCancel").click(function () {
+                var index = parent.layer.getFrameIndex(window.name);
+                parent.layer.close(index);//关闭当前页
+             });
+        });
+    </script>
+}

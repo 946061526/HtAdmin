@@ -1,0 +1,123 @@
+﻿@using GameBiz.Core;
+@{
+    ViewBag.Title = "推送发送记录";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var list = ViewBag.List as PushRecordInfoCollection;
+    int index = ((int)ViewBag.PageIndex - 1) * (int)ViewBag.PageSize + 1;
+}
+
+<div class="layui-card-body">
+    <div class="w-margin-t-4">
+        <table class="layui-table w-text-nowrap" lay-skin="line">
+            <colgroup>
+                <col width="100">
+                <col width="100">
+                <col width="200">
+                <col width="300">
+                <col width="100">
+                <col width="100">
+                <col width="150">
+                <col width="200">
+                <col width="200">
+                <col width="200">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>
+                        序号
+                    </th>
+                    <th>
+                        用户编号
+                    </th>
+                    <th>
+                        标题
+                    </th>
+                    <th>
+                        内容
+                    </th>
+                    <th>
+                        推送方式
+                    </th>
+                    <th>
+                        响应行为
+                    </th>
+                    <th>
+                        链接
+                    </th>
+                    <th>
+                        页面
+                    </th>
+                    <th>
+                        自定义消息
+                    </th>
+                    <th>
+                        时间
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < list.RecordList.Count; i++)
+                {
+                    var item = list.RecordList[i];
+                    <tr>
+                        <td>@(index++)</td>
+                        <td>
+                            @item.UserId
+                        </td>
+                        <td>
+                            @item.Title
+                        </td>
+                        <td>
+                            @item.Content
+                        </td>
+                        <td>
+                            @{ switch (item.PushType)
+                                {
+                                    case PushType.Broadcast:
+                                        @("广播");
+                                        break;
+                                    case PushType.Unicast:
+                                        @("单播");
+                                        break;
+                                } }
+                        </td>
+                        <td>
+                            @{ switch (item.AfterOpenType)
+                                    {
+                                        case AfterOpenType.GoApp:
+                                        @("唤醒APP");
+                                        break;
+                                    case AfterOpenType.GoUrl:
+                                        @("跳转到URL");
+                                        break;
+                                    case AfterOpenType.GoActivity:
+                                        @("跳转到页面");
+                                        break;
+                                    case AfterOpenType.GoCustom:
+                                        @("自定义内容");
+                                        break;
+                                }
+                            }
+                        </td>
+                        <td>
+                            @item.Url
+                        </td>
+                        <td>
+                            @item.Activity
+                        </td>
+                        <td>
+                            @item.Custom
+                        </td>
+                        <td>
+                            @item.CreateTime.ToString("yyyy-MM-dd HH:mm")
+                        </td>
+                    </tr>
+                                }
+            </tbody>
+        </table>
+        @ViewHelpers.Pager(ViewBag.PageIndex, ViewBag.PageSize, list.TotalCount)
+    </div>
+</div>
+@section scripts{
+   
+}

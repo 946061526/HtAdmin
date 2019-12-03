@@ -1,0 +1,589 @@
+﻿
+@using GameBiz.Core
+@{
+    ViewBag.Title = "提现明细";
+
+    var List = ViewBag.List as GameBiz.Core.Withdraw_QueryInfoCollection;
+    int index = ((int)ViewBag.PageIndex - 1) * (int)ViewBag.PageSize + 1;
+
+    var sTime = ViewBag.StartTime == null ? DateTime.Today.AddDays(-7).ToString("yyyy-MM-dd HH:mm") : Convert.ToDateTime(ViewBag.StartTime).ToString("yyyy-MM-dd HH:mm");
+    var eTime = ViewBag.EndTime == null ? DateTime.Today.AddDays(1).AddSeconds(-1).ToString("yyyy-MM-dd HH:mm") : Convert.ToDateTime(ViewBag.EndTime).ToString("yyyy-MM-dd HH:mm");
+}
+@section styles{
+    <style>
+        .width260 {
+            width: 260px;
+        }
+    </style>
+}
+<div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <div class="layui-input-inline" style="width:260px">
+                    <input type="text" id="CreateTime" placeholder="提现时间" autocomplete="off" class="layui-input width260" value="@((sTime + eTime)==""? "":sTime+" ~ "+eTime)">
+                </div>
+                <input type="hidden" id="hdStartTime" value="@sTime" />
+                <input type="hidden" id="hdEndTime" value="@eTime" />
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="number" id="UserID" placeholder="用户ID" autocomplete="off" class="layui-input" maxlength="10" value="@ViewBag.UserID">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" id="UserName" placeholder="昵称" autocomplete="off" class="layui-input" value="@ViewBag.UserName">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" id="RealName" placeholder="真实姓名" autocomplete="off" class="layui-input" value="@ViewBag.RealName">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <select name="label" id="sel_BankCode">
+                        <option value="" @(ViewBag.BankCode == "" ? "selected=selected" : "")>银行</option>
+                        <option value="BOC" @(ViewBag.BankCode == "BOC" ? "selected=selected" : "")>中国银行</option>
+                        <option value="ICBC" @(ViewBag.BankCode == "ICBC" ? "selected=selected" : "")>中国工商银行</option>
+                        <option value="CMB" @(ViewBag.BankCode == "CMB" ? "selected=selected" : "")>招商银行</option>
+                        <option value="ABC" @(ViewBag.BankCode == "ABC" ? "selected=selected" : "")>中国农业银行</option>
+                        <option value="CCB" @(ViewBag.BankCode == "CCB" ? "selected=selected" : "")>中国建设银行</option>
+                        <option value="COMM" @(ViewBag.BankCode == "COMM" ? "selected=selected" : "")>中国交通银行</option>
+                        <option value="CMBC" @(ViewBag.BankCode == "CMBC" ? "selected=selected" : "")>中国民生银行</option>
+                        <option value="CEBBANK" @(ViewBag.BankCode == "CEBBANK" ? "selected=selected" : "")>中国光大银行</option>
+                        <option value="PSBC" @(ViewBag.BankCode == "PSBC" ? "selected=selected" : "")>中国邮政储蓄银行</option>
+                        <option value="HXYH" @(ViewBag.BankCode == "HXYH" ? "selected=selected" : "")>华夏银行</option>
+                        <option value="CIB" @(ViewBag.BankCode == "CIB" ? "selected=selected" : "")>兴业银行</option>
+                        <option value="SPAB" @(ViewBag.BankCode == "SPAB" ? "selected=selected" : "")>平安银行</option>
+                        <option value="CITIC" @(ViewBag.BankCode == "CITIC" ? "selected=selected" : "")>中信银行</option>
+                        <option value="GDB" @(ViewBag.BankCode == "GDB" ? "selected=selected" : "")>广东发展银行</option>
+                        <option value="SPDB" @(ViewBag.BankCode == "SPDB" ? "selected=selected" : "")>上海浦东发展银行</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="number" id="BankCard" placeholder="卡号" autocomplete="off" class="layui-input" maxlength="21" value="@ViewBag.BankCard">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="number" id="MoneyMin" placeholder="￥" autocomplete="off" class="layui-input" min="1" max="99999" value="@(ViewBag.MoneyMin==-1 ? "" : ViewBag.MoneyMin)">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    <input type="number" id="MoneyMax" placeholder="￥" autocomplete="off" class="layui-input" min="1" max="99999" value="@(ViewBag.MoneyMax==-1 ? "" : ViewBag.MoneyMax)">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <select name="label" id="sel_Status">
+                        <option value="" @(ViewBag.Status == null ? "selected=selected" : "")>状态</option>
+                        <option value="1" @(ViewBag.Status == WithdrawStatus.Requesting ? "selected=selected" : "")>审批中</option>
+                        <option value="2" @(ViewBag.Status == WithdrawStatus.Request ? "selected=selected" : "")>打款中</option>
+                        <option value="3" @(ViewBag.Status == WithdrawStatus.Success ? "selected=selected" : "")>已成功</option>
+                        <option value="4" @(ViewBag.Status == WithdrawStatus.Refused ? "selected=selected" : "")>已失败</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn" lay-submit lay-filter="LAY-app-contlist-search" id="btnSearch">
+                    查询
+                </button>
+                <button class="layui-btn layui-btn-primary" id="btnReset">
+                    重置
+                </button>
+            </div>
+        </div>
+
+
+        @*代付通道*@
+        <div id="divPayAgent" style="display:none">
+            <div class="layui-form-item">
+                <label class="layui-form-label">代付通道：</label>
+                <div class="layui-inline" style="width:530px">
+                    <div class="layui-input-inline" style="width:530px">
+                        <select id="sel_PayType" style="width:530px">
+                            <option value="">请选择</option>
+                            <option value="slf">顺利付</option>
+                            <option value="af">艾付</option>
+                            <option value="xf">新付</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*代付通道*@
+
+        @*拒绝原因*@
+        <div id="divRefuse" style="display:none">
+            <div class="layui-form-item">
+                <label class="layui-form-label">选择原因：</label>
+                <div class="layui-inline" style="width:530px">
+                    <div class="layui-input-inline" style="width:530px">
+                        <select id="sel_Reason" style="width:530px" lay-filter="sel_Reason">
+                            <option value="">请选择</option>
+                            <option value="银行卡账户与户名不符或不存在，请仔细核对银行卡后联系在线客服处理！">银行卡账户与户名不符或不存在，请仔细核对银行卡后联系在线客服处理</option>
+                            <option value="打款用户不存在，已经多次尝试失败，请查看银行卡是否正确，联系客服！">打款用户不存在，已经多次尝试失败，请查看银行卡是否正确，联系客服</option>
+                            <option value="您本次提款含充值账户资金，需扣除手续费，如继续申请请联系客服确认！">您本次提款含充值账户资金，需扣除手续费，如继续申请请联系客服确认</option>
+                            <option value="您本次提款含充值账户资金，需扣除手续费，如确认提款请再次重新申请！">您本次提款含充值账户资金，需扣除手续费，如确认提款请再次重新申请</option>
+                            <option value="您的银行受限或已进黑名单，导致三方打款失败，建议重新注册其他实名！">您的银行受限或已进黑名单，导致三方打款失败，建议重新注册其他实名</option>
+                            <option value="您本次提款已经达到当日限额，再次提款需过零点以后，或联系客服换卡！">您本次提款已经达到当日限额，再次提款需过零点以后，或联系客服换卡</option>
+                            <option value="您所使用的银行卡为二类三类账户，无法正常接收打款，请联系客服更换！">您所使用的银行卡为二类三类账户，无法正常接收打款，请联系客服更换</option>
+                            <option value="您所使用的银行卡状态异常，或已经超出当日限额，请联系客服更换处理！">您所使用的银行卡状态异常，或已经超出当日限额，请联系客服更换处理</option>
+                            <option value="请不要重复失败提款，您的银行信息有误，请及时联系在线客服处理谢谢！">请不要重复失败提款，您的银行信息有误，请及时联系在线客服处理谢谢</option>
+                            <option value="重复申请提款已取消，如继续请重新提交申请！">重复申请提款已取消，如继续请重新提交申请</option>
+                            <option value="受理用户取消提现确认！">受理用户取消提现确认</option>
+                            <option value="同一身份注册多个账号！">同一身份注册多个账号</option>
+                            <option value="活动赠送现金仅供购彩使用，不予直接提现！">活动赠送现金仅供购彩使用，不予直接提现</option>
+                            <option value="您的账户存在异常行为，为了保障您的资金安全，请联系在线客服并提供手持身份证正面和反面照片！">您的账户存在异常行为，为了保障您的资金安全，请联系在线客服并提供手持身份证正面和反面照片</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item" id="divOtherReason" style="display:none">
+                <label class="layui-form-label">其他原因：</label>
+                <div class="layui-inline" style="width:530px">
+                    <div class="layui-input-inline" style="width:530px">
+                        <input type="text" id="content" placeholder="请输入其他原因" autocomplete="off" class="layui-input" style="width:530px">
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*拒绝原因*@
+    </div>
+
+    <div class="layui-card-body">
+        <div class="w-margin-t-2">
+            <button class="layui-btn layui-btn-normal" id="btnPayHand">人工打款</button>
+            <button class="layui-btn layui-btn-normal" id="btnPayAgent">代付通道打款</button>
+            <button class="layui-btn layui-btn-normal" id="btnRefuse">拒绝提现</button>
+        </div>
+
+        <form class="layui-form">
+            <div class="w-margin-t-4">
+                <table class="layui-table w-text-nowrap" lay-skin="line">
+                    <colgroup>
+                        <col width="80" />
+                        <col width="80">
+                        <col width="100">
+                        <col width="150">
+                        <col width="200">
+                        <col width="200">
+                        <col width="150">
+                        <col width="150">
+                        <col width="200">
+                        <col width="150">
+                        <col width="150">
+                        <col width="150">
+                        <col width="100">
+                        <col width="150">
+                        <col width="100">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" name="chkAll" lay-skin="primary" lay-filter="chk" value="all"></th>
+                            <th>序号</th>
+                            <th>用户ID</th>
+                            <th>昵称</th>
+                            <th>提交时间</th>
+                            <th>提现方式</th>
+                            <th>真实姓名</th>
+                            <th>银行</th>
+                            <th>卡号</th>
+                            <th style="text-align: right">提现金额</th>
+                            <th style="text-align: right">手续费</th>
+                            <th style="text-align: right">实际到账</th>
+                            <th>状态</th>
+                            <th>打款方式</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in List.WithdrawList)
+                        {
+                            <tr>
+                                <td>
+                                    @if (item.Status == WithdrawStatus.Requesting)
+                                    {
+                                        <input type="checkbox" name="chkOne" lay-skin="primary" lay-filter="chk" data-id="@item.OrderId">
+                                    }
+                                    else
+                                    {
+                                        <input type="checkbox" lay-skin="primary" lay-filter="chk" data-id="@item.OrderId" disabled="disabled">
+                                    }
+                                </td>
+                                <td>@(index++)</td>
+                                <td>@item.RequesterUserKey</td>
+                                <td>@item.RequesterDisplayName</td>
+                                <td>@(Convert.ToDateTime(item.RequestTime).ToString("yyyy-MM-dd HH:mm"))</td>
+                                <td>@ViewHelpers.ConvertWithdrawType(item.WithdrawAgent)</td>
+                                <td>@item.RequesterRealName</td>
+                                <td>@item.BankName @(!string.IsNullOrEmpty(item.BankSubName) ? "(" + item.BankSubName + ")" : "")</td>
+                                <td>@item.BankCardNumber</td>
+                                <td class="w-text-right">@item.RequestMoney.ToString("c")</td>
+                                <td class="w-text-right">@(item.ResponseMoney != null ? ((decimal)(item.RequestMoney - item.ResponseMoney)).ToString("c") : "0.00")</td>
+                                <td class="w-text-right">@(item.ResponseMoney != null ? ((decimal)item.ResponseMoney).ToString("c") : "0.00")</td>
+                                <td>
+                                    @{
+                                        switch (item.Status)
+                                        {
+                                            case WithdrawStatus.Requesting:
+                                                @(new HtmlString("<span class='layui-badge-dot layui-bg-orange'></span>审批中"));
+                                                break;
+                                            case WithdrawStatus.Request:
+                                                @(new HtmlString("<span class='layui-badge-dot layui-bg-blue'></span>打款中"));
+                                                break;
+                                            case WithdrawStatus.Success:
+                                                @(new HtmlString("<span class='layui-badge-dot layui-bg-green'></span>提现完成"));
+                                                break;
+                                            case WithdrawStatus.Refused:
+                                                @(new HtmlString("<span class='layui-badge-dot'></span>已拒绝"));
+                                                break;
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.AgentID) && (item.Status == WithdrawStatus.Success || item.Status == WithdrawStatus.Request))
+                                    {
+                                        @ViewHelpers.GetPayType(item.AgentID)
+                                    }
+                                    else
+                                    {
+                                        @("--")
+                                    }
+                                </td>
+                                <td>
+                                    @if (ViewBag.AllowDetail)
+                                    {
+                                        <a class="layui-btn layui-btn-normal layui-btn-xs" onclick="OrderDetail('@item.OrderId')">详情</a>
+                                    }
+                                    @if (item.Status == WithdrawStatus.Requesting)
+                                    {
+                                        <a class="layui-btn layui-btn-normal layui-btn-xs" onclick="PayByHand(2,'@item.OrderId')">人工打款</a>
+                                        <a class="layui-btn layui-btn-normal layui-btn-xs" onclick="PayByAgent(2,'@item.OrderId')">代付打款</a>
+                                        <a class="layui-btn layui-btn-normal layui-btn-xs" onclick="Refuse(2,'@item.OrderId')">拒绝</a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                @ViewHelpers.Pager(ViewBag.PageIndex, ViewBag.PageSize, List.TotalCount)
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts{
+
+    <script type="text/javascript">
+
+        //日期时间
+        layui.laydate.render({
+            elem: '#CreateTime'
+            , type: 'datetime'
+            , format: 'yyyy-MM-dd HH:mm'
+            , range: '~'
+            , done: function (value, sDate, endDate) {
+                if (value == '') {
+                    $("#hdStartTime").val('');
+                    $("#hdEndTime").val('');
+                } else {
+                    $("#hdStartTime").val(sDate.year + "-" + sDate.month + "-" + sDate.date + " " + sDate.hours + ":" + sDate.minutes);
+                    $("#hdEndTime").val(endDate.year + "-" + endDate.month + "-" + endDate.date + " " + endDate.hours + ":" + endDate.minutes);
+                }
+            }
+        });
+
+        //checkbox监听
+        layui.form.on('checkbox(chk)', function (data) {
+            var val = data.value;
+            var isCheck = data.elem.checked;
+            if (val == "all") {
+                $("input[name='chkOne']").prop("checked", isCheck);
+            }
+            layui.form.render('checkbox');
+        });
+
+        //提现详情
+        var OrderDetail = function (OrderId) {
+            layer.open({
+                type: 2,// 表示是iframe弹框
+                title: "提现详情",
+                content: "/Finance/WithdrawDetail?OrderId=" + OrderId,
+                shadeClose: true,
+                shade: 0.6,
+                area: ['700px', '577px'],
+            });
+        }
+
+        //获取选择的数据id
+        var GetIds = function () {
+            var ids = '',
+                arrChk = $("input[name='chkOne']:checked"),
+                arrIds = new Array();
+            if (arrChk.length > 0) {
+                $.each(arrChk, function () {
+                    arrIds.push($(this).data("id"));
+                })
+            }
+            if (arrIds.length > 0)
+                ids = arrIds.join(',');
+
+            return ids;
+        }
+
+        var _isSubmitting = false;
+
+        //人工打款 t: 1.批量 2.单个
+        var PayByHand = function (t, oid) {
+            if (_isSubmitting)
+                return;
+
+            var ids = oid;
+            if (t == 1) {
+                ids = GetIds();
+            }
+            if (ids == '') {
+                ShowWarnningMsg('请选择要处理的数据');
+                return false;
+            }
+            ShowConfirm('确定要人工打款吗', function () {
+                _isSubmitting = true;
+                var data = {
+                    orderIds: ids
+                }
+                var url = "/Finance/CompleteWithdrawALL?r=" + Math.random();
+                $.post(url, data, function (result) {
+                    if (result.IsSuccess) {
+                        ShowSuccessMsg('打款成功', false, false, function () {
+                            window.location.reload(true);
+                        });
+                    }
+                    else {
+                        ShowErrorMsg('打款失败: ' + result.Msg);
+                    }
+                    _isSubmitting = false;
+                })
+            });
+        }
+
+        //代付通道打款 t: 1.批量 2.单个
+        var PayByAgent = function (t, oid) {
+            if (_isSubmitting)
+                return;
+
+            var ids = oid;
+            if (t == 1) {
+                ids = GetIds();
+            }
+            if (ids == '') {
+                ShowWarnningMsg('请选择要处理的数据');
+                return false;
+            }
+            var str =
+                '<div class="layui-form layui-card-header layuiadmin-card-header-auto" id="divPayType" style="height:180px;">'
+                + $("#divPayAgent").html()
+                + '</div>';
+            layer.open({
+                type: 1,
+                title: "选择代付通道",
+                area: ["700px", "320px"],
+                content: str,
+                btn: ['确定', '取消'],
+                success: function (layero, index) {
+                    layui.form.render('select');
+                },
+                yes: function (index) {
+                    if (_isSubmitting) return;
+
+                    var $value = $("#divPayType select[id='sel_PayType']").val();
+                    if (!$value || $value.length < 1) {
+                        ShowWarnningMsg('请选择代付通道');
+                        return false;
+                    }
+                    ShowConfirm('确定要代付通道打款吗', function () {
+                        _isSubmitting = true;
+                        var data = {
+                            orderIds: ids
+                        }
+                        var url = "/Finance/CompleteWithdrawALL_SLF?r=" + Math.random();
+                        if ($value == 'af') {
+                            url = "/Finance/CompleteWithdrawALL_AF?r=" + Math.random();
+                        } else if ($value == 'xf') {
+                            url = "/Finance/CompleteWithdrawALL_XF?r=" + Math.random();
+                        }
+                        $.post(url, data, function (result) {
+                            if (result.IsSuccess) {
+                                ShowSuccessMsg(result.Msg, false, false, function () {
+                                    window.location.reload(true);
+                                });
+                            }
+                            else {
+                                ShowErrorMsg(result.Msg);
+                            }
+                            _isSubmitting = false;
+                        });
+                    });
+                },
+                cancel: function (index, layero) {
+                    layer.close(index)
+                    _isSubmitting = false;
+                    return false;
+                }
+            });
+        }
+
+        //拒绝提现 t: 1.批量 2.单个
+        var Refuse = function (t, oid) {
+            if (_isSubmitting)
+                return;
+
+            var ids = oid;
+            if (t == 1) {
+                ids = GetIds();
+            }
+            if (ids == '') {
+                ShowWarnningMsg('请选择要处理的数据');
+                return false;
+            }
+            layer.open({
+                type: 1,
+                title: "选择拒绝原因",
+                area: ["700px", "336px"],
+                content: '<div id="divRefuseContent" class="layui-form layui-card-header layuiadmin-card-header-auto" style="height:200px;">'
+                    + $("#divRefuse").html()
+                    + '</div>'
+                ,
+                btn: ['确定', '取消'],
+                success: function (layero, index) {
+                    //select监听
+                    layui.form.on('select(sel_Reason)', function (data) {
+                        var val = data.value;
+                        var elem = $(data.elem).parents("#divRefuseContent").find("#divOtherReason")
+                        if (val == 'other') {
+                            elem.show();
+                        } else {
+                            elem.hide();
+                        }
+                    });
+
+                    //$("#layui-layer" + index).find("#divOtherReason").hide()
+                    layui.form.render('select');
+                },
+                yes: function (index) {
+                    if (_isSubmitting) return;
+
+                    var $value = $("#divRefuseContent select[id='sel_Reason']").val(),
+                        $valueOther = $("#divRefuseContent input[id='content']").val();
+                    if (!$value || $value.length < 1) {
+                        ShowWarnningMsg('请选择拒绝原因');
+                        return false;
+                    } else if ($value == 'other') {
+                        if (!$valueOther || $valueOther.length == 0) {
+                            ShowWarnningMsg('请输入其他原因');
+                            return false;
+                        }
+                    }
+                    ShowConfirm('确定拒绝提现吗', function () {
+                        _isSubmitting = true;
+                        var data = {
+                            orderIds: ids,
+                            message: $value
+                        }
+                        var url = "/Finance/RefusedWithdrawALL?r=" + Math.random();
+                        $.post(url, data, function (result) {
+                            if (result.IsSuccess) {
+                                ShowSuccessMsg('处理成功', false, false, function () {
+                                    window.location.reload(true);
+                                });
+                            }
+                            else {
+                                ShowErrorMsg('处理失败: ' + result.Msg);
+                            }
+                            _isSubmitting = false;
+                        })
+                    });
+                },
+                cancel: function (index, layero) {
+                    layer.close(index)
+                    _isSubmitting = false;
+                    return false;
+                }
+            });
+        }
+
+
+        var params = {
+            UserID: '',
+            UserName: '',
+            BankCode: '',
+            BankCard: '',
+            RealName: '',
+            MoneyMin: -1,
+            MoneyMax: -1,
+            Status: '',
+            pageIndex: 1
+        },
+            txt_UserID = $("#UserID"),
+            txt_UserName = $("#UserName"),
+            txt_BankCard = $("#BankCard"),
+            txt_RealName = $("#RealName"),
+            sel_Status = $("#sel_Status"),
+            sel_BankCode = $("#sel_BankCode"),
+            txt_MoneyMin = $("#MoneyMin"),
+            txt_MoneyMax = $("#MoneyMax"),
+            btnSearch = $("#btnSearch"),
+            btnReset = $("#btnReset"),
+            btnPayHand = $("#btnPayHand"),
+            btnPayAgent = $("#btnPayAgent"),
+            btnRefuse = $("#btnRefuse");
+
+
+        //查询
+        btnSearch.click(function () {
+            params.UserID = txt_UserID.val();
+            params.UserName = txt_UserName.val();
+            params.BankCard = txt_BankCard.val();
+            params.RealName = txt_RealName.val();
+            params.MoneyMin = txt_MoneyMin.val() == '' ? -1 : txt_MoneyMin.val() - 0;
+            params.MoneyMax = txt_MoneyMax.val() == '' ? -1 : txt_MoneyMax.val() - 0;
+            params.BankCode = sel_BankCode.val();
+            params.Status = sel_Status.val();
+            params.StartTime = $("#hdStartTime").val();
+            params.EndTime = $("#hdEndTime").val();
+            params.pageIndex = 1;
+            publicPagingList(params);
+        });
+        //重置
+        btnReset.click(function () {
+            txt_UserID.val('');
+            txt_UserName.val('');
+            txt_BankCard.val('');
+            txt_RealName.val('');
+            txt_MoneyMin.val('');
+            txt_MoneyMax.val('');
+            sel_BankCode.val('');
+            sel_Status.val('');
+            layui.form.render('select');
+        });
+        //手工打款
+        btnPayHand.click(function () {
+            PayByHand(1, '');
+        });
+        //代付通道打款
+        btnPayAgent.click(function () {
+            PayByAgent(1, '');
+        });
+        //代付通道打款
+        btnRefuse.click(function () {
+            Refuse(1, '');
+        });
+
+    </script>
+}

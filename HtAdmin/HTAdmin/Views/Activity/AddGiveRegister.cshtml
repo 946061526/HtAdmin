@@ -1,0 +1,63 @@
+﻿@{
+    ViewBag.Title = "新增新用户赠送";
+}
+<div class="layui-card">
+    <div class="layui-card-body">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">红包模板ID</label>
+            <div class="layui-input-inline">
+                <input type="text" name="redBagTmpId" id="redBagTmpId" lay-verify="title" autocomplete="off" placeholder="红包模板ID" class="layui-input" maxlength="8">
+            </div>
+        </div>
+        <div class="layui-form-item layui-layout-admin">
+            <div class="layui-input-inline">
+                <div class="layui-footer" style="text-align:right;">
+                    <button type="button" class="layui-btn layui-btn-primary" id="btnCancel">取消</button>
+                    <button type="button" class="layui-btn layui-btn-normal" lay-filter="add" id="btn_save" style="margin-right:20px;">保存</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+@section scripts{
+    <script>
+        var _isSubmitting = false;
+        $("#btn_save").click(function () {
+            if (_isSubmitting) return;
+            _isSubmitting = true;
+
+            var redBagTmpId = $('#redBagTmpId').val();
+            if (!redBagTmpId) {
+                ShowWarnningMsg('请输入红包模板ID');
+                _isSubmitting = false;
+                return false;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/Activity/SaveRedBagGiveRegister",
+                data: {
+                    redBagTmpId: redBagTmpId
+                },
+                success: function (res) {
+                    if (res.IsSuccess) {
+                        ShowSuccessMsg('添加成功', true, true);
+                    } else {
+                        ShowErrorMsg('添加失败');
+                    }
+                },
+                complete: function () {
+                    _isSubmitting = false;
+                }
+            });
+        })
+        $("#btnCancel").click(function () {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);//关闭当前页
+        });
+    </script>
+}

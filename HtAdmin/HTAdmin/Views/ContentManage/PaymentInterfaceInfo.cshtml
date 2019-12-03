@@ -1,0 +1,148 @@
+﻿@model External.Core.SystemConfig.PaymentInterfaceInfo
+@{
+    ViewBag.Title = "支付接口配置";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            支付接口配置
+        </div>
+        <div class="layui-card-body">
+            <form id="paymentInfoinfoForm" class="layui-form layui-form-pane">
+                <input type="hidden" name="Id" value="@Model.Id" />
+                <div class="layui-form-item">
+                    <label class="layui-form-label">场景</label>
+                    <div class="layui-input-block">
+                        <select id="client" name="Client">
+                            <option value="0" @(Model.Client == External.Core.ClientType.Null ? "selected=selected" : "")>请选择场景</option>
+                            <option value="1" @(Model.Client == External.Core.ClientType.PC ? "selected=selected" : "")>PC端</option>
+                            <option value="2" @(Model.Client == External.Core.ClientType.M ? "selected=selected" : "")>M端</option>
+                            <option value="3" @(Model.Client == External.Core.ClientType.APP ? "selected=selected" : "")>APP端</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">排序</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="LevelOrder" id="levelorder" lay-verify="LevelOrder" value="@Model.LevelOrder"
+                               autocomplete="off" placeholder="排序" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">通道名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="Name" id="name" lay-verify="Name" value="@Model.Name"
+                               autocomplete="off" placeholder="通道名称" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">通道图片</label>
+                    <div class="layui-input-inline">
+                        <div class="layui-upload">
+                            <button type="button" class="layui-btn icon-upload-normal" data-field="Icon">选择图片</button>
+                            <input type="hidden" name="Icon" id="icon" value="@Model.Icon" />
+                            <div class="layui-upload-list">
+                                <img class="layui-upload-img" src="@Model.Icon">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">通道宣传语</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="Remark" lay-verify="Remark" value="@Model.Remark"
+                               autocomplete="off" placeholder="通道宣传语" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">第三方通道</label>
+                    <div class="layui-input-block">
+                        @{
+                            string[] PaymentPassagewayArray = new string[] { };
+                            if (!string.IsNullOrEmpty(Model.PaymentPassagewayIds))
+                            {
+                                PaymentPassagewayArray = Model.PaymentPassagewayIds.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                            }
+
+                            <input type="checkbox" title="支付宝PC" name="PaymentPassageway" value="1|支付宝PC" @(PaymentPassagewayArray.Contains("1") ? "checked=checked" : "") />
+                            <input type="checkbox" title="支付宝WAP" name="PaymentPassageway" value="2|支付宝WAP" @(PaymentPassagewayArray.Contains("2") ? "checked=checked" : "") />
+                            <input type="checkbox" title="支付宝APP" name="PaymentPassageway" value="3|支付宝APP" @(PaymentPassagewayArray.Contains("3") ? "checked=checked" : "") />
+                            <input type="checkbox" title="好易PC" name="PaymentPassageway" value="4|好易PC" @(PaymentPassagewayArray.Contains("4") ? "checked=checked" : "") />
+                            <input type="checkbox" title="好易WAP" name="PaymentPassageway" value="5|好易WAP" @(PaymentPassagewayArray.Contains("5") ? "checked=checked" : "") />
+                            <input type="checkbox" title="本站PC" name="PaymentPassageway" value="6|本站PC" @(PaymentPassagewayArray.Contains("6") ? "checked=checked" : "") />
+                            <input type="checkbox" title="本站WAP" name="PaymentPassageway" value="7|本站WAP" @(PaymentPassagewayArray.Contains("7") ? "checked=checked" : "") />
+                        }
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否启用</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" name="Status" @(Model.Status ? "checked=checked" : "") lay-skin="switch" lay-text="启用|停用">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-layout-admin">
+                    <div class="layui-input-block">
+                        <div class="layui-footer" style="left: 0;">
+                            <button type="button" class="layui-btn" id="btn_submit" name="btn">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+
+        //普通图片上传
+        layui.upload.render({
+            elem: '.icon-upload-normal',
+            url: '/ContentManage/UploadFile',
+            auto: true,
+            data: {
+
+            },
+            field: 'images',
+            done: function (res, index, upload) {
+                var item = this.item;
+                var field = $(item).data("field");
+                $("#icon").val(res.Data);
+                $(item).nextAll("div").find('img').attr("src", res.Data);
+            }
+        });
+
+        //提交事件
+        $("#btn_submit").on("click", function () {
+            var client = $("#client").val();
+            if (client == '0') {
+                ShowWarnningMsg('请选择场景');
+                return false;
+            }
+            var name = $("#name").val();
+            if (name == '') {
+                ShowWarnningMsg('请输入通道名称');
+                return false;
+            }
+            $.ajax({
+                url: "/contentmanage/RequestPaymentInterfaceInfo",
+                type: "post",
+                data: $('#paymentInfoinfoForm').serialize(),
+                success: function (data) {
+                    if (data.success) {
+                        ShowSuccessMsg('保存成功', false, false, function () { window.location.reload(true); });
+                    } else {
+                        ShowErrorMsg(data.msg);
+                    }
+                },
+                error: function (e) {
+                    ShowErrorMsg('请求异常');
+                }
+            });
+        });
+
+
+    </script>
+}

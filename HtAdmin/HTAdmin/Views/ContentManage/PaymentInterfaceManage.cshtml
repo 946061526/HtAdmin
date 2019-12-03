@@ -1,0 +1,237 @@
+﻿
+@{
+    ViewBag.Title = "支付接口配置";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var model = ViewBag.PaymentInterfaceResult as External.Core.SystemConfig.PaymentInterfaceCollection;
+}
+
+<div class="layui-card">
+    <form class="layui-form layui-card-header layuiadmin-card-header-auto">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <select id="client" name="Client" lay-filter="Client">
+                        <option value="0" @(ViewBag.Client == 0 ? "selected=selected" : "")>请选择场景</option>
+                        <option value="1" @(ViewBag.Client == 1 ? "selected=selected" : "")>PC端</option>
+                        <option value="2" @(ViewBag.Client == 2 ? "selected=selected" : "")>M端</option>
+                        <option value="3" @(ViewBag.Client == 3 ? "selected=selected" : "")>APP端</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" id="Name" placeholder="通道名称" autocomplete="off" class="layui-input" value="@ViewBag.Name">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <select id="PaymentPassagewayId" name="PaymentPassagewayId" lay-filter="PaymentPassagewayId">
+                        <option value="0" @(ViewBag.PaymentPassagewayId == 0 ? "selected=selected" : "")>请选择支付通道</option>
+                        <option value="1" @(ViewBag.PaymentPassagewayId == 1 ? "selected=selected" : "")>支付宝PC</option>
+                        <option value="1" @(ViewBag.PaymentPassagewayId == 2 ? "selected=selected" : "")>支付宝WAP</option>
+                        <option value="1" @(ViewBag.PaymentPassagewayId == 3 ? "selected=selected" : "")>支付宝APP</option>
+                        <option value="9" @(ViewBag.PaymentPassagewayId == 4 ? "selected=selected" : "")>好易PC</option>
+                        <option value="9" @(ViewBag.PaymentPassagewayId == 5 ? "selected=selected" : "")>好易WAP</option>
+                        <option value="12" @(ViewBag.PaymentPassagewayId == 6 ? "selected=selected" : "")>本站PC</option>
+                        <option value="12" @(ViewBag.PaymentPassagewayId == 7 ? "selected=selected" : "")>本站WAP</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <select id="status" name="Status" lay-filter="Status">
+                        <option value="0" @(ViewBag.Status == 0 ? "selected=selected" : "")>请选择状态</option>
+                        <option value="1" @(ViewBag.Status == 1 ? "selected=selected" : "")>停用</option>
+                        <option value="2" @(ViewBag.Status == 2 ? "selected=selected" : "")>启用</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button type="button" class="layui-btn" lay-submit lay-filter="lay-app-contlist-search" id="btn_Search">
+                    查询
+                </button>
+                <button type="button" class="layui-btn layui-btn-primary" id="bt_build">
+                    重置
+                </button>
+            </div>
+        </div>
+    </form>
+    <div class="layui-card-body">
+        <div class="w-margin-t-2">
+            <button class="layui-btn layui-btn-normal" id="btn_addnew">新增支付接口</button>
+        </div>
+        <div class="w-margin-t-4">
+            <table class="layui-table w-text-nowrap" lay-skin="line" id="dataList">
+                <colgroup>
+                    <col width="100">
+                    <col width="100">
+                    <col width="100">
+                    <col width="100">
+                    <col width="200">
+                    <col width="300">
+                    <col width="100">
+                    <col width="100">
+                    <col width="200">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>
+                            序号
+                        </th>
+                        <th>
+                            场景
+                        </th>
+                        <th>
+                            通道名称
+                        </th>
+                        <th>
+                            通道图标
+                        </th>
+                        <th>
+                            通道说明
+                        </th>
+                        <th>
+                            支付通道
+                        </th>
+                        <th>
+                            排序
+                        </th>
+                        <th>
+                            状态
+                        </th>
+                        <th>
+                            操作
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in model.PaymentInterfaceList)
+                    {
+                        <tr>
+                            <td>
+                                @item.Index
+                            </td>
+                            <td>
+                                @SiteConvert.GetPaymentInterfaceClient(item.Client)
+                            </td>
+                            <td>
+                                @item.Name
+                            </td>
+                            <td>
+                                <img src="@item.Icon" width="20" height="20" />
+                            </td>
+                            <td>
+                                @item.Remark
+                            </td>
+                            <td>
+                                @item.PaymentPassagewayNames
+                            </td>
+                            <td>
+                                @item.LevelOrder
+                            </td>
+                            <td>
+                                @(item.Status ? "启用" : "暂停")
+                            </td>
+                            <td>
+                                <a href="Javascirpt:void();" onclick="UpdatePayment(@item.Id)" >修改</a> <span> | </span>
+                                @if (!item.Status)
+                                {
+                                    @Html.ActionLink("启用", "StartPaymentInterface", new { id = item.Id })
+                                    <span> | </span>
+                                    <a href="Javascirpt:void();" onclick="del(@item.Id)">删除</a>
+                                        }
+                                        else
+                                        {
+                                        @Html.ActionLink("停用", "StopPaymentInterface", new { id = item.Id })
+                                        }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @ViewHelpers.Pager(ViewBag.PageIndex, ViewBag.PageSize, model.TotalCount)
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $("#btn_addnew").click(function () {
+            layer.open({
+                type: 2,// 表示是iframe弹框
+                title: "新增支付接口",
+                content: "/ContentManage/PaymentInterfaceInfo?id=0",
+                maxmin: true,
+                area: ['95%', '95%'],
+                end: function () {
+                    window.location.reload();
+                }
+            });
+        });
+
+        //修改
+        function UpdatePayment(id) {
+            layer.open({
+                type: 2,// 表示是iframe弹框
+                title: "修改支付接口",
+                content: "/ContentManage/PaymentInterfaceInfo?id="+id,
+                maxmin: true,
+                area: ['95%', '95%'],
+                end: function () {
+                    window.location.reload();
+                }
+            });
+        }
+
+        //清空
+        $("#bt_build").click(function () {
+            $("#Name").val('');
+            $("#client").val(0);
+            $("#PaymentPassagewayId").val(0);
+            $("#status").val(0);
+            json = {};
+            layui.form.render('select');
+        })
+
+        var json = {}
+        layui.form.on('select(Client)', function (data) {
+            json['Client'] = data.value;
+        })
+        layui.form.on('select(PaymentPassagewayId)', function (data) {
+            json['PaymentPassagewayId'] = data.value;
+        })
+        layui.form.on('select(Status)', function (data) {
+            json['Status'] = data.value;
+        })
+
+        $("#btn_Search").click(function () {
+            //拼接查询条件
+            var Name = $("#Name").val();
+            if (Name) {
+                json['Name'] = Name;
+            }
+            //console.log(Client, Name, PaymentPassagewayId, Status)
+            publicPagingList(json);
+        });
+
+        //删除
+        function del(regId) {
+            ShowConfirm('确定删除吗', function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/ContentManage/DeletePaymentInterface",
+                    data: {
+                        id: regId
+                    },
+                    success: function (res) {
+                        if (res.IsSuccess) {
+                            ShowSuccessMsg('删除成功', false, false, function () { window.location.reload(true); });
+                        } else {
+                            ShowErrorMsg('删除失败');
+                        }
+                    }
+                });
+            });
+        }
+    </script>
+}

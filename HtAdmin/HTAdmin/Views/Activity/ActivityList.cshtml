@@ -1,0 +1,249 @@
+﻿@using System.Linq
+@{
+    ViewBag.Title = "ActivityList";
+    var result = ViewBag.Result as Activity.Core.ActivityListPagination;
+    int pageIndex = ViewBag.PageIndex;
+    int pageSize = ViewBag.PageSize;
+}
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="w-margin-t-2">
+                <button class="layui-btn layui-btn-normal" id="btnAddAward">添加加奖活动</button>
+            </div>
+            <div class="w-margin-t-4">
+                <table class="layui-table w-text-nowrap" lay-skin="line">
+                    <colgroup>
+                        <col width="50">
+                        <col width="200">
+                        <col width="150">
+                        <col width="150">
+                        <col width="150">
+                        <col width="200">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>
+                                <span>ID</span>
+                            </th>
+                            <th>
+                                活动名称
+                            </th>
+                            <th>
+                                类别
+                            </th>
+                            <th>
+                                活动形式
+                            </th>
+                            <th>
+                                开始时间
+                            </th>
+                            <th>
+                                结束时间
+                            </th>
+                            <th>
+                                总参与次数
+                            </th>
+                            <th>
+                                今天参与次数
+                            </th>
+                            <th>
+                                状态
+                            </th>
+                            <th>
+                                操作
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (result != null && result.Data != null)
+                        {
+                            var data = result.Data.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+                            foreach (var item in data)
+                            {
+                                bool longTerm = item.EndTime == default(DateTime) || item.EndTime.Date == DateTime.MaxValue.Date;
+                                string detail = string.Empty;
+                                string edit = string.Empty;
+                                string enable = string.Empty;
+                                <tr>
+                                    <td>
+                                        @item.Id
+                                    </td>
+                                    <td>
+                                        @item.ActivityName
+                                    </td>
+                                    <td>
+                                        @(item.ActivityCategory == 1 ? "固定" : "定期")
+                                    </td>
+                                    <td>
+                                        @switch (item.ActivityType)
+                                        {
+                                            case 1:
+                                                detail = "<a class=\"layui-btn layui-btn-normal layui-btn-xs\" lay-href=\"/Activity/RedBagCouponList\" detail>详情</a>";
+                                                @Html.Raw("红包");
+                                                break;
+                                            case 2:
+                                                detail = "<a class=\"layui-btn layui-btn-normal layui-btn-xs\" lay-href=\"/Activity/ActivityConfig\" detail>详情</a>";
+                                                @Html.Raw("奖励金");
+                                                break;
+                                            case 3:
+                                                edit = "<a class=\"layui-btn layui-btn-normal layui-btn-xs\" href='javascript:void(0);' edit>编辑</a>";
+                                                detail = "<a class=\"layui-btn layui-btn-normal layui-btn-xs\" lay-href=\"/Activity/AddBonusMoneyConfig\" detail>详情</a>";
+                                                @Html.Raw("加奖");
+                                                break;
+                                            default:
+                                                @Html.Raw("未知");
+                                                break;
+                                        }
+                                    </td>
+                                    <td>
+                                        @item.BeginTime.ToString("yyyy-MM-dd HH:mm")
+                                    </td>
+                                    <td>
+                                        @if (longTerm)
+                                        {
+                                            @("长期")
+                                        }
+                                        else
+                                        {
+                                            @item.EndTime.ToString("yyyy-MM-dd HH:mm")
+                                        }
+                                    </td>
+                                    <td>
+                                        @item.TotalCount
+                                    </td>
+                                    <td>
+                                        @item.TodayCount
+                                    </td>
+                                    <td>
+                                        @if (longTerm)
+                                        {
+                                            if (item.Status == 1)
+                                            {
+                                                edit = string.Empty;
+                                                enable = "<a class=\"layui-btn layui-btn-danger layui-btn-xs\" href='javascript:void(0);' stop>暂停</a>";
+                                                <span class='layui-badge-dot layui-bg-green'></span>
+                                                @("进行中")
+                                            }
+                                            else
+                                            {
+                                                enable = "<a class=\"layui-btn layui-btn-normal layui-btn-xs\" href='javascript:void(0);' start>启用</a>";
+                                                <span class='layui-badge-dot'></span>
+                                                @("暂停")
+                                            }
+                                        }
+                                        else if (item.BeginTime <= DateTime.Now && DateTime.Now < item.EndTime)
+                                        {
+                                            if (item.Status == 1)
+                                            {
+                                                edit = string.Empty;
+                                                enable = "<a class=\"layui-btn layui-btn-danger layui-btn-xs\" href='javascript:void(0);' stop>暂停</a>";
+                                                <span class='layui-badge-dot layui-bg-green'></span>
+                                                @("进行中")
+                                            }
+                                            else
+                                            {
+                                                enable = "<a class=\"layui-btn layui-btn-normal layui-btn-xs\" href='javascript:void(0);' start><i class=\"layui-icon layui-icon-play\">启用</i></a>";
+                                                <span class='layui-badge-dot'></span>
+                                                @("暂停")
+                                            }
+                                        }
+                                        else if (item.BeginTime > DateTime.Now)
+                                        {
+                                            <span class='layui-badge-dot layui-bg-blue'></span>
+                                            @("未开始")
+                                        }
+                                        else if (item.EndTime < DateTime.Now)
+                                        {
+                                            edit = string.Empty;
+                                            <span class='layui-badge-dot  layui-bg-orange'></span>
+                                            @("活动结束")
+                                        }
+                                    </td>
+                                    <td aid="@item.Id">
+                                        @Html.Raw(enable)
+                                        @Html.Raw(edit)
+                                        @Html.Raw(detail)
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+                @ViewHelpers.Pager(ViewBag.PageIndex, ViewBag.PageSize, result.Count)
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $(function () {
+            var layer = layui.layer,
+                form = layui.form;
+            $("a[edit]").click(function () {
+                layer.open({
+                    type: 2,// 表示是iframe弹框
+                    title: "编辑加奖活动",
+                    content: "/Activity/EditActivityInfo?id=" + $(this).parent().attr("aid"),
+                    maxmin: true,
+                    area: ['800px', '100%'],
+                    end: function () {
+                        window.location.reload();
+                    }
+                });
+            })
+            $("a[detail]").click(function () {
+                parent.clickHref($(this).attr('lay-href'));
+            })
+            $("a[stop]").click(function () {
+                var id = $(this).parent().attr("aid");
+                ShowConfirm('确定暂停吗？', function () {
+                    $.post("/Activity/DisableActivity?id=" + id, function (result) {
+                        if (result.status == 1) {
+                            //window.location.reload();
+                            ShowSuccessMsg('暂停操作成功', false, false, function () {
+                                window.location.reload();
+                            })
+                        }
+                        else {
+                            //layer.alert(result.message);
+                            ShowErrorMsg(result.message);
+                        }
+                    });
+                });
+                
+            });
+            $("a[start]").click(function () {
+                var id = $(this).parent().attr("aid");
+                ShowConfirm('确定启用吗？', function () {
+                    $.post("/Activity/EnableActivity?id=" + id, function (result) {
+                        if (result.status == 1) {
+                            //window.location.reload();
+                            ShowSuccessMsg('启用操作成功', false, false, function () {
+                                window.location.reload();
+                            })
+                        }
+                        else {
+                            //layer.alert(result.message);
+                            ShowErrorMsg(result.message);
+                        }
+                    });
+                });
+            });
+            $("#btnAddAward").click(function () {
+                layer.open({
+                    type: 2,// 表示是iframe弹框
+                    title: "添加加奖活动",
+                    content: "/Activity/AddActivityInfo",
+                    maxmin: true,
+                    area: ['800px', '100%'],
+                    end: function () {
+                        window.location.reload();
+                    }
+                });
+            })
+        });
+    </script>
+}

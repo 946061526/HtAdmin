@@ -1,0 +1,79 @@
+﻿
+@{
+    var list = ViewBag.MaxIssuse as GameBiz.Core.GameMaxIssuseInfoCollection;
+    var index = 1;
+}
+
+<div class="layui-card">
+    <div class="layui-card-body">
+        <div class="w-margin-t-4">
+            <table class="layui-table w-text-nowrap" lay-skin="line" id="dataList">
+                <colgroup>
+                    <col width="100">
+                    <col width="150">
+                    <col width="150">
+                    <col width="150">
+                    <col width="200">
+                    <col width="200">
+                    <col width="100">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>彩种类型</th>
+                        <th>彩种名称</th>
+                        <th>当前期号</th>
+                        <th>开始时间</th>
+                        <th>最后一期时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in list.List)
+                    {
+                        <tr>
+                            <td>@(index++)</td>
+                            <td>
+                                @item.GameType
+                            </td>
+                            <td>
+                                @item.GameName
+                            </td>
+                            <td>
+                                @item.MaxGame_Issuse
+                            </td>
+                            <td>
+                                @item.MinGameTime.ToString("yyyy-MM-dd HH:mm")
+                            </td>
+                            <td>
+                                @item.MaxGameTime.ToString("yyyy-MM-dd HH:mm")
+                            </td>
+                            <td>
+                                <a class="layui-btn layui-btn-normal layui-btn-xs" onclick="CreateIssue('@item.GameCode')">手动开启奖期</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        
+        var CreateIssue = function (code) {
+            layer.open({
+                type: 2,// 表示是iframe弹框
+                title: "手动开启奖期",
+                content: "/Lottery/PrizePeriodCreate?GameCode=" + code,
+                shadeClose: true,
+                shade: 0.6,
+                area: ['700px', '439px'],
+            });
+        }
+
+    </script>
+
+}

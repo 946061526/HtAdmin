@@ -1,0 +1,69 @@
+﻿<div lottery="">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">彩种名称</label>
+            <div class="layui-input-block">
+                <select name="LotteryType" lay-verify="required" lay-filter="LotteryType">
+                    @Html.Partial("LotteryType", string.Empty)
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline wd160" >
+            <label class="layui-form-label addlottery pd0" addlottery>增加一条</label>
+            <label class="layui-form-label removelottery hide pd0" removelottery>删除该条</label>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">彩种玩法</label>
+            <div class="layui-input-block">
+                <select name="LotteryPlay"  lay-filter="LotteryPlay" lay-verify="required">
+                    @Html.Raw(GlobalCache.GetLotterySelectOption("CQSSC", "ALL"))
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">加奖比例</label>
+            <div class="layui-input-block">
+                <input type="text" name="AddAwardPercent" lay-verify="required|money" autocomplete="off" placeholder="请输入活动名称" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline wd30">
+            <label class="layui-form-label txt-align">%</label>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">最大加奖</label>
+            <div class="layui-input-block">
+                <input type="text" name="MaxAddAward" lay-verify="required|money" autocomplete="off" placeholder="请输入活动名称" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">过关方式</label>
+            <div class="layui-input-block">
+                <select name="PassWay" id="passWay" lay-verify="required">
+                    <option value="ALL">不限</option>
+                    <option value="PM_1">过关</option>
+                    <option value="P1_1">单关</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">奖金入账户</label>
+            <div class="layui-input-block">
+                <select name="BonusAccountWay" lay-verify="required">
+                    <option value="10">中奖账户 @*奖金*@</option>
+                    <option value="70">奖励金账户 @*奖励金*@</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>

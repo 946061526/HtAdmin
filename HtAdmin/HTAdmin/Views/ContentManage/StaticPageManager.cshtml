@@ -1,0 +1,113 @@
+﻿@using HTAdmin.Models
+@{
+    ViewBag.Title = "静态文件生成管理 - 后台管理系统 - " + GlobalCache.WebSiteName;
+    var List = ViewBag.List as List<StaticPageInfo>;
+}
+@section styles{
+    <link rel="stylesheet" href="@Url.Content("~/lay/style/vendor.css")" media="all">
+}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="w-margin-t-4">
+                <table class="layui-table w-text-nowrap" lay-skin="line">
+
+                    <thead>
+                        <tr>
+                            <th>
+                                <span>序号</span>
+                            </th>
+                            <th>
+                                端
+                            </th>
+                            <th>
+                                功能
+                            </th>
+                            <th>
+                                最近生成时间
+                            </th>
+                            <th>
+                                操作
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in List)
+                        {
+                            <tr>
+                                <td>
+                                    @(item.Index)
+                                </td>
+                                <td>
+                                    @item.Type
+                                </td>
+                                <td>
+                                    @item.PageName
+                                </td>
+                                <td>
+                                    @item.CreateTime
+                                </td>
+                                <td>
+                                    @if (item.Type.Contains("PC"))
+                                    {
+                                        <button name="btnSave" type="button" class="layui-btn layui-btn-normal" value="@item.Value">生成</button>
+                                    }
+                                    else
+                                    {
+                                        <button name="btnSave_Wap" type="button" class="layui-btn layui-btn-normal" value="@item.Value">生成</button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts {
+    <script>
+        layui.config({
+            base: '/lay/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+            }).use(['table'], function () { });
+
+        $("button[name=btnSave]").click(function () {
+            var pageType = $(this).val();
+            var url = "/ContentManage/SendBuildStaticPageNotice?pageType=" + pageType + "&r=" + Math.random();
+            GetRequest(url,this);
+
+        });
+
+
+        $("button[name=btnSave_Wap]").click(function () {
+            $(this).text("正在生成").attr("disabled", "disabled");
+            var pageType = $(this).val();
+            var url = "/ContentManage/SendBuildStaticPageNotice_Wap?pageType=" + pageType + "&r=" + Math.random();
+            GetRequest(url,this);
+            $(this).text("生成").attr("disabled", "disabled");
+        })
+
+        function GetRequest(url,obj) {
+            $(obj).text("正在生成").attr("disabled", "disabled");
+            $.get(url, function (callback) {
+                if (callback.IsSuccess) {
+                    $(obj).text("生成").attr("disabled", "disabled");
+                    layer.msg(callback.Msg, {
+                        icon: 1,
+                        time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                    }, function (index) {
+                        window.location.reload();
+                    });
+                }
+                else {
+                    layer.msg(callback.Msg, {
+                        icon: 2,
+                        time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                    });
+                }
+            });
+        }
+    </script>
+}

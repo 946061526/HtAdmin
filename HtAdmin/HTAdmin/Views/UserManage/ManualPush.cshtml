@@ -1,0 +1,95 @@
+﻿
+@{
+    ViewBag.Title = "手动推送";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{
+    <style>
+        .layui-form-item .layui-form-label {
+            width: 200px;
+        }
+
+        .layui-form-item .layui-input-block {
+            margin-left: 0px;
+        }
+    </style>
+}
+<div style="background: none repeat scroll 0 0 #EFEFEF;padding:10px;">
+        <form method="post" action="/UserManage/PushSubmit" class="layui-form layui-form-pane" enctype="multipart/form-data">
+            <div class="layui-form-item">
+                <label class="layui-form-label">推送类型</label>
+                <div class="layui-input-block layui-col-md4">
+                    <select name="PushType" lay-filter="PushType">
+                        <option value="0">单播</option>
+                        <option value="1">广播</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">用户编号</label>
+                <div class="layui-input-block layui-col-md4">
+                    <input type="text" name="UserId" lay-verify="required" class="layui-input" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">标题</label>
+                <div class="layui-input-block layui-col-md4">
+                    <input type="text" name="Title" lay-verify="required" class="layui-input" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">内容</label>
+                <div class="layui-input-block layui-col-md4">
+                    <textarea name="Content" lay-verify="required" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">点击"推送通知"的后续行为</label>
+                <div class="layui-input-block layui-col-md4">
+                    <select name="AfterOpenType" lay-filter="AfterOpenType">
+                        <option value="0">打开应用</option>
+                        <option value="1">跳转到URL</option>
+                        <option value="2">打开特定的页面</option>
+                        <option value="3">用户自定义内容</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">链接</label>
+                <div class="layui-input-block layui-col-md4">
+                    <input type="text" name="Url" class="layui-input" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">页面</label>
+                <div class="layui-input-block layui-col-md4">
+                    <input type="text" name="Activity" class="layui-input" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">自定义内容</label>
+                <div class="layui-input-block layui-col-md4">
+                    <textarea name="Custom" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block layui-col-md4" style="margin-left:200px;">
+                    <button class="layui-btn" lay-submit="" lay-filter="btn_save" name="btn">
+                        保存
+                    </button>
+                </div>
+            </div>
+        </form>
+</div>
+@section scripts{
+    <script>
+        layui.use(['form'], function () {
+            var form = layui.form;
+
+            //监听提交
+            form.on('submit(btn_save)', function (data) {
+                 
+            });
+        });
+    </script>
+}

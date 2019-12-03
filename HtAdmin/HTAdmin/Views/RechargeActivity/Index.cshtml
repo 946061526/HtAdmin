@@ -1,0 +1,108 @@
+﻿
+@{
+    ViewBag.Title = "充值充值赠送配置";
+}
+
+<div class="layui-card">
+    <div class="layui-card-body">
+        <div class="w-margin-t-2">
+            @if (ViewBag.AddConfig)
+            {
+                <button class="layui-btn layui-btn-normal" id="btnAdd">新增</button>
+            }
+        </div>
+        <div class="w-margin-t-4">
+            <table class="layui-table w-text-nowrap" lay-skin="line" id="table"></table>
+        </div>
+    </div>
+</div>
+
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            layer = layui.layer;
+            $("#btnAdd").click(function () {
+                layer.open({
+                    type: 2,// 表示是iframe弹框
+                    title: "充值充值赠送配置",
+                    content: "/RechargeActivity/AddConfig",
+                    maxmin: true,
+                    area: ['440px', '500px'],
+                    end: function () {
+                        window.location.reload();
+                    }
+                });
+            });
+
+            var table = layui.table;
+            table.render({
+                elem: '#table'
+                , url: '/RechargeActivity/GetRechargeConfigs'
+                , cellMinWidth: 50
+                , request: {
+                    pageName: 'PageIndex', //页码的参数名称，默认：page
+                    limitName: 'PageSize' //每页数据量的参数名，默认：limit
+                }
+                , skin: 'line'
+                ,loading:true
+                , cols: [[
+                    { field: 'Id', title: 'Id', sort: false }
+                    , {
+                        field: 'RangeMoney', title: '充值金额', sort: false, templet: function (r) {
+                            return r.StartMoney + "≤ X" + " ＜" + r.EndMoney;
+                        }
+                    }
+                    , { field: 'Amount', title: '赠送金额' }
+                    , { field: 'AccountType', title: '赠送到' }
+                     , { field: 'TodayCount', title: '今日赠送' }
+                    , {
+                        field: 'Operation', title: '操作', sort: false, templet: function (r) {
+                            var html = '';
+                            if (Boolean(@ViewBag.UpdateConfig.ToString().ToLower())) {
+                                html += '<a class="layui-btn layui-btn-normal layui-btn-xs" href="javascript:;" edit configid="' + r.Id + '">编辑</a>';
+                            }
+                            if (Boolean(@ViewBag.DeleteConfig.ToString().ToLower()))
+                            {
+                                html += ' <a class="layui-btn layui-btn-danger layui-btn-xs" href="javascript:;" delete configid="' + r.Id + '">删除</a>';
+                            }
+                            return html;
+                        }
+                    }
+                ]]
+                , page: true
+                , limits: [10, 20, 50, 100]
+                , limit: 20
+                , done: function () {
+                    // 编辑角色
+                    $("a[edit]").on("click", function () {
+                        var $th = $(this);
+                        layer.open({
+                            type: 2,// 表示是iframe弹框
+                            title: "编辑充值赠送配置",
+                            content: "/RechargeActivity/UpdateConfig?configid=" + $th.attr("configid"),
+                            maxmin: true,
+                            area: ['440px', '500px']
+                        });
+                    });
+                    $("a[delete]").on("click", function () {
+                        var $th = $(this);
+                        ShowConfirm('确定删除吗', function () {
+                            //删除的路径
+                            var url = '/RechargeActivity/DeleteConfig';
+                            $.post(url, { roleId: $th.attr("configid") }, function (result) {
+                                if (result.code == 200) {
+                                    ShowSuccessMsg('', false, false, function () { window.location.reload(true); });
+                                }
+                                else {
+                                    ShowErrorMsg(result.message);
+                                }
+                            });
+                        });
+                    });
+                }
+            });
+
+        });
+    </script>
+}

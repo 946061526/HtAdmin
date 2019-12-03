@@ -1,0 +1,428 @@
+﻿
+@{
+    ViewBag.Title = "收支报表";
+
+    var ListTop = ViewBag.List as External.Core.HTReport.IncomeExpensesTotalInfo_Collection;
+    var ListGame = ViewBag.GameList as GameBiz.Core.LotteryGameInfoCollection;
+}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <h6>收支数据</h6>
+            <h7 class="w-color-gray">今日@(ListTop.LastUpdateTime.ToString("HH:mm"))分更新数据</h7>
+        </div>
+        <div class="layui-card-body">
+            <table class="layui-table w-text-nowrap w-text-right" lay-skin="line">
+                <colgroup>
+                    <col width="100">
+                    <col width="200">
+                    <col width="200">
+                    <col width="200">
+                    <col width="200">
+                    <col width="200">
+                    <col width="200">
+                    <col width="200">
+                    <col width="200">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>
+
+                        </th>
+                        <th style="text-align: right">
+                            充值金额
+                        </th>
+                        <th style="text-align: right">
+                            提现金额
+                        </th>
+                        <th style="text-align: right">
+                            订单金额
+                        </th>
+                        <th style="text-align: right">
+                            中奖金额
+                        </th>
+                        <th style="text-align: right">
+                            奖励金使用金额
+                        </th>
+                        <th style="text-align: right">
+                            红包使用金额
+                        </th>
+                        <th style="text-align: right">
+                            返点金额
+                        </th>
+                        <th style="text-align: right">
+                            净利润
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (External.Core.HTReport.IncomeExpensesTotalInfo item in ListTop.DataList)
+                    {
+                        <tr>
+                            <td class="w-text-left">@item.BizDate</td>
+                            <td>
+                                @item.RechargeMoney.ToString("c")
+                            </td>
+                            <td>
+                                @item.WithdrawMoney.ToString("c")
+                            </td>
+                            <td>
+                                @item.SalesMoney.ToString("c")
+                            </td>
+                            <td>
+                                @item.PrizeMoney.ToString("c")
+                            </td>
+                            <td>
+                                @item.RewardMoney.ToString("c")
+                            </td>
+                            <td>
+                                @item.RedbagUsedMoney.ToString("c")
+                            </td>
+                            <td>
+                                @item.RebateMoney.ToString("c")
+                            </td>
+                            @{
+                                var profit = item.Profit;
+                                if (profit > 0)
+                                {
+                                    <td style='color: red;'>
+                                        @profit.ToString("c")
+                                    </td>
+                                }
+                                else if (profit < 0)
+                                {
+                                    <td style='color: green;'>
+                                        @profit.ToString("c")
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        @profit.ToString("c")
+                                    </td>
+                                }
+                            }
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="layui-card">
+        <form class="layui-form" action="" lay-filter="form">
+            <div class="layui-card-header">
+                <h6>趋势图</h6>
+            </div>
+            <div class="layui-card-body">
+                <div class="layui-btn-group" id="groupButton">
+                    <button class="layui-btn layui-btn-primary" type="button" value="RechargeMoney">充值</button>
+                    <button class="layui-btn layui-btn-primary" type="button" value="WithdrawMoney">提现</button>
+                    <button class="layui-btn" type="button" value="SalesMoney">购彩</button>
+                    <button class="layui-btn layui-btn-primary" type="button" value="PrizeMoney">中奖</button>
+                    <button class="layui-btn layui-btn-primary" type="button" value="RewardMoney">奖励金</button>
+                    <button class="layui-btn layui-btn-primary" type="button" value="RedbagUsedMoney">红包</button>
+                    <button class="layui-btn layui-btn-primary" type="button" value="RebateMoney">返点</button>
+                    <button class="layui-btn layui-btn-primary" type="button" value="Profit">净利润</button>
+                </div>
+                <div class="layui-inline">
+                    <div class="layui-input-inline">
+                        <select name="label" id="DimType" lay-filter="DimType">
+                            <option value="1" selected>今天对比昨天</option>
+                            <option value="2">昨天对比前天</option>
+                            <option value="3">近7天</option>
+                            <option value="4">近30天</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" id="txtDate" name="txtDate" placeholder=" - ">
+                </div>
+                <div class="layui-input-inline">
+                    <select name="label" id="GameType" lay-filter="GameType">
+                        <option value="" selected>选择彩种</option>
+                        @foreach (var item in ListGame)
+                        {
+                            if (item.EnableStatus == Common.EnableStatus.Enable)
+                            {
+                                <option value="@item.GameCode">@item.DisplayName</option>
+                            }
+                        }
+                    </select>
+                </div>
+                @*折线图*@
+                <div class="layui-row layui-col-space15">
+                    <div class="layui-card">
+                        <div class="layui-card-body">
+                            <div id="chart"></div>
+                        </div>
+                    </div>
+
+                </div>
+                @*底部数据表*@
+                <div class="w-margin-t-4">
+                    <table class="layui-table w-text-nowrap w-text-right" lay-skin="line">
+                        <colgroup>
+                            <col width="100">
+                            <col width="200">
+                            <col width="200">
+                            <col width="200">
+                            <col width="200">
+                            <col width="200">
+                            <col width="200">
+                            <col width="200">
+                            <col width="200">
+                            <col width="200">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>
+                                    序号
+                                </th>
+                                <th>
+                                    时间
+                                </th>
+                                <th style="text-align: right">
+                                    充值金额
+                                </th>
+                                <th style="text-align: right">
+                                    提现金额
+                                </th>
+                                <th style="text-align: right">
+                                    订单金额
+                                </th>
+                                <th style="text-align: right">
+                                    中奖金额
+                                </th>
+                                <th style="text-align: right">
+                                    奖励金使用金额
+                                </th>
+                                <th style="text-align: right">
+                                    红包使用金额
+                                </th>
+                                <th style="text-align: right">
+                                    返点金额
+                                </th>
+                                <th style="text-align: right">
+                                    净利润
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbBottom"></tbody>
+                    </table>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section scripts{
+    <script src="~/lay/modules/g2.min.js"></script>
+    <script>
+
+        //日期
+        layui.laydate.render({
+            elem: '#txtDate'
+            , range: '~'
+        });
+
+        //获取日期
+        function getDate(d) {
+            var day = d * 24 * 60 * 60 * 1000;
+            var date = new Date();
+            date.setTime(date.getTime() + day);
+            var seperator1 = "-";
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1;
+            var strDate = date.getDate();
+            if (month >= 1 && month <= 9) {
+                month = "0" + month;
+            }
+            if (strDate >= 0 && strDate <= 9) {
+                strDate = "0" + strDate;
+            }
+
+            return year + seperator1 + month + seperator1 + strDate;;
+        }
+
+        //初始化日期
+        layui.form.val('form', {
+            "txtDate": getDate(-1) + ' ~ ' + getDate(0)
+        })
+
+        //chart
+        var chart = new G2.Chart({
+            container: 'chart',
+            forceFit: true,
+            height: 500
+        });
+        var _DimType = 1,//维度
+            _DataChart,//Chart数据
+            _DataList,//列表数据
+            _ValueType = 'SalesMoney',//展示值
+            _GameCode = '';//彩种
+
+        //绑定数据
+        function BindData() {
+            $.ajax({
+                type: "POST",
+                url: "/Report/GetIncomeExpensesTotalJson",
+                data: {
+                    dimType: _DimType,
+                    gameCode: _GameCode
+                },
+                success: function (data) {
+                    if (data.IsSuccess) {
+                        var dataList = data.DataList,
+                            dataChart = data.DataChart;
+                        if (dataList)
+                            _DataList = dataList.Data;
+                        if (dataChart)
+                            _DataChart = dataChart.Data;
+
+                        DrawTable(_DataList);
+                        DrawChart(_ValueType);
+                    } else {
+                        ShowErrorMsg('获取数据失败');
+                    }
+                },
+                error: function () {
+                    ShowErrorMsg('获取数据失败');
+                }
+            });
+        }
+
+        //底部表格数据
+        function DrawTable(jsonData) {
+            var html = '';
+            $.each(jsonData, function (index, item) {
+                html += '<tr>';
+                html += '   <td class="w-text-left">' + (index + 1) + '</td>';
+                html += '   <td class="w-text-left">' + (item.BizTime) + '</td>';
+                html += '   <td >¥' + (item.RechargeMoney).toFixed(2) + '</td>';
+                html += '   <td >¥' + (item.WithdrawMoney).toFixed(2) + '</td>';
+                html += '   <td >¥' + (item.SalesMoney).toFixed(2) + '</td>';
+                html += '   <td >¥' + (item.PrizeMoney).toFixed(2) + '</td>';
+                html += '   <td >¥' + (item.RewardMoney).toFixed(2) + '</td>';
+                html += '   <td >¥' + (item.RedbagUsedMoney).toFixed(2) + '</td>';
+                html += '   <td >¥' + (item.RebateMoney).toFixed(2) + '</td>';
+                var profit = (item.Profit).toFixed(2);
+                var style = '';
+                if (profit > 0) {
+                    style = "style='color: red;'";
+                } else if (profit < 0) {
+                    style = "style='color: green;'";
+                }
+                html += '   <td ' + style + '>¥' + profit + '</td>';
+                html += '</tr>';
+            });
+            $("#tbBottom").html(html);
+        }
+        //双线对比图
+        function DrawChartTwoLine(jsonData, axis) {
+            chart.clear();
+            chart.source(jsonData, {
+                BizTime: {
+                    ///range: [0, 1]
+                }
+            });
+            chart.tooltip({
+                crosshairs: {
+                    type: 'line'
+                }
+            });
+            chart.axis(axis, {
+                label: {
+                    formatter: function formatter(val) {
+                        return val;//+ '元';
+                    }
+                }
+            });
+            chart.line().position('BizTime*' + axis).color('BizDate');
+            chart.point().position('BizTime*' + axis).color('BizDate').size(4).shape('circle').style({
+                stroke: '#fff',
+                lineWidth: 1
+            });
+            chart.render();
+        }
+        //单线走势图
+        function DrawChartOneLine(jsonData, value) {
+            chart.clear();
+            chart.source(jsonData);
+            chart.scale(value, {
+                min: 0
+            });
+            chart.scale('BizTime', {
+                //range: [0, 1]
+            });
+            chart.tooltip({
+                crosshairs: {
+                    type: 'line'
+                }
+            });
+            chart.line().position('BizTime*' + value);
+            chart.point().position('BizTime*' + value).size(4).shape('circle').style({
+                stroke: '#fff',
+                lineWidth: 1
+            });
+            chart.render();
+        }
+
+        //渲染走势图
+        function DrawChart(value) {
+            if (_DimType <= 2) {
+                DrawChartTwoLine(_DataChart, value);
+            } else {
+                DrawChartOneLine(_DataList, value);
+            }
+        }
+
+        BindData();
+
+        //按钮切换
+        $("#groupButton [type='button']").click(function () {
+            $(this).removeClass("layui-btn-primary").siblings().removeClass("layui-btn-primary").addClass("layui-btn-primary");
+            _ValueType = $(this).val();
+            DrawChart(_ValueType);
+        });
+
+        //select监听
+        layui.form.on('select(DimType)', function (data) {
+            _DimType = data.value - 0;
+            var d1, d2;
+            switch (_DimType) {
+                case 1:
+                    d1 = getDate(-1);
+                    d2 = getDate(0);
+                    break;
+                case 2:
+                    d1 = getDate(-2);
+                    d2 = getDate(-1);
+                    break;
+                case 3:
+                    d1 = getDate(-7);
+                    d2 = getDate(-1);
+                    break;
+                case 4:
+                    d1 = getDate(-30);
+                    d2 = getDate(-1);
+                    break;
+            }
+            $("#txtDate").val(d1 + ' ~ ' + d2);
+
+            ////按钮样式
+            //$("#groupButton[value=" + _ValueType + "]").addClass("layui-btn-primary").removeClass("layui-btn-primary");
+
+            //刷新数据
+            BindData();
+        });
+        //彩种
+        layui.form.on('select(GameType)', function (data) {
+            _GameCode = data.value
+            BindData();
+        });
+    </script>
+
+}

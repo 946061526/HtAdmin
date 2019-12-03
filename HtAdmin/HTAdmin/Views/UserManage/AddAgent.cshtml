@@ -1,0 +1,94 @@
+﻿@{
+    ViewBag.Title = "添加代理" + GlobalCache.WebSiteName;
+}
+@section styles{
+    <style>
+        .layui-form-select dl {
+            max-height: 200px;
+        }
+    </style>
+}
+<div class="layui-fluid" style="background-color:white;height:100%;">
+    <div class="pd" id="divRealName">
+        <form class="layui-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">代理类别：</label>
+                <div class="layui-input-block">
+                    <select id="txt_oCAgentCategory" name="txt_oCAgentCategory" lay-filter="OCAgentCategory" lay-verify="required">
+                        <option value="">请选择类别</option>
+                        <option value="0">一级代理</option>
+                        <option value="2">下级代理</option>
+                        @*<option value="5">下级用户</option>*@
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">用户Id:</label>
+                <div class="layui-input-block">
+                    <input type="text" id="txt_userId" name="txt_userId" lay-verify="required" placeholder="请输入用户Id" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" id="superiorUserId">
+                <label class="layui-form-label">上级代理Id:</label>
+                <div class="layui-input-block">
+                    <input type="text" id="txt_superiorUserId" name="txt_superiorUserId" lay-verify="required" placeholder="请输入上级代理Id" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-block">
+                    <div class="layui-footer" style="text-align:right;">
+                        <button type="button" class="layui-btn layui-btn-primary" id="btnCancel">取消</button>
+                        <button class="layui-btn layui-btn-normal" lay-submit lay-filter="*" style="margin-right:15px;" id="bt_sub">
+                            提交
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        var $ = layui.jquery;
+        layui.use(['form'], function () {
+            var form = layui.form;
+            //监听提交
+            form.on('submit(*)', function (data) {
+                $.post({
+                    url: "/UserManage/DoAgent"
+                    , type: "post"
+                    , data: data.field
+                    , dataType: "json"
+                    , success: function (data) {
+                        if (data.code == 200) {
+                            layer.alert(data.message, function (i) {
+                                var index = parent.layer.getFrameIndex(window.name);
+                                parent.layer.close(index);
+                            });
+                        }
+                        else {
+                            layer.alert(data.message);
+                        }
+                    }
+                });
+                return false;
+            });
+
+            form.on('select(OCAgentCategory)', function (data) {
+                if (data.value == "0") {
+                    $("#superiorUserId").css("display", "none")
+                    $("#txt_superiorUserId").removeAttr("lay-verify");
+                }
+                else {
+                    $("#superiorUserId").css("display", "block");
+                    $("#txt_superiorUserId").attr("lay-verify", "required");
+                }
+            });
+        });
+
+        $("#btnCancel").click(function () {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);//关闭当前页
+        });
+    </script>
+}

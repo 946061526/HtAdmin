@@ -1,0 +1,181 @@
+﻿@using Common
+@using HTAdmin.Models
+@using GameBiz.Core
+@{
+    ViewBag.Title = "代理管理 - 后台管理系统 - " + GlobalCache.WebSiteName;
+    var games = ViewBag.GameList as GameInfoCollection;
+
+}
+@section styles{
+    <link rel="stylesheet" href="@Url.Content("~/lay/style/vendor.css")" media="all">
+}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+            <form class="layui-form">
+                <div class="layui-form-item">
+                    <div class="layui-inline" style="width:300px;">
+                        <div class="layui-input-inline" style="width:300px;">
+                            <input type="text" id="creationDate" name="creationDate" placeholder="创建时间" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline" style="width:150px;">
+                        <div class="layui-input-inline" style="width:150px;">
+                            <input type="text" name="userId" placeholder="代理用户ID" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" name="displayName" placeholder="昵称" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <select name="gameCode">
+                                <option value="">请选择彩种</option>
+                                @foreach (var item in games)
+                                {
+                                    <option value="@item.GameCode">@item.DisplayName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width:250px;">
+                            <div class="layui-input-inline" style="width: 100px;">
+                                <input type="text" name="startBuyMoney" placeholder="￥购彩金额" autocomplete="off" class="layui-input">
+                            </div>
+                            <div class="layui-form-mid">-</div>
+                            <div class="layui-input-inline" style="width: 100px;">
+                                <input type="text" name="endBuyMoney" placeholder="￥购彩金额" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width:250px;">
+                            <div class="layui-input-inline" style="width: 100px;">
+                                <input type="text" name="startRabateMoney" placeholder="￥返点金额" autocomplete="off" class="layui-input">
+                            </div>
+                            <div class="layui-form-mid">-</div>
+                            <div class="layui-input-inline" style="width: 100px;">
+                                <input type="text" name="endRabateMoney" placeholder="￥返点金额" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layui-btn-normal" lay-submit lay-filter="*">
+                            查询
+                        </button>
+                        <button class="layui-btn layui-btn-primary" type="reset">
+                            重置
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="layui-card-body">
+            <div class="w-margin-t-4">
+                <table class="layui-table w-text-nowrap" lay-skin="line" id="table"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            var form = layui.form;
+            var table = layui.table, laydate = layui.laydate;
+            var options = {
+                elem: '#table'
+                , url: '/UserManage/GetAgentPayDetailsInfos'
+                , request: {
+                    pageName: 'PageIndex', //页码的参数名称，默认：page
+                    limitName: 'PageSize' //每页数据量的参数名，默认：limit
+                }
+                , cellMinWidth: 120
+                , skin: 'line'
+                , loading: true
+                , cols: [[{field: 'NumIndex', width: '60', title: '序号', sort: false}
+                    , { field: 'CreateTime', width: '200', title: '购彩时间' }
+                    , { field: 'OrderUser', width: '100', title: '用户ID', sort: false }
+                    , { field: 'OrderUserDisplayName', title: '昵称' }
+                    , {
+                        field: 'GameCode', title: '彩种', templet: function (row) {
+                           return GameName(row.GameCode);
+                        }
+                    }
+                    , {
+                        field: 'GameType', title: '玩法', templet: function (row) {
+                           return GameName(row.GameCode, row.GameType);
+                        }
+                    }
+                    , { field: 'SchemeId', width: '300', title: '订单号' }
+                    , { field: 'TotalMoney', title: '购彩金额', style: "text-align:right" }
+                    , { field: 'PayMoney', title: '返点金额', style:"text-align:right"}
+                ]]
+                , page: true
+                , limits: [1, 20, 50, 100]
+                , limit: 20
+                , done: function (res, curr, count) {
+                    if (typeof (count) == "number" && count <= 20) {
+                        $(".layui-table-page").css("display", "none");
+                    }
+                }
+            };
+            var tableObj = table.render(options);
+            form.on("submit(*)", function (data) {
+                var creationDate = $("input[name='creationDate']").val();
+                var gameCode = $("select[name='gameCode']").val();
+                var arr = [];
+                if (creationDate && creationDate.indexOf("~") >= 0) {
+                    arr = creationDate.split("~");
+                }
+                options.where = {
+                    fromDate: arr.length > 0 ? arr[0] : null,
+                    toDate: arr.length > 1 ? arr[1] : null,
+                    userId: $("input[name='userId']").val(),
+                    displayName: $("input[name='displayName']").val(),
+                    startBuyMoney: $("input[name='startBuyMoney']").val(),
+                    endBuyMoney: $("input[name='endBuyMoney']").val(),
+                    startRabateMoney: $("input[name='startRabateMoney']").val(),
+                    endRabateMoney: $("input[name='endRabateMoney']").val(),
+                    gameCode: $("select[name='gameCode']").val(),
+                };
+                options.page = {
+                    curr: 1 //重新从第 1 页开始
+                };
+                tableObj.reload(options);
+                $("table").css("width", "100%");
+                return false;
+            });
+            //日期时间范围选择
+            laydate.render({
+                elem: '#creationDate'
+                , type: 'datetime'
+                , format: 'yyyy-MM-dd HH:mm'
+                , range: '~' //或 range: '~' 来自定义分割字符
+            });
+        });
+
+        function createTime(v) {
+            var date = new Date(v);
+            var y = date.getFullYear();
+            var m = date.getMonth() + 1;
+            m = m < 10 ? '0' + m : m;
+            var d = date.getDate();
+            d = d < 10 ? ("0" + d) : d;
+            var h = date.getHours();
+            h = h < 10 ? ("0" + h) : h;
+            var M = date.getMinutes();
+            M = M < 10 ? ("0" + M) : M;
+            var str = y + "-" + m + "-" + d + " " + h + ":" + M;
+            return str;
+        }
+
+        $(document).ready(function () {
+            $("table").css("width", "100%");
+        });
+    </script>
+}
+

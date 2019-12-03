@@ -1,0 +1,349 @@
+﻿
+@{
+    ViewBag.Title = "红包发放记录";
+
+    var sourcelist = ViewBag.RedBagSources as string;
+    var list = ViewBag.List as GameBiz.Core.RedBagCouponInfoCollection;
+    int index = ((int)ViewBag.PageIndex - 1) * (int)ViewBag.PageSize + 1;
+
+    var sTime = ViewBag.StartTime == null ? DateTime.Today.ToString("yyyy-MM-dd HH:mm") : Convert.ToDateTime(ViewBag.StartTime).ToString("yyyy-MM-dd HH:mm");
+    var eTime = ViewBag.EndTime == null ? DateTime.Today.AddDays(1).AddSeconds(-1).ToString("yyyy-MM-dd HH:mm") : Convert.ToDateTime(ViewBag.EndTime).ToString("yyyy-MM-dd HH:mm");
+}
+@section styles{
+    <style>
+        .width260 {
+            width: 260px;
+        }
+    </style>
+}
+<div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <div class="layui-input-inline" style="width:260px">
+                    <input type="text" id="CreateTime" name="CreateTime" placeholder="发送时间" autocomplete="off" class="layui-input width260" value="@(sTime+" ~ "+eTime)">
+                </div>
+                <input type="hidden" id="hdStartTime" value="@sTime" />
+                <input type="hidden" id="hdEndTime" value="@eTime" />
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" name="txt_RedBagCopTemId" id="txt_RedBagCopTemId" placeholder="红包模板ID" autocomplete="off" class="layui-input" maxlength="5" value="@ViewBag.txt_RedBagCopTemId">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" name="txt_couponName" id="txt_couponName" placeholder="红包名称" autocomplete="off" class="layui-input" maxlength="16" value="@ViewBag.txt_couponName">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <select name="label" id="sel_RedBagSources">
+                        <option value="" @(string.IsNullOrEmpty(ViewBag.sel_RedBagSources) ? "selected=selected" : "")>发放来源</option>
+                        @if (!string.IsNullOrEmpty(sourcelist))
+                        {
+                            foreach (var item in sourcelist.Split(','))
+                            {
+                                <option value="@item" @(ViewBag.sel_RedBagSources == item ? "selected=selected" : "")>@item</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="number" name="txt_couponMoney" id="txt_couponMoney" placeholder="用户ID" autocomplete="off" class="layui-input" value="@ViewBag.txt_couponMoney">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="number" name="txt_couponFillMoney" id="txt_couponFillMoney" placeholder="客服ID" autocomplete="off" class="layui-input" value="@ViewBag.txt_couponFillMoney">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div name="label" class="layui-input-inline">
+                    <select id="sel_RedBagUseStatus">
+                        <option value="" @(string.IsNullOrEmpty(ViewBag.sel_RedBagUseStatus) ? "selected=selected" : "")>使用状态</option>
+                        <option value="0" @(ViewBag.sel_RedBagUseStatus == "0" ? "selected=selected" : "")>未激活</option>
+                        <option value="1" @(ViewBag.sel_RedBagUseStatus == "1" ? "selected=selected" : "")>激活</option>
+                        <option value="2" @(ViewBag.sel_RedBagUseStatus == "2" ? "selected=selected" : "")>已使用</option>
+                        <option value="4" @(ViewBag.sel_RedBagUseStatus == "3" ? "selected=selected" : "")>禁止</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn" lay-submit lay-filter="LAY-app-contlist-search" id="btn_Search">
+                    查询
+                </button>
+                <button class="layui-btn layui-btn-primary" id="bt_build">
+                    重置
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="layui-card-body">
+        <div class="w-margin-t-2">
+            <button class="layui-btn layui-btn-normal" id="btn_addnew">发放红包</button>
+        </div>
+        <div class="w-margin-t-4">
+            <table class="layui-table w-text-nowrap" lay-skin="line">
+                <colgroup>
+                    <col width="100">
+                    <col width="150">
+                    <col width="200">
+                    <col width="300">
+                    <col width="200">
+                    <col width="150">
+                    <col width="150">
+                    <col width="200">
+                    <col width="200">
+                    <col width="200">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>
+                            序号
+                        </th>
+                        <th>
+                            红包ID
+                        </th>
+                        <th>
+                            红包名称
+                        </th>
+                        <th>
+                            发放来源
+                        </th>
+                        <th>
+                            发放时间
+                        </th>
+                        <th>
+                            用户ID
+                        </th>
+                        <th>
+                            客服ID
+                        </th>
+                        <th>
+                            红包状态
+                        </th>
+                        <th>
+                            使用时间
+                        </th>
+                        <th>
+                            操作
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < list.RedBagCouponInfoList.Count; i++)
+                    {
+                        var item = list.RedBagCouponInfoList[i];
+                        <tr>
+                            <td>@(index++)</td>
+                            <td>
+                                @item.RedBagCouponId
+                            </td>
+                            <td>
+                                @item.RedBagCouponName
+                            </td>
+                            <td>
+                                @item.CouponSource
+                            </td>
+                            <td>
+                                @item.CreateTime.ToString("yyyy-MM-dd HH:mm")
+                            </td>
+                            <td>
+                                @item.UserId
+                            </td>
+                            <td>
+                                @item.CustomerId
+                            </td>
+                            <td>
+                                @{
+                                    switch (item.CouponStatus)
+                                    {
+                                        case GameBiz.Core.CouponStatus.NoEnabled:
+                                            @(new HtmlString("<span class='layui-badge-dot layui-bg-blue'></span>未激活"));
+                                            break;
+                                        case GameBiz.Core.CouponStatus.Enabled:
+                                            @(new HtmlString("<span class='layui-badge-dot layui-bg-green'></span>已激活"));
+                                            break;
+                                        case GameBiz.Core.CouponStatus.IsUsed:
+                                            @(new HtmlString("<span class='layui-badge-dot layui-bg-orange'></span>已使用"));
+                                            break;
+                                        case GameBiz.Core.CouponStatus.IsExpired:
+                                            @(new HtmlString("<span class='layui-badge-dot layui-bg-orange'></span>已过期"));
+                                            break;
+                                        case GameBiz.Core.CouponStatus.Prohibited:
+                                            @(new HtmlString("<span class='layui-badge-dot'></span>禁用"));
+                                            break;
+                                        default:
+                                            @(new HtmlString("<span class='layui-badge layui-bg-cyan'></span>未知"));
+                                            break;
+                                    }
+                                }
+                            </td>
+                            <td>
+                                @(item.UsedTime == Convert.ToDateTime("2000-01-01 00:00") ? "未使用" : item.UsedTime.ToString("yyyy-MM-dd HH:mm"))
+                            </td>
+                            <td>
+                                @{
+                                    switch (item.CouponStatus)
+                                    {
+                                        case GameBiz.Core.CouponStatus.All:
+                                            @("未知");
+                                            break;
+                                        case GameBiz.Core.CouponStatus.NoEnabled:
+                                            <a class="layui-btn layui-btn-normal layui-btn-xs" onclick="setCouponStatus(@item.RedBagCouponId,1)">激活</a>
+
+                                            @*<a class="layui-btn layui-btn-normal layui-btn-xs" href="javascript:;" onclick="setCouponStatus(@item.RedBagCouponId,1)">
+                                                    @(new HtmlString("<i class='layui-icon layui-icon-play'></i>激活"))
+                                                </a>*@
+                                            break;
+                                        case GameBiz.Core.CouponStatus.Enabled:
+                                            <a class="layui-btn layui-btn-danger layui-btn-xs" onclick="setCouponStatus(@item.RedBagCouponId,4)">禁用</a>
+
+                                            @*<a class="layui-btn layui-btn-danger layui-btn-xs" href="javascript:;" onclick="setCouponStatus(@item.RedBagCouponId,4)">
+                                                    @(new HtmlString("<i class='layui-icon layui-icon-pause'></i>禁止"))
+                                                </a>*@
+                                            break;
+                                        case GameBiz.Core.CouponStatus.IsUsed:
+                                            @("已使用");
+                                            break;
+                                        case GameBiz.Core.CouponStatus.IsExpired:
+                                            @("已过期");
+                                            break;
+                                        case GameBiz.Core.CouponStatus.Prohibited:
+                                            <a class="layui-btn layui-btn-normal layui-btn-xs" onclick="setCouponStatus(@item.RedBagCouponId,1)">激活</a>
+
+                                            @*<a class="layui-btn layui-btn-normal layui-btn-xs" href="javascript:;" onclick="setCouponStatus(@item.RedBagCouponId,1)">
+                                                    @(new HtmlString("<i class='layui-icon layui-icon-play'></i>激活"))
+                                                </a>*@
+                                            break;
+                                        default:
+                                            @("未知");
+                                            break;
+                                    }
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @ViewHelpers.Pager(ViewBag.PageIndex, ViewBag.PageSize, list.TotalCount)
+        </div>
+    </div>
+</div>
+
+
+@section scripts{
+    <script>
+
+        //日期时间
+        layui.laydate.render({
+            elem: '#CreateTime'
+            , type: 'datetime'
+            , format: 'yyyy-MM-dd HH:mm'
+            , range: '~'
+            , done: function (value, sDate, endDate) {
+                $("#hdStartTime").val(sDate.year + "-" + sDate.month + "-" + sDate.date + " " + sDate.hours + ":" + sDate.minutes);
+                $("#hdEndTime").val(endDate.year + "-" + endDate.month + "-" + endDate.date + " " + endDate.hours + ":" + endDate.minutes);
+            }
+        });
+        var params = {
+            txt_RedBagCopTemId: '',
+            txt_couponName: '',
+            sel_RedBagSources: '',
+            sel_RedBagUseStatus: '',
+            startTime: '',
+            endTime: '',
+            txt_UserId: '',
+            txt_CustomId: '',
+            pageIndex: 1
+        };
+        /* 查询红包 */
+        $("#btn_Search").click(function () {
+            var RedBagCopTemId = $("#txt_RedBagCopTemId").val(),
+                couponName = $("#txt_couponName").val(),
+                RedBagSources = $("#sel_RedBagSources").val(),
+                RedBagUseStatus = $("#sel_RedBagUseStatus").val(),
+                UserId = $("#txt_UserId").val(),
+                CustomId = $("#txt_CustomId").val(),
+                startTime = $("#hdStartTime").val(),
+                endTime = $("#hdEndTime").val();
+
+            if (RedBagCopTemId) {
+                params.txt_RedBagCopTemId = RedBagCopTemId;
+            }
+            if (couponName) {
+                params.txt_couponName = couponName;
+            }
+            if (startTime) {
+                params.startTime = startTime;
+            }
+            if (endTime) {
+                params.endTime = endTime;
+            }
+            if (RedBagSources) {
+                params.sel_RedBagSources = RedBagSources;
+            }
+            if (RedBagUseStatus) {
+                params.sel_RedBagUseStatus = RedBagUseStatus
+            }
+            if (UserId) {
+                params.txt_UserId = UserId;
+            }
+            if (CustomId) {
+                params.txt_Custom = IdCustomId;
+            }
+            params.pageIndex = 1;
+            publicPagingList(params);
+        });
+
+        /* 重置 */
+        $("#bt_build").click(function () {
+            $("#txt_RedBagCopTemId").val("");
+            $("#txt_couponName").val("");
+            $("#txt_UserId").val("");
+            $("#txt_CustomId").val("");
+            $("#sel_RedBagSources").val('');
+            $("#sel_RedBagUseStatus").val('');
+
+            layui.form.render('select');
+        });
+        /* 发放新红包 */
+        $("#btn_addnew").click(function () {
+            layer.open({
+                type: 2,// 表示是iframe弹框
+                title: "发放红包",
+                content: "/Activity/AddNewRedBagCoupon",
+                shadeClose: true,
+                shade: 0.6,
+                area: ['700px', '783px'],
+            });
+        });
+
+        /* 修改红包状态 */
+        function setCouponStatus(couponId, status) {
+            var tip = status == 1 ? '激活' : '禁用';
+            ShowConfirm('确定' + tip + '吗？', function (index) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Activity/SetRedBagCouponStatus",
+                    data: {
+                        id: couponId,
+                        txt_cpnStatus: status
+                    },
+                    success: function (res) {
+                        if (res.IsSuccess) {
+                            ShowSuccessMsg(tip + "成功", false, false, function () {
+                                window.location.reload();
+                            })
+                        } else {
+                            ShowErrorMsg(tip + "失败:" + res.Msg);
+                        }
+                    }
+                });
+            });
+        }
+    </script>
+}

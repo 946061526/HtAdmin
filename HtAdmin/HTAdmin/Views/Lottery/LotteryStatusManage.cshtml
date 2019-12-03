@@ -1,0 +1,264 @@
+﻿
+
+@{
+    var List = ViewBag.Game as GameBiz.Core.LotteryGameInfoCollection;
+    //int index = ((int)ViewBag.PageIndex - 1) * (int)ViewBag.PageSize + 1;
+}
+
+<div class="layui-card">
+
+    <div class="layui-card-body">
+        <div class="w-margin-t-4">
+            <table class="layui-table w-text-nowrap" lay-skin="line" id="table">
+                <colgroup>
+                    <col width="100">
+                    <col width="100">
+                    <col width="160">
+                    <col width="100">
+                    <col width="100">
+                    <col width="100">
+                    <col width="120">
+                    <col width="150">
+                    <col width="100">
+                    <col width="100">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>彩种编号</th>
+                        <th>彩种名称</th>
+                        <th>PC端</th>
+                        <th>APP端</th>
+                        <th>M端</th>
+                        <th>彩种图标</th>
+                        <th>彩种说明</th>
+                        <th>排序</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (List != null)
+                    {
+                        var index = 1;
+                        foreach (var item in List)
+                        {
+                            <tr>
+                                <td class="sort">@(index++)</td>
+                                <td>
+                                    @item.GameCode
+                                </td>
+                                <td>
+                                    @item.DisplayName
+                                </td>
+                                <td>
+                                    @{
+                                        switch (item.PCEnableStatus)
+                                        {
+                                            case Common.PCEnableStatus.Enable:
+                                                @(new HtmlString("<span class='layui-badge-dot layui-bg-green'></span>可用"));
+                                                break;
+                                            case Common.PCEnableStatus.Disable:
+                                                @(new HtmlString("<span class='layui-badge-dot'></span>禁用"));
+                                                break;
+                                            case Common.PCEnableStatus.NotBuy:
+                                                @(new HtmlString("<span class='layui-badge-dot layui-bg-orange'></span>暂停购买"));
+                                                break;
+                                            default:
+                                                @("未知");
+                                                break;
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        switch (item.APPEnableStatus)
+                                        {
+                                            case Common.APPEnableStatus.Enable:
+                                                @(new HtmlString("<span class='layui-badge-dot layui-bg-green'></span>可用"));
+                                                break;
+                                            case Common.APPEnableStatus.Disable:
+                                                @(new HtmlString("<span class='layui-badge-dot'></span>禁用"));
+                                                break;
+                                            case Common.APPEnableStatus.NotBuy:
+                                                @(new HtmlString("<span class='layui-badge-dot layui-bg-orange'></span>暂停购买"));
+                                                break;
+                                            default:
+                                                @("未知");
+                                                break;
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        switch (item.WAPEnableStatus)
+                                        {
+                                            case Common.WAPEnableStatus.Enable:
+                                                @(new HtmlString("<span class='layui-badge-dot layui-bg-green'></span>可用"));
+                                                break;
+                                            case Common.WAPEnableStatus.Disable:
+                                                @(new HtmlString("<span class='layui-badge-dot'></span>禁用"));
+                                                break;
+                                            case Common.WAPEnableStatus.NotBuy:
+                                                @(new HtmlString("<span class='layui-badge-dot layui-bg-orange'></span>暂停购买"));
+                                                break;
+                                            default:
+                                                @("未知");
+                                                break;
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.APPImgUrl))
+                                    {
+                                        var url = item.APPImgUrl;
+                                        if (!url.Contains(ViewBag.ImgSite))
+                                        {
+                                            url = ViewBag.ImgSite + item.APPImgUrl;
+                                        }
+                                        <img src="@(url)" style="width:50px;height:50px;" />
+                                    }
+                                </td>
+                                <td title="@item.GameAppTxt">
+                                    @(item.GameAppTxt.Length > 20 ? item.GameAppTxt.Substring(0, 20) + "..." : item.GameAppTxt)
+                                </td>
+                                <td>
+                                    <input type="hidden" value="@item.Sort" name="@item.GameCode" />
+                                    @if (index > 2)
+                                    {
+                                        <a class="layui-btn layui-btn-normal layui-btn-xs" id="btnSortUp">上移</a>
+                                    }
+                                    @if (index <= List.Count)
+                                    {
+                                        if (index <= 2)
+                                        {
+                                            <span style="margin-right:48px"></span>
+                                        }
+                                        <a class="layui-btn layui-btn-normal layui-btn-xs" id="btnSortDown">下移</a>
+                                    }
+                                </td>
+                                <td>
+                                    @if (ViewBag.bcjzzt)
+                                    {
+                                        <a class="layui-btn layui-btn-normal layui-btn-xs" data-code="@item.GameCode" id="btnEdit">编辑</a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+
+        var _isSubmitting = false;
+        var ChangeSort = function (code1, sort1, code2, sort2) {
+            $.ajax({
+                type: "POST",
+                url: "/Lottery/LotteryStatusSort",
+                data: {
+                    GameCode1: code1,
+                    Sort1: sort1,
+                    GameCode2: code2,
+                    Sort2: sort2
+                },
+                success: function (res) {
+                    if (res.IsSuccess) {
+                        //ShowSuccessMsg('提交成功', true, true);
+                        location.reload();
+                    } else {
+                        ShowErrorMsg(res.Msg);
+                    }
+                },
+                error: function (msg) {
+                    //ShowErrorMsg('提交失败: ' + msg);
+                },
+                complete: function () {
+                    _isSubmitting = false;
+                }
+            });
+        }
+
+
+        $(document).on('click', 'a', function () {
+            var $this = $(this);
+
+            switch ($this.attr('id')) {
+                case 'btnEdit'://编辑
+                    var GameCode = $this.data("code");
+                    layer.open({
+                        type: 2,// 表示是iframe弹框
+                        title: "编辑彩种状态",
+                        content: "/Lottery/LotteryStatusEdit?GameCode=" + GameCode,
+                        shadeClose: true,
+                        shade: 0.6,
+                        area: ['700px', '545px'],
+                    });
+                    break;
+                case 'btnSortDown'://下移
+                    if (_isSubmitting) return;
+                    _isSubmitting = true;
+
+                    //var $this = $(this);
+                    var currentTr = $this.parents('tr'); //当前行
+                    var currentSort = currentTr.find('input').val();//当前排序
+                    var currentCode = currentTr.find('input').prop('name');//GameCode
+                    var currentOrder = Number(currentTr.find('.sort').text());//序号
+
+                    var nextTr = currentTr.next();//下一行
+                    console.log(nextTr)
+                    var nextSort = nextTr.find('input').val();//排序
+                    var nextCode = nextTr.find('input').prop('name');//GameCode
+                    var nextOrder = Number(nextTr.find('.sort').text());//序号
+
+                    //currentTr.find('input').val(nextSort);
+                    //currentTr.find('.sort').text(currentOrder + 1);
+                    //nextTr.find('input').val(currentSort);
+                    //nextTr.find('.sort').text(nextOrder - 1);
+
+                    //currentTr.before('<tr>' + nextTr.html() + '</tr>');
+                    //nextTr.remove();
+
+                    //console.log(currentCode, currentSort, nextCode, nextSort);
+
+                    //更新数据库
+                    ChangeSort(currentCode, nextSort, nextCode, currentSort);
+                    break;
+                case 'btnSortUp'://上移
+                    if (_isSubmitting) return;
+                    _isSubmitting = true;
+
+                    //var $this = $(this);
+                    var currentTr = $this.parents('tr'); //当前行
+                    var currentSort = currentTr.find('input').val();//当前排序
+                    var currentCode = currentTr.find('input').prop('name');//GameCode
+                    var currentOrder = Number(currentTr.find('.sort').text());//序号
+
+                    var prevTr = currentTr.prev();//前一行
+                    var prevSort = prevTr.find('input').val();//排序
+                    var prevCode = prevTr.find('input').prop('name');//GameCode
+                    var prevOrder = Number(prevTr.find('.sort').text());//序号
+
+                    //currentTr.find('input').val(prevSort);
+                    //currentTr.find('.sort').text(currentOrder - 1);
+                    //prevTr.find('input').val(currentSort);
+                    //prevTr.find('.sort').text(prevOrder - 1);
+
+                    //currentTr.after('<tr>' + prevTr.html() + '</tr>');
+                    //prevTr.remove();
+
+                    //console.log(currentCode, currentSort, prevCode, prevSort);
+
+                    ////更新数据库
+                    ChangeSort(currentCode, prevSort, prevCode, currentSort);
+                    break;
+            }
+
+        });
+
+    </script>
+
+}

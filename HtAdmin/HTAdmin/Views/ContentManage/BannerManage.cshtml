@@ -1,0 +1,242 @@
+﻿@{
+    ViewBag.Title = "广告管理" + GlobalCache.WebSiteName;
+    var list = ViewBag.Lhlist as GameBiz.Core.SiteMessageBannerInfo_Collection;
+    var currMaxIndex = (list != null && list.ListInfo.Count > 0) ? list.ListInfo.Max(s => s.BannerIndex) : 0;
+    var bannerType = (GameBiz.Core.BannerType)ViewBag.bannerType;
+    int numIndex = ViewBag.PageIndex * ViewBag.PageSize - ViewBag.PageSize + 1;
+    int pageIndex = 1, pageSize = ViewBag.PageSize;
+    int.TryParse(Request.QueryString["pageindex"], out pageIndex);
+    if (pageIndex <= 0) { pageIndex = 1; }
+}
+@section styles{
+    <link rel="stylesheet" href="@Url.Content("~/lay/style/vendor.css")" media="all">
+}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form>
+                <div class="layui-btn-group" id="groupButton">
+                    <button class="layui-btn layui-btn-primary" type="button" value="10">PC 首页</button>
+                    <button class="layui-btn layui-btn-primary" type="button" value="40">PC 资讯</button>
+                    <button class="layui-btn layui-btn-primary" type="button" value="20">APP 首页</button>
+                    <button class="layui-btn layui-btn-primary" type="button" value="60">M 首页</button>
+                    <button class="layui-btn layui-btn-primary" type="button" value="80">APP 启动页</button>
+                    <button class="layui-btn layui-btn-primary" type="button" value="90">APP 首页弹窗</button>
+                </div>
+            </form>
+            <div class="w-margin-t-2">
+                @if (ViewBag.Tjgg)
+                {
+                    <button class="layui-btn layui-btn-normal" onclick='OpenBannerManageInfo("add",)'>
+                        新增广告位
+                    </button>
+                }
+            </div>
+            <div class="w-margin-t-4">
+                <table class="layui-table w-text-nowrap" lay-skin="line">
+                    <colgroup>
+                        <col width="100">
+                        <col width="200">
+                        <col width="200">
+                        <col width="150">  
+                        <col width="150">
+                        <col width="150">
+                        <col width="200">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>
+                                <span>序号</span>
+                            </th>
+                            <th>
+                                标题
+                            </th>
+                            <th>
+                                创建时间
+                            </th>
+                            <th>
+                                操作人
+                            </th>
+                            <th>
+                                图片
+                            </th>
+                            <th>
+                                排序
+                            </th>
+                            <th>
+                                状态
+                            </th>
+                            <th>
+                                操作
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in list.ListInfo)
+                        {
+                            <tr>
+                                <td>
+                                    @(numIndex++)
+                                </td>
+                                <td>
+                                    @(item.BannerTitle.Length >20 ? item.BannerTitle.Substring(0, 20)+"...": item.BannerTitle)
+                                </td>
+                                <td>
+                                    @item.CreateTime.ToString("yyyy-MM-dd HH:ss")
+                                </td>
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(item.Operator)?"无": @item.Operator)
+                                </td>
+                                <td>
+                                    <a style="color:deepskyblue" href="javascript:void(0)" onclick='openImg("@item.ImageUrl")'>查看</a>
+                                    <p id="bb"> 123</p>
+                                </td>
+                                <td>
+                                    @item.BannerIndex
+                                </td>
+                                <td>
+                                    @if ((bool)item.IsEnable)
+                                    {<span class="layui-badge-dot layui-bg-green"></span> }
+                                    else
+                                    {<span class="layui-badge-dot"></span>}
+                                    @ViewHelpers.ConvertUseStatur((Common.EnableStatus)((bool)item.IsEnable ? 0 : 1))
+                                </td>
+                                <td>
+                                    @if (ViewBag.Bcgg)
+                                    {
+                                        <a class="getNoticeInfo layui-btn layui-btn-normal layui-btn-xs" title="修改公告" href="javascript:void(0);" onclick='OpenBannerManageInfo("edit",@item.BannerId)'>
+                                            编辑
+                                        </a>
+                                    }
+                                    @if (ViewBag.JyQy)
+                                    {
+                                        if ((Common.EnableStatus)((bool)item.IsEnable ? 0 : 1) == Common.EnableStatus.Enable)
+                                        {
+                                            <a class="DisnableBanner layui-btn layui-btn-container layui-btn-xs" href="javascript:void(0);">禁用<input type="hidden" value="@item.BannerId" /></a>
+                                        }
+                                        else if ((Common.EnableStatus)((bool)item.IsEnable ? 0 : 1) == Common.EnableStatus.Disable)
+                                        {
+                                            <a class="EnableBanner layui-btn layui-btn-container layui-btn-xs" href="javascript:void(0);">激活<input type="hidden" value="@item.BannerId" /></a>
+                                            if (ViewBag.Scgg)
+                                            {
+                                                <a class="DeleteBanner layui-btn layui-btn-danger layui-btn-xs" title="删除公告" id="a_Del" href="javascript:void(0);">
+                                                    删除<input type="hidden" value="@item.BannerId" />
+                                                </a>
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            <a href="javascript:void(0);">未知</a>
+                                        }
+
+                                    }
+                                    <input type="hidden" id="hid_did" value="@item.BannerId" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @if (list != null && list.TotalCount > 10)
+                {
+                    ViewHelpers.Pager(ViewBag.PageIndex, ViewBag.PageSize, list.TotalCount);
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        var bannerType = 0;
+        $(function () {
+            var list = $("#groupButton [type='button']");
+            for (var i = 0; i < list.length; i++) {
+                if (!list.eq(i).val().indexOf(@((int)ViewBag.bannerType))) {
+                    list.eq(i).removeClass("layui-btn-primary");
+                }
+            }
+        });
+
+        //按钮切换
+        $("#groupButton [type='button']").click(function () {
+            $(this).removeClass("layui-btn-primary").siblings().removeClass("layui-btn-primary").addClass("layui-btn-primary");
+            bannerType = $(this).val();
+            location.href = "/ContentManage/BannerManage?queryType=" + bannerType;
+        });
+
+        //暂停/启用
+        $(".DisnableBanner").click(function () {
+            var data = {
+                BannerId: $(this).find("input:hidden").val(),
+                isEnable: false
+            }
+            ShowConfirm("确认禁用吗?", function () {
+                var url = "/ContentManage/IsDisnableBanner?r=" + Math.random();
+                $.post(url, data, function (callback) {
+                    if (callback.code == 200) {
+                        ShowSuccessMsg(callback.message, false, false, function () { window.location.reload(); });
+                    }
+                    else {
+                        ShowErrorMsg(callback.message, false, false);
+                    }
+                });
+            });
+        })
+        $(".EnableBanner").click(function () {
+            var data = {
+                BannerId: $(this).find("input:hidden").val(),
+                isEnable: true
+            }
+            ShowConfirm("确认激活吗?", function () {
+                var url = "/ContentManage/IsDisnableBanner?r=" + Math.random();
+                $.post(url, data, function (callback) {
+                    if (callback.code == 200) {
+                        ShowSuccessMsg(callback.message, false, false, function () { window.location.reload(); });
+                    }
+                    else {
+                        ShowErrorMsg(callback.message, false, false);
+                    }
+                });
+            });
+        })
+
+        $(".DeleteBanner").click(function () {
+            var data = {
+                bannerId: $(this).find("input:hidden").val()
+            }
+            ShowConfirm("确认删除吗?", function () {
+                var url = "/ContentManage/Delete_BannerManage?r=" + Math.random();
+                $.post(url, data, function (callback) {
+                    if (callback.code == 200) {
+                        ShowSuccessMsg(callback.message, false, false, function () { window.location.reload(); });
+                    }
+                    else {
+                        ShowErrorMsg(callback.message, false, false);
+                    }
+                });
+            });
+        });
+
+        function OpenBannerManageInfo(type, mid) {
+            var title = type.indexOf("add") >= 0 ? "新增广告位" : type.indexOf("edit") >= 0 ? "修改广告位" : "查看广告位";
+            var txt_cnt = "/ContentManage/BannerManageInfo?Type=" + type + "&id=" + mid;
+            LayuiOpen(title, txt_cnt, function () {
+                window.location.reload();
+            }, function () {
+                window.location.reload();
+            });
+        }
+
+        function openImg(url) {
+            var html = "<img width=100% src=" + url + ">";
+            layer.open({
+                type: 1,
+                shade: false,
+                title: false, //不显示标题
+                fixed: false,
+                content: html, //捕获的元素，注意：最好该指定的元素要存放在body最外层，否则可能被其它的相对元素所影响
+            });
+        }
+    </script>
+}

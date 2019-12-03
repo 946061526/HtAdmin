@@ -1,0 +1,292 @@
+﻿@{
+    var bulletin = ViewBag.Bulletin as External.Core.SiteMessage.BulletinInfo_Query;
+    long id = -1;
+    bool edit = false;
+    if (bulletin != null)
+    {
+        id = bulletin.Id;
+        edit = true;
+    }
+}
+@section styles{
+    <link href="~/lay/style/admin.css" type="text/css" rel="stylesheet" />
+}
+<div class="layui-fluid" style="padding:0 0 50px 0;background-color:white;">
+    <div class="layui-card">
+        <br />
+        <div class="layui-card-body">
+            <form class="layui-form">
+                <input type="hidden" value="@id" name="Id" />
+                <div class="layui-form-item">
+                    <label class="layui-form-label">标题</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="Title" value="@(edit?bulletin.Title:"")" lay-verify="required" autocomplete="off" placeholder="请输入标题" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">描述</label>
+                    <div class="layui-input-block">
+                        <textarea rows="10" cols="70" style="height:150px;" name="Summary" lay-verify="required" autocomplete="off" placeholder="请输入摘要" class="layui-input">@(edit?bulletin.Summary:"")</textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">关键字</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="Keyword" value="@(edit?bulletin.Keyword:"")" autocomplete="off" placeholder="请输入关键字" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">内容</label>
+                    <div class="layui-input-block">
+                        <textarea id="content" name="Content" rows="10" cols="70" style="padding:5px;width:100%;min-height:500px;visibility: hidden;">@(bulletin == null ? null : bulletin.Content)</textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">封面</label>
+                    <div class="layui-input-block">
+                        <div class="layui-upload-drag" id="upload">
+                            <i class="layui-icon"></i>
+                            <p>点击上传</p>
+                        </div>
+                        <input type="hidden" name="CoverImage" id="coverImage" value="@(edit?bulletin.CoverImage:"")" />
+                        <div style="display:inline-block; vertical-align:top;" id="editUpload">
+                            @if (edit && !string.IsNullOrWhiteSpace(bulletin.CoverImage))
+                            {
+                                <img src="@bulletin.CoverImage" title="@bulletin.Title" alt="@bulletin.Title" style="width:120px;height:120px;" />
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">发布时间</label>
+                        <div class="layui-input-inline">
+                            <input id="effectiveFrom" lay-verify="required" type="text" value="@(edit && bulletin.EffectiveFrom != null ? bulletin.EffectiveFrom.Value.ToString("yyyy-MM-dd HH:mm:ss") : "")" name="EffectiveFrom" placeholder="发布日期" class="layui-input" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">过期时间</label>
+                        <div class="layui-input-inline">
+                            <input id="effectiveTo" type="text" value="@(edit && bulletin.EffectiveTo != null ? bulletin.EffectiveTo.Value.ToString("yyyy-MM-dd HH:mm:ss") : "")" name="EffectiveTo" placeholder="过期日期" class="layui-input" />
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div>
+                        <label class="layui-form-label">是否置顶</label>
+                        <div class="layui-input-inline">
+                            <input type="checkbox" @(edit && bulletin.IsPutTop == 1 ? "checked='checked'" : "") name="IsPutTop" lay-skin="switch" lay-text="置顶|不置顶">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">是否启用</label>
+                        <div class="layui-input-inline">
+                            <input type="checkbox" @(edit && bulletin.Status == Common.EnableStatus.Disable ? "" : "checked='checked'") name="Status" lay-skin="switch" lay-text="启用|不启用">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-footer" style="background-color:white;padding-bottom:10px;text-align:right;">
+                    <div class="layui-btngroup" style="width:auto;float:right;padding:5px 30px 5px 5px;">
+                        <button class="layui-btn layui-btn-primary" id="btnCancel">取消</button>
+                        <button class="layui-btn layui-btn-normal" lay-submit lay-filter="*" id="btnOk">
+                            @if (edit)
+                            {
+                                @("提交")
+                            }
+                            else
+                            {
+                                @("保存")
+                            }
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    @ViewHelpers.js_oocai("kindeditor-min.js")
+    @ViewHelpers.js_oocai1("zh_CN.js")
+    <script type="text/javascript">
+        $(function () {
+            var editor;
+            var layer = layui.layer,
+                upload = layui.upload,
+                form = layui.form,
+                laydate = layui.laydate;
+            editor = KindEditor.create('#content', {
+                allowFileManager: true,                                            //是否可以浏览上传文件
+                allowUpload: true,                                                     //是否可以上传
+                fileManagerJson: '/UpLoad/UpLoadFile',      //浏览文件方法
+                uploadJson: '/UpLoad/UploadImage'                    //上传文件方法  //注意这两个路径
+            });
+
+            //日期时间选择器
+            laydate.render({
+                elem: '#effectiveFrom'
+                ,type:'datetime'
+                , format: 'yyyy-MM-dd HH:mm'
+            });
+            //日期时间选择器
+            laydate.render({
+                elem: '#effectiveTo'
+                ,type:'datetime'
+                , format: 'yyyy-MM-dd HH:mm'
+            });
+
+            var uploadInst = upload.render({
+                elem: '#upload', //绑定元素
+                accept: 'images', //允许上传的文件类型
+                multiple: false, //允许多文件上传
+                auto: true, //选完文件后不要自动上传
+                number: 1,
+                field: 'imgFile',
+                //bindAction: '#btnOk', //指定一个按钮触发上传
+                url: '/UpLoad/UploadImage', //上传接口
+                size: 2 * 1024,// 大小限制  单位  kb
+                choose: function (obj) {
+                    /* var files = obj.pushFile(); //将每次选择的文件追加到文件队列
+
+                     //图像预览，如果是多文件，会逐个添加。(不支持ie8/9)
+                     obj.preview(function (index, file, result) {
+                         var imgobj = new Image(); //创建新img对象
+                         imgobj.src = result; //指定数据源
+                         imgobj.className = 'thumb';
+                         imgobj.style = "width:120px;height:120px;";
+                         //imgobj.onclick = function (result) {
+                         //    //单击预览
+                         //    img_prev.src = this.src;
+                         //    var w = $(window).width() - 42, h = $(window).height() - 42;
+                         //    layer.open({
+                         //        title: '预览',
+                         //        type: 1,
+                         //        area: [w, h], //宽高
+                         //        content: $('#prevModal')
+                         //    });
+                         //};
+                         document.getElementById("editUpload").appendChild(imgobj); //添加到预览区域
+                     });*/
+                },
+                done: function (res) {
+                    //上传完毕回调
+                    var imgobj = new Image(); //创建新img对象
+                    imgobj.src = res.url; //指定数据源
+                    imgobj.className = 'thumb';
+                    imgobj.style = "width:120px;height:120px;";
+                    var prev = document.getElementById("editUpload");
+                    while (prev.hasChildNodes()) {
+                        prev.removeChild(prev.firstChild);
+                    }
+                    prev.appendChild(imgobj);
+                    $("input[name='CoverImage']").val(res.url);
+                },
+                error: function (r) {
+                    //请求异常回调
+                    ShowErrorMsg('图片上传失败');
+                }
+            });
+
+            $("#btnCancel").click(function () {
+                var index = parent.layer.getFrameIndex(window.name);
+                parent.layer.close(index);//关闭当前页
+            });
+
+            form.on("submit(*)", function (data) {
+                var content = editor.html();
+                if (!content) {
+                    ShowWarnningMsg('内容为必填');
+                    return false;
+                }
+                var indexLoading = ShowLoading("保存中");
+                var data = {
+                    Title: $("input[name='Title']").val(),
+                    Content: content,
+                    EffectiveFrom: $("input[name='EffectiveFrom']").val(),
+                    EffectiveTo: $("input[name='EffectiveTo']").val(),
+                    Priority: 1,
+                    IsPutTop: $("input[name='IsPutTop']").prop("checked") ? 1 : 0,
+                    Status: $("input[name='Status']").prop("checked") ? 0 : 1 ,
+                    Id: @id,
+                    BulletinAgent: 0,
+                    chkBuildStatic: true,
+                    CoverImage:$("input[name='CoverImage']").val(),
+                    Summary:$("textarea[name='Summary']").val(),
+                    Keyword:$("input[name='Keyword']").val()
+                };
+                $.post("/ContentManage/PublishNotice",data,function(r){
+                    if (r.status == 1) {
+                        ShowSuccessMsg('保存成功', true, true);
+                    } else {
+                        ShowErrorMsg('保存失败');
+                    }
+                    layer.close(indexLoading);
+                });
+                return false;
+            });
+
+        });
+
+
+        $("#btn_Publish").click(function () {
+            //if (!window.confirm("是否" + $("#btn_Publish").val())) return false;
+            var _this = $(this);
+            ShowConfirm("是否" + $("#btn_Publish").val(), function () {
+                var indexLoading = ShowLoading("保存中");
+                var _id = $("#btn_Publish").val();
+                _this.attr("disabled", true).val("正在处理");
+                var data = {
+                    title: $("#txt_Title").val(),
+                    content: editor.html(),
+                    effectiveFrom: $("#txt_EffectiveFrom").val(),
+                    effectiveTo: $("#txt_EffectiveTo").val(),
+                    priority: $("input[name='priority']:checked").val(),
+                    isPutTop: $("#isputtop").attr("checked") ? 1 : 0,
+                    status: $("#status").attr("checked") ? 1 : 0,
+                    publishId: $("#hdn_PublishId").val(),
+                    bulletinAgent: $("#slt_bulletionAgent option:selected").val(),
+                    chkBuildStatic: $("#chk_buildStatic").attr("checked")
+                };
+                var url = "/ContentManage/PublishNotice?r=" + Math.random();
+                $.post(url, data, function (callback) {
+                    if (callback.IsSuccess) {
+                        ShowSuccessMsg(callback.Msg, true, false, function () {
+                            window.location.href = "/ContentManage/NoticeManage";
+                        })
+                    }
+                    else {
+                        ShowErrorMsg(callback.Msg);
+                        _this.attr("disabled", false).removeAttr("disabled").val(_id);
+                    }
+                    layer.close(indexLoading);
+                });
+            });
+            //var _id = $("#btn_Publish").val();
+            //_this.attr("disabled", true).val("正在处理");
+            //var data = {
+            //    title: $("#txt_Title").val(),
+            //    content: editor.html(),
+            //    effectiveFrom: $("#txt_EffectiveFrom").val(),
+            //    effectiveTo: $("#txt_EffectiveTo").val(),
+            //    priority: $("input[name='priority']:checked").val(),
+            //    isPutTop: $("#isputtop").attr("checked") ? 1 : 0,
+            //    status: $("#status").attr("checked") ? 1 : 0,
+            //    publishId: $("#hdn_PublishId").val(),
+            //    bulletinAgent: $("#slt_bulletionAgent option:selected").val(),
+            //    chkBuildStatic: $("#chk_buildStatic").attr("checked")
+            //};
+            //var url = "/ContentManage/PublishNotice?r=" + Math.random();
+            //$.post(url, data, function (callback) {
+            //    if (callback.IsSuccess) {
+            //        ShowSuccessMsg(callback.Msg, true, false, function () {
+            //            window.location.href = "/ContentManage/NoticeManage";
+            //        })
+            //    }
+            //    else {
+            //        ShowErrorMsg(callback.Msg);
+            //        _this.attr("disabled", false).removeAttr("disabled").val(_id);
+            //    }
+            //});
+        });
+    </script>
+}

@@ -1,0 +1,82 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="dv_search">
+    <form class="layui-form layui-form-pane">
+        <div class="layui-form-item">
+            <select id="sel_clientType" name="sel_clientType">
+                <option value="">客户端</option>
+                <option value="1">Android</option>
+                <option value="2">IOS</option>
+            </select>
+            <input id="version" name="version" />
+            <input id="updatedes" name="updatedes" />
+            <select id="hardUpdate" name="hardUpdate">
+                <option value="">强制更新</option>
+                <option value="Y">强制</option>
+                <option value="N">不强制</option>
+            </select>
+            <button class="layui-btn" id="btn_search">查询</button>
+            <button class="layui-btn" id="btn_reset">重置</button>
+        </div>
+        <div class="layui-form-item">
+            <button class="layui-btn" id="btn_insert">新增版本</button>
+            <button class="layui-btn" id="btn_ioshis">IOS更新历史</button>
+            <button class="layui-btn" id="btn_androidhis">Android更新历史</button>
+        </div>
+        <div class="layui-form-item">
+            <table class="layui-hide" id="VersionUpdate"></table>
+        </div>
+    </form>
+</div>
+
+<div id="uploadDemo">
+    <i class="layui-icon"></i>
+    <p>点击上传，或将文件拖拽到此处</p>
+</div>
+@section scripts{
+    <script>
+        layui.use(['upload','table'], function () {
+            var upload = layui.upload //上传
+            var table = layui.table;
+            table.render({
+                elem: '#VersionUpdate'
+                , url: '/DownLoad/GetVersionUpdateInfo'
+                , cellMinWidth: 80
+                , cols: [[
+                    { field: 'vId', width: 90, title: '序号', sort: false }
+                    , {
+                        field: 'clienttype', width: 90, title: '客户端', templet: function (d) {
+                            return d.clienttype == '1' ? "Android" : "IOS";
+                        }
+                    }
+                    , { field: 'versionNo', width: 100, title: '版本号' }
+                    , { field: 'checkVersionNumber', width: 300, title: '版本编号', sort: false }
+                    , {
+                        field: 'created_time', width: 90, title: '更新时间', templet: function (d) {
+                            return Common.formatterDate(d.CreateTime);
+                        }
+                    }
+                    , { field: 'isHardUpdate', title: '强制更新', width: 100 }
+                    , { field: 'vId', title: '操作', sort: false, width: 200 }
+                ]]
+                , even: true
+                , page: true
+                , limits: [10, 20, 50, 100]
+                , limit: 10
+            });
+      
+            //上传
+            upload.render({
+                elem: '#uploadDemo'
+                , url: '/download/UploadPic' //上传接口
+                , done: function (res) {
+                    console.log(res)
+                }
+            });
+        });
+    </script>
+}

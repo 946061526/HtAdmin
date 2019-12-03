@@ -1,0 +1,89 @@
+﻿@{
+}
+
+<div class="layui-card">
+    <div class="layui-card-header">
+        <h5>配置权限</h5>
+    </div>
+    <div class="layui-card-body">
+        <div class="layui-form">
+            <div id="xtree"></div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="@Url.Content("~/lay/layui/lay/modules/layui-xtree.js")"></script>
+    <script>
+    var json = [{
+        title: "节点1",
+        value: "jd1",
+        data: [{
+          title: "节点1.1",
+          checked: true,
+          disabled: true,
+          value: "jd1.1",
+          data: []
+        }, {
+          title: "节点1.2",
+          value: "jd1.2",
+          checked: true,
+          data: []
+        }, {
+          title: "节点1.3",
+          value: "jd1.3",
+          disabled: true,
+          data: []
+        }, {
+          title: "节点1.4",
+          value: "jd1.4",
+          data: []
+        }]
+      },
+      {
+        title: "节点2",
+        value: "jd2",
+        data: [{
+          title: "节点2.1",
+          value: "jd2.1",
+          data: []
+        }, {
+          title: "节点2.2",
+          value: "jd2.2",
+          data: []
+        }, {
+          title: "节点2.3",
+          value: "jd2.3",
+          data: []
+        }, {
+          title: "节点2.4",
+          value: "jd2.4",
+          data: []
+        }]
+      },
+      {
+        title: "节点3",
+        value: "jd3",
+        data: []
+      },
+      {
+        title: "节点4",
+        value: "jd4",
+        data: []
+      }
+    ]
+
+    layui.config({
+      base: '@Url.Content("~/lay/")' //静态资源所在路径
+    }).extend({
+      index: 'lib/index' //主入口模块
+    }).use(['index', 'form'], function () {
+      var xtree = new layuiXtree({
+        elem: 'xtree',
+        form: layui.form,
+        data: json
+      });
+    });
+    </script>
+
+}

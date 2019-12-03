@@ -1,0 +1,127 @@
+﻿@{
+    ViewBag.Title = "公告发布 - 后台管理系统";
+    var updateNotice = !ViewBag.UpdateNotice;
+    var bulletin = ViewBag.Bulletin as External.Core.SiteMessage.BulletinInfo_Query;
+}
+@ViewHelpers.js_oocai("kindeditor-min.js")
+@ViewHelpers.js_oocai1("zh_CN.js")
+<div id="right">
+    <div class="RightTitle">
+        <b>新增公告</b>
+    </div>
+    <table width="100%" border="0" cellpadding="0" cellspacing="0" class="bodertable">
+        <tr>
+            <td width="10%" align="right" class="td">
+                标题
+            </td>
+            <td width="80%">
+                <input type="text" id="txt_Title" size="80" class="textinput" value="@(bulletin == null ? null : bulletin.Title)" />
+            </td>
+        </tr>
+        <tr>
+            <td align="right" class="td">
+                有效时间
+            </td>
+            <td>
+                <input type="text" id="txt_EffectiveFrom" value="@(bulletin == null ? DateTime.Now : bulletin.EffectiveFrom.Value)"/>
+                至 <input type="text" id="txt_EffectiveTo" value="@(bulletin == null ? DateTime.Now.AddMonths(+1) : bulletin.EffectiveTo.Value)" />
+            </td>
+        </tr>
+        <tr>
+            <td align="right" class="td">
+                优先级
+            </td>
+            <td>
+                <input type="radio" name="priority" value="1" id="p1" @(bulletin == null ? "checked=checked" : (bulletin.Priority == 1 ? "checked=checked" : "")) /><label for="p1">高</label>
+                <input type="radio" name="priority" value="2" id="p2" @(bulletin == null ? "" : (bulletin.Priority == 2 ? "checked=checked" : "")) /><label for="p2">中</label>
+                <input type="radio" name="priority" value="3" id="p3" @(bulletin == null ? "" : (bulletin.Priority == 3 ? "checked=checked" : "")) /><label for="p3">低</label>
+            </td>
+        </tr>
+        <tr>
+            <td align="right" class="td">
+                公告代理商
+            </td>
+            <td>
+                <select id="slt_bulletionAgent">
+                    <option value="0" @(bulletin == null ? "selected=selected" : (bulletin.BulletinAgent == GameBiz.Core.BulletinAgent.Local ? "selected=selected" : ""))>
+                        本地
+                    </option>
+                    <option value="1" @(bulletin == null ? "" : (bulletin.BulletinAgent == GameBiz.Core.BulletinAgent.CaiPiao114 ? "selected=selected" : ""))>
+                        114彩票
+                    </option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td align="right" class="td"></td>
+            <td>
+                <input type="checkbox" id="isputtop" @(bulletin == null ? "checked=checked" : (bulletin.IsPutTop == 1 ? "checked=checked" : "")) /><label for="isputtop">置顶</label>
+                <input type="checkbox" id="status" @(bulletin == null ? "" : (bulletin.Status == Common.EnableStatus.Disable ? "checked=checked" : "")) /><label for="status">禁用</label>
+            </td>
+        </tr>
+        <tr>
+            <td align="right" class="td" valign="top">
+                内容
+            </td>
+            <td>
+                <textarea id="txt_Content" name="txt_Content" rows="10" cols="70" style="width: 700px;
+                    height: 300px; visibility: hidden;">@(bulletin == null ? null : bulletin.Content)</textarea>
+            </td>
+        </tr>
+        <tr>
+            <td align="right" class="td"></td>
+            <td>
+                <input type="button" id="btn_Publish" value="提交" disabled="@updateNotice" />
+                <input type="button" id="btn_Cencel" value="取消" onclick="javascript: window.history.go(-1)" />
+                <input type="hidden" id="hdn_PublishId" value="@(bulletin == null ? null : bulletin.Id.ToString())" />
+                <input type="checkbox" id="chk_buildStatic" />同步生成静态页
+            </td>
+        </tr>
+    </table>
+    <div class="RightTitle">
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        var editor;
+        $(function () {
+            editor = KindEditor.create('textarea[name="txt_Content"]', {
+                allowFileManager: true,                                            //是否可以浏览上传文件
+                allowUpload: true,                                                     //是否可以上传
+                fileManagerJson: '/UpLoad/UpLoadFile',      //浏览文件方法
+                uploadJson: '/UpLoad/UploadImage'                    //上传文件方法  //注意这两个路径
+            });
+        });
+        $("#btn_Publish").click(function () {
+
+            if (!window.confirm("是否" + $("#btn_Publish").val())) return false;
+            var _this = $(this);
+            var _id = $("#btn_Publish").val();
+            _this.attr("disabled", true).val("正在处理");
+            var data = {
+                title: $("#txt_Title").val(),
+                content: editor.html(),
+                effectiveFrom: $("#txt_EffectiveFrom").val(),
+                effectiveTo: $("#txt_EffectiveTo").val(),
+                priority: $("input[name='priority']:checked").val(),
+                isPutTop: $("#isputtop").attr("checked") ? 1 : 0,
+                status: $("#status").attr("checked") ? 1 : 0,
+                publishId: $("#hdn_PublishId").val(),
+                bulletinAgent: $("#slt_bulletionAgent option:selected").val(),
+                chkBuildStatic: $("#chk_buildStatic").attr("checked")
+            };
+            var url = "/ContentManage/PublishNotice?r=" + Math.random()
+            $.post(url, data, function (callback) {
+                if (callback.IsSuccess) {
+                    alert(callback.Msg);
+                    window.location.href = "/ContentManage/NoticeManage";
+                }
+                else {
+                    alert(callback.Msg);
+                    _this.attr("disabled", false).removeAttr("disabled").val(_id);
+                }
+                layer.close(indexLoading);
+            })
+        })
+    </script>
+}

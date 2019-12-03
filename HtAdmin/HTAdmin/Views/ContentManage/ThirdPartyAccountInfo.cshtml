@@ -1,0 +1,116 @@
+﻿@using External.Core.SystemConfig
+@{
+    ViewBag.Title = "第三方账号配置";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var model = ViewBag.ThirdPartyAccountConfig as ThirdPartyAccountConfigCollection;
+}
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            第三方账号配置
+        </div>
+        <div class="layui-card-body">
+            <form id="thirdPartyAccount" class="layui-form layui-form-pane">
+                @{
+                    int index = 0;
+                    foreach (var item in model.ThirdPartyAccountConfigList)
+                    {
+                        <div class="layui-form-item">
+                            <input type="hidden" name="list[@index].ConfigKey" value="@item.ConfigKey" />
+                            <label class="layui-form-label" style="width:25%">@item.ConfigName</label>
+                            <div class="layui-input-block" style="margin-left:160px;">
+                                <input type="text" name="list[@index].ConfigValue" value="@item.ConfigValue"
+                                       autocomplete="off" placeholder="排序" class="layui-input" style="height:38px">
+                            </div>
+                        </div>
+                        index++;
+                    }
+                    <div class="layui-form-item layui-layout-admin">
+                        <div class="layui-input-block">
+                            <div class="layui-footer" style="text-align:right;">
+                                <button type="button" class="layui-btn layui-btn-primary" id="btnCancel">取消</button>
+                                <button type="button" class="layui-btn  layui-btn-normal" id="btn_save" lay-filter="btn_save" style="margin-right:15px;" name="btn">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        layui.config({
+            base: '../lay/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'form', 'laydate'], function () {
+
+            //常规用法
+            layui.laydate.render({
+                elem: '#laydate'
+            });
+
+            var form = layui.form,
+                layer = layui.layer,
+                $ = layui.$;
+
+        });
+
+        $("#btn_save").on("click", function () {
+            $.ajax({
+                url: "/contentmanage/SaveThirdPartyAccount",
+                type: "post",
+                data: $('#thirdPartyAccount').serialize(),
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg(
+                            data.msg,
+                            { icon: 1, time: 2000 }
+                            , function (i) {
+                                var index = parent.layer.getFrameIndex(window.name);
+                                parent.layer.close(index);
+                            });
+                    }
+                        else {
+                    layer.msg(
+                        data.msg,
+                        { icon: 5, time: 2000 }
+                        , function (i) {
+                            var index = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(index);
+                        });
+                    }
+                },
+                error: function (e) {
+                    layer.msg(
+                        "请求异常！",
+                        { icon: 5, time: 2000 }
+                        , function (i) {
+                            var index = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(index);
+                        });
+                }
+            });
+        });
+
+        function alertmsg(message) {
+            layer.msg(message, {
+                offset: 't',
+                anim: 5,
+                time: 1000
+            }, function () {
+                var index = parent.layer.getFrameIndex(window.name);
+                parent.layer.close(index);
+            });
+        }
+
+        $("#btnCancel").click(function () {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);//关闭当前页
+        });
+    </script>
+}

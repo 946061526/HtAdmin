@@ -1,0 +1,312 @@
+﻿
+
+@using GameBiz.Core
+@{
+    ViewBag.Title = "充值明细";
+
+    var List = ViewBag.List as GameBiz.Core.FillMoneyQueryInfoCollection;
+    int index = ((int)ViewBag.PageIndex - 1) * (int)ViewBag.PageSize + 1;
+
+    var sTime = ViewBag.StartTime == null ? DateTime.Today.AddDays(-7).ToString("yyyy-MM-dd HH:mm") : Convert.ToDateTime(ViewBag.StartTime).ToString("yyyy-MM-dd HH:mm");
+    var eTime = ViewBag.EndTime == null ? DateTime.Today.AddDays(1).AddSeconds(-1).ToString("yyyy-MM-dd HH:mm") : Convert.ToDateTime(ViewBag.EndTime).ToString("yyyy-MM-dd HH:mm");
+}
+@section styles{
+    <style>
+        .width260 {
+            width: 260px;
+        }
+    </style>
+}
+<div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <div class="layui-input-inline" style="width:260px">
+                    <input type="text" id="CreateTime" placeholder="充值时间" autocomplete="off" class="layui-input width260" value="@((sTime + eTime)==""? "":sTime+" ~ "+eTime)">
+                </div>
+                <input type="hidden" id="hdStartTime" value="@sTime" />
+                <input type="hidden" id="hdEndTime" value="@eTime" />
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="number" id="UserID" placeholder="用户ID" autocomplete="off" class="layui-input" maxlength="10" value="@ViewBag.UserID">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" id="OrderID" placeholder="充值单号" autocomplete="off" class="layui-input" value="@ViewBag.OrderID">
+                </div>
+            </div>
+            @*<div class="layui-inline">
+                    <div class="layui-input-inline">
+                        <input type="text" id="Money" placeholder="充值金额" autocomplete="off" class="layui-input" value="">
+                    </div>
+                </div>*@
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <select name="label" id="sel_source">
+                        <option value="" @(ViewBag.SchemeSource == "" ? "selected=selected" : "")>端</option>
+                        <option value="0" @(ViewBag.SchemeSource == "0" ? "selected=selected" : "")>网站</option>
+                        <option value="101" @(ViewBag.SchemeSource == "101" ? "selected=selected" : "")>iPhone客户端</option>
+                        <option value="102" @(ViewBag.SchemeSource == "102" ? "selected=selected" : "")>Android客户端</option>
+                        <option value="104" @(ViewBag.SchemeSource == "104" ? "selected=selected" : "")>M站</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <select name="label" id="sel_status">
+                        <option value="" @(ViewBag.Status == "" ? "selected=selected" : "")>状态</option>
+                        <option value="0" @(ViewBag.Status == "0" ? "selected=selected" : "")>请求中</option>
+                        <option value="1" @(ViewBag.Status == "1" ? "selected=selected" : "")>成功</option>
+                        <option value="2" @(ViewBag.Status == "2" ? "selected=selected" : "")>失败</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <select name="label" id="sel_AgentType">
+                        <option value="" @(ViewBag.AgentType == "" ? "selected=selected" : "")>充值方式</option>
+                        <option value="10" @(ViewBag.AgentType == "10" ? "selected=selected" : "")>支付宝</option>
+                        <option value="99" @(ViewBag.AgentType == "99" ? "selected=selected" : "")>手工充值</option>
+                        <option value="185" @(ViewBag.AgentType == "185" ? "selected=selected" : "")>充值专员</option>
+                        <option value="204" @(ViewBag.AgentType == "204" ? "selected=selected" : "")>好易快捷</option>
+                        <option value="203" @(ViewBag.AgentType == "203" ? "selected=selected" : "")>好易QQ</option>
+                        <option value="195" @(ViewBag.AgentType == "195" ? "selected=selected" : "")>好易微信</option>
+                        <option value="196" @(ViewBag.AgentType == "196" ? "selected=selected" : "")>好易支付宝</option>
+                        <option value="197" @(ViewBag.AgentType == "197" ? "selected=selected" : "")>好易H5微信</option>
+                        <option value="198" @(ViewBag.AgentType == "198" ? "selected=selected" : "")>好易H5支付宝</option>
+                        <option value="210" @(ViewBag.AgentType == "210" ? "selected=selected" : "")>超汇付支付宝官网</option>
+                        <option value="211" @(ViewBag.AgentType == "211" ? "selected=selected" : "")>超汇付支付宝扫码</option>
+                        <option value="212" @(ViewBag.AgentType == "212" ? "selected=selected" : "")>超汇付支付宝WAP</option>
+                        <option value="213" @(ViewBag.AgentType == "213" ? "selected=selected" : "")>超汇付微信扫码</option>
+                        <option value="214" @(ViewBag.AgentType == "214" ? "selected=selected" : "")>超汇付微信WAP</option>
+                        <option value="215" @(ViewBag.AgentType == "215" ? "selected=selected" : "")>超汇付微信公众号</option>
+                        <option value="216" @(ViewBag.AgentType == "216" ? "selected=selected" : "")>超汇付QQ扫码</option>
+                        <option value="217" @(ViewBag.AgentType == "217" ? "selected=selected" : "")>超汇付QQ WAP</option>
+                        <option value="218" @(ViewBag.AgentType == "218" ? "selected=selected" : "")>超汇付银联快捷</option>
+                        <option value="219" @(ViewBag.AgentType == "219" ? "selected=selected" : "")>超汇付银行网关</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn" lay-submit lay-filter="LAY-app-contlist-search" id="btnSearch">
+                    查询
+                </button>
+                <button class="layui-btn layui-btn-primary" id="btnReset">
+                    重置
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-card-body">
+        <div class="w-margin-t-4">
+            <table class="layui-table w-text-nowrap" lay-skin="line">
+                <colgroup>
+                    <col width="100">
+                    <col width="150">
+                    <col width="150">
+                    <col width="200">
+                    <col width="300">
+                    <col width="300">
+                    <col width="150">
+                    <col width="150">
+                    <col width="150">
+                    <col width="150">
+                    <col width="200">
+                    <col width="200">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>
+                            序号
+                        </th>
+                        <th>
+                            用户ID
+                        </th>
+                        <th>
+                            昵称
+                        </th>
+                        <th>
+                            充值时间
+                        </th>
+                        <th>
+                            充值单号
+                        </th>
+                        <th>
+                            充值方式
+                        </th>
+                        <th>
+                            端
+                        </th>
+                        <th style="text-align: right">
+                            充值金额
+                        </th>
+                        <th style="text-align: right">
+                            实际到账
+                        </th>
+                        <th>
+                            状态
+                        </th>
+                        <th>
+                            交易说明
+                        </th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in List.FillMoneyList)
+                    {
+                        <tr>
+                            <td>@(index++)</td>
+                            <td>@item.UserId</td>
+                            <td>
+                                @item.UserDisplayName
+                            </td>
+                            <td>@(Convert.ToDateTime(item.ResponseTime).ToString("yyyy-MM-dd HH:mm"))</td>
+                            <td>
+                                @item.OrderId
+                            </td>
+                            <td> @ViewHelpers.ConvertFillMoneyAgentType(item.FillMoneyAgent)</td>
+                            <td> @ViewHelpers.ConvertSchemeSource(item.SchemeSource)</td>
+                            <td class="w-text-right">@item.RequestMoney.ToString("c")</td>
+                            <td class="w-text-right">@(item.ResponseMoney != null ? ((decimal)item.ResponseMoney).ToString("c") : "0.00")</td>
+                            <td>
+                                @{
+                                    switch (item.Status)
+                                    {
+                                        case FillMoneyStatus.Requesting:
+                                            @(new HtmlString("<span class='layui-badge-dot layui-bg-orange'></span>请求中"));
+                                            break;
+                                        case FillMoneyStatus.Success:
+                                            @(new HtmlString("<span class='layui-badge-dot layui-bg-green'></span>成功"));
+                                            break;
+                                        case FillMoneyStatus.Failed:
+                                            @(new HtmlString("<span class='layui-badge-dot'></span>失败"));
+                                            break;
+                                    }
+                                }
+                            </td>
+                            <td>
+                                @if (item.OuterFlowId == "")
+                                {
+                                    @item.GoodsDescription
+                                }
+                                else
+                                {
+                                    string.Format("{0}({1})", item.GoodsDescription, item.OuterFlowId);
+                                }
+                            </td>
+                            <td>
+                                @if (item.Status == GameBiz.Core.FillMoneyStatus.Requesting)
+                                {
+                                    if (ViewBag.wccz)
+                                    {
+                                        <a class="layui-btn layui-btn-normal layui-btn-xs" onclick="CompleteRecharge('@item.OrderId',1)">完成充值</a>
+                                    }
+                                    if (ViewBag.zwsb)
+                                    {
+                                        <a class="layui-btn layui-btn-danger layui-btn-xs" onclick="CompleteRecharge('@item.OrderId',2)">置为失败</a>
+                                    }
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @ViewHelpers.Pager(ViewBag.PageIndex, ViewBag.PageSize, List.TotalCount)
+        </div>
+    </div>
+</div>
+
+@section scripts{
+
+    <script type="text/javascript">
+
+        //日期时间
+        layui.laydate.render({
+            elem: '#CreateTime'
+            , type: 'datetime'
+            , format: 'yyyy-MM-dd HH:mm'
+            , range: '~'
+            , done: function (value, sDate, endDate) {
+                if (value == '') {
+                    $("#hdStartTime").val('');
+                    $("#hdEndTime").val('');
+                } else {
+                    $("#hdStartTime").val(sDate.year + "-" + sDate.month + "-" + sDate.date + " " + sDate.hours + ":" + sDate.minutes);
+                    $("#hdEndTime").val(endDate.year + "-" + endDate.month + "-" + endDate.date + " " + endDate.hours + ":" + endDate.minutes);
+                }
+            }
+        });
+
+        var initFun = function () {
+            var params = {
+                UserID: '',
+                OrderId: '',
+                Status: '',
+                SchemeSource: '',
+                AgentType: '',
+                StartTime: '',
+                EndTime: '',
+                AgentIds: '',
+                pageIndex: 1
+            },
+                txt_UserID = $("#UserID"),
+                txt_OrderID = $("#OrderID"),
+                sel_status = $("#sel_status"),
+                sel_source = $("#sel_source"),
+                sel_AgentType = $("#sel_AgentType"),
+                btnSearch = $("#btnSearch"),
+                btnReset = $("#btnReset");
+
+            //查询
+            btnSearch.click(function () {
+                params.UserID = txt_UserID.val();
+                params.OrderId = txt_OrderID.val();
+                params.Status = sel_status.val();
+                params.SchemeSource = sel_source.val();
+                params.AgentType = sel_AgentType.val();
+                params.StartTime = $("#hdStartTime").val();
+                params.EndTime = $("#hdEndTime").val();
+                params.pageIndex = 1;
+                publicPagingList(params);
+            });
+            //重置
+            btnReset.click(function () {
+                txt_UserID.val('');
+                txt_OrderID.val('');
+                sel_status.val('');
+                sel_source.val('');
+                sel_AgentType.val('');
+                layui.form.render('select');
+            });
+        };
+        initFun();
+
+        //完成充值
+        var CompleteRecharge = function (orderID, t) {
+            var tip = t == 1 ? "完成充值" : "置为失败",
+                sta = t == 1 ? '' : 'Fail';
+            ShowConfirm('确定' + tip + '吗', function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/Finance/CompleteRecharge",
+                    data: { orderId: orderID, sta: sta },
+                    success: function (res) {
+                        if (res.IsSuccess) {
+                            ShowSuccessMsg(tip + '操作成功', false, false, function () {
+                                window.location.reload(true);
+                            });
+                        }
+                        else {
+                            ShowErrorMsg(tip + '操作失败: ' + res.Msg);
+                        }
+                    }
+                });
+            })
+        };
+    </script>
+}

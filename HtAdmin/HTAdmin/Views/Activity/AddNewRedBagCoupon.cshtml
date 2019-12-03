@@ -1,0 +1,121 @@
+﻿
+@{
+    ViewBag.Title = "手动发放红包";
+    var temlist = ViewBag.List as GameBiz.Core.RedBagCouponTemplateInfoCollection;
+}
+
+<div class="layui-card">
+    <div class="layui-card-body">
+        <select id="redBagTmp" hidden="hidden">
+            <option value="">请选择红包模板</option>
+            @foreach (var item in temlist.RedBagCouponTemplateList)
+            {
+                <option value="@item.RedBagCouponTemplateId">@item.RedBagCouponName @("(") @item.CouponMoney.ToString("C") @("-") @(item.FillMoney == 0 ? "无限制" : item.FillMoney.ToString("C"))@(")")</option>
+            }
+        </select>
+        <form class="layui-form" id="form1" action="/Activity/AddNewRedBagCouponToUser" method="post" enctype="multipart/form-data">
+            <div class="layui-form-item">
+                <label class="layui-form-label">发放用户</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="userName" id="userName" lay-verify="title" autocomplete="off" placeholder="请输入用户名" class="layui-input" maxlength="40">
+                </div>
+            </div>
+
+            <div id="redBagDiv">
+                <div id="redBagDiv0">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">选择红包1</label>
+                        <div class="layui-input-inline">
+                            <select id="redBagTmp0" name="request[0].RedBagTmp">
+                                <option value="">请选择红包模板</option>
+                                @foreach (var item in temlist.RedBagCouponTemplateList)
+                                {
+                                    <option value="@item.RedBagCouponTemplateId">@item.RedBagCouponName @("(") @item.CouponMoney.ToString("C") @("-") @(item.FillMoney == 0 ? "无限制" : item.FillMoney.ToString("C"))@(")")</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">数量</label>
+                        <div class="layui-input-inline">
+                            <input type="number" name="request[0].Count" lay-verify="title" autocomplete="off" placeholder="0" class="layui-input" maxlength="10">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-inline">
+                    <div class="layui-footer" style="text-align:right;">
+                        <button type="button" class="layui-btn layui-btn-primary" id="btn_AddRow">增加一条</button>
+                        <button type="button" class="layui-btn layui-btn-normal" lay-filter="add" id="btn_Add" style="margin-right:20px;">发放红包</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section scripts{
+    <script>
+        $(document).on('click', '.del', function () {
+            var id = $(this).data('id');
+            $('#redBagDiv' + id).remove();
+        })
+
+        $("#btn_Add").click(function () {
+            if ($("#userName").val() == '') {
+                ShowWarnningMsg('请输入发放用户');
+                return false;
+            }
+            //$("#form1").submit();
+            $.ajax({
+                type: "post",
+                url: '/Activity/AddNewRedBagCouponToUser',
+                data: $('#form1').serialize(),
+                success: function (data) {
+                    if (data.IsSuccess) {
+                        ShowSuccessMsg('发放成功',true,true);
+                    } else {
+                        ShowErrorMsg(data.Msg);
+                    }
+                },
+                error: function () {
+                    ShowErrorMsg('提交失败');
+                }
+            });
+        })
+
+        $("#btn_AddRow").click(function () {
+            //默认是1个
+            var redBagDiv = $('#redBagDiv'),
+                dropdown = $('#redBagTmp').html();
+
+            var length = redBagDiv.children().length;
+
+            var html = '';
+            html += '<div id="redBagDiv' + length + '">';
+            html += '    <div class="layui-form-item">';
+            html += '        <label class="layui-form-label">选择红包' + length + '</label>';
+            html += '        <div class="layui-input-inline">';
+            html += '            <select id="redBagTmp' + length + '" name="request[' + length + '].RedBagTmp">';
+            html += dropdown;
+            html += '            </select>';
+            html += '       </div>';
+            html += '    </div>';
+            html += '    <div class="layui-form-item">';
+            html += '        <label class="layui-form-label">数量</label>';
+            html += '        <div class="layui-input-inline">';
+            html += '            <input type="number" name="request[' + length + '].Count" lay-verify="title" autocomplete="off" placeholder="0" class="layui-input" maxlength="10">';
+            html += '            <input type="button" value="删除该条" data-id="' + length + '" class="layui-btn layui-btn-primary del"/>';
+            html += '        </div>';
+            html += '    </div>';
+            html += '</div>';
+
+            redBagDiv.append(html);
+            layui.form.render();
+        })
+
+    </script>
+}

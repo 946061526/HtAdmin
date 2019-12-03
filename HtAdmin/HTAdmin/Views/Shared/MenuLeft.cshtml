@@ -1,0 +1,98 @@
+﻿@model  List<HTAdmin.Models.AdminMenuModel>
+@{
+    var menu = Model;
+    var user = ViewBag.CurUser as HTAdmin.Models.LoginInfoModel;
+    int index = 0;
+    string path = Request.Url.AbsolutePath.ToLower();
+}
+<!-- 侧边菜单 -->
+<div class="layui-side layui-side-menu">
+    <div class="layui-side-scroll">
+        <div class="layui-logo" lay-href="@Url.Action("About","Home")">
+            <span>彩票运营后台</span>
+        </div>
+        <ul class="layui-nav layui-nav-tree" lay-shrink="all" id="LAY-system-side-menu" lay-filter="layadmin-system-side-menu">
+            <li data-name="home" class="layui-nav-item layui-this">
+                <a lay-href="/Report/Index" lay-tips="首页" lay-direction="@index">
+                    <i class="layui-icon layui-icon-home"></i>
+                    <cite>首页</cite>
+                </a>
+            </li>
+            @foreach (var first in menu)
+            {
+                if (string.IsNullOrWhiteSpace(first.ParentId))
+                {
+                    index++;
+                    //获取二级类目
+                    var second = menu.Where(p => p.ParentId == first.Id);
+                    bool expand = second.FirstOrDefault(p => p.Url.ToLower() == path) == null;
+                    if (second.Count() > 0)
+                    {
+                        <li data-name="home" class="layui-nav-item @(expand?"":"layui-nav-itemed")">
+                            <a href="javascript:;" lay-tips="@first.Name" lay-direction="@index">
+                                <i class="layui-icon @first.IconUrl"></i>
+                                <cite>@first.Name</cite>
+                            </a>
+
+
+                            <dl class="layui-nav-child">
+                                @foreach (var subMenu in second)
+                                {
+                                    if (!string.IsNullOrWhiteSpace(subMenu.ParentId))
+                                    {
+                                        <dd class="@(path.Equals(subMenu.Url.ToLower())?"layui-this":string.Empty)">
+                                            <a lay-href="@subMenu.Url" loading>@subMenu.Name</a>
+                                        </dd>
+                                    }
+                                }
+                            </dl>
+
+                        </li>
+                    }
+                }
+            }
+
+
+            @*<li data-name="home" class="layui-nav-item layui-nav-itemed">
+                    <a href="javascript:;" lay-tips="主页" lay-direction="1">
+                        <i class="layui-icon layui-icon-home"></i>
+                        <cite>主页</cite>
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd data-name="index" class="layui-this">
+                            <a lay-href="@Url.Action("About","Home")">首页</a>
+                        </dd>
+                        <dd data-name="list">
+                            <a lay-href="@Url.Action("List","Home")">列表页</a>
+                        </dd>
+                        <dd data-name="form">
+                            <a lay-href="@Url.Action("Form","Home")">表单页</a>
+                        </dd>
+                        <dd data-name="detail">
+                            <a lay-href="@Url.Action("Detail","Home")">详情页</a>
+                        </dd>
+                        <dd data-name="login">
+                            <a lay-href="home/login.html">登陆</a>
+                        </dd>
+                        <dd data-name="permission">
+                            <a lay-href="@Url.Action("Permission","Home")">配置权限</a>
+                        </dd>
+                    </dl>
+                </li>
+                <li data-name="layer" class="layui-nav-item">
+                    <a href="javascript:;" lay-tips="弹窗" lay-direction="2">
+                        <i class="layui-icon layui-icon-home"></i>
+                        <cite>弹窗示例</cite>
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd data-name="base">
+                            <a lay-href="layer/base.html">功能演示</a>
+                        </dd>
+                        <dd data-name="special">
+                            <a lay-href="layer/special.html">特殊示例</a>
+                        </dd>
+                    </dl>
+                </li>*@
+        </ul>
+    </div>
+</div>

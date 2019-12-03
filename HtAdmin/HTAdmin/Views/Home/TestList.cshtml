@@ -1,0 +1,214 @@
+﻿@{
+
+}
+
+<div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" name="id" placeholder="文本框" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" name="id" placeholder="文本框" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" name="id" placeholder="文本框" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" name="id" placeholder="文本框" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" id="laydate" placeholder="日期" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <select name="label">
+                        <option value="">下拉框</option>
+                        <option value="0">美食</option>
+                        <option value="1">新闻</option>
+                        <option value="2">八卦</option>
+                        <option value="3">体育</option>
+                        <option value="4">音乐</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn" lay-submit lay-filter="LAY-app-contlist-search">
+                    查询
+                </button>
+                <button class="layui-btn layui-btn-primary">
+                    重置
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="layui-card-body">
+        <div class="w-margin-t-2">
+            <button class="layui-btn layui-btn-normal">添加</button>
+            <button class="layui-btn layui-btn-danger">删除</button>
+        </div>
+        <div class="w-margin-t-2">
+            <blockquote class="layui-elem-quote">红包总计 <span class="w-color-primary">40</span> 个   总金额：<span class="w-color-primary">188</span> 元</blockquote>
+        </div>
+        <div class="w-margin-t-4">
+            <table class="layui-table w-text-nowrap" lay-skin="line">
+                <colgroup>
+                    <col width="100">
+                    <col>
+                    <col width="200">
+                    <col width="150">
+                    <col width="150">
+                    <col width="150">
+                    <col width="200">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>
+                            <span>文章ID</span>
+                            <span class="layui-table-sort layui-inline">
+                                <i class="layui-edge layui-table-sort-asc"></i>
+                                <i class="layui-edge layui-table-sort-desc"></i>
+                            </span>
+                        </th>
+                        <th>
+                            文章标题
+                        </th>
+                        <th>
+                            <div class="w-text-right">金额</div>
+                        </th>
+                        <th>
+                            图标
+                        </th>
+                        <th>
+                            <span>上传时间</span>
+                            <span class="layui-table-sort layui-inline">
+                                <i class="layui-edge layui-table-sort-asc"></i>
+                                <i class="layui-edge layui-table-sort-desc"></i>
+                            </span>
+                        </th>
+                        <th>
+                            发布状态
+                        </th>
+                        <th>
+                            操作
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            007
+                        </td>
+                        <td>
+                            体育
+                        </td>
+                        <td class="w-text-right">
+                            1,123,223.00
+                        </td>
+                        <td>
+                            <img width="30" height="30" />
+                        </td>
+                        <td>
+                            20180515
+                        </td>
+                        <td>
+                            <button class="layui-btn layui-btn-primary layui-btn-xs">待修改</button>
+                        </td>
+                        <td>
+                            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit">
+                                <i class="layui-icon layui-icon-edit"></i>编辑
+                            </a>
+                            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">
+                                <i class="layui-icon layui-icon-delete"></i>删除
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            007
+                        </td>
+                        <td>
+                            体育
+                        </td>
+                        <td class="w-text-right">
+                            1,123,223.00
+                        </td>
+                        <td>
+                            <img width="30" height="30" />
+                        </td>
+                        <td>
+                            20180515
+                        </td>
+                        <td>
+                            <button class="layui-btn layui-btn-primary layui-btn-xs">待修改</button>
+                        </td>
+                        <td>
+                            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit">
+                                <i class="layui-icon layui-icon-edit"></i>编辑
+                            </a>
+                            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">
+                                <i class="layui-icon layui-icon-delete"></i>删除
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+            </table>
+            <div class="layui-box layui-laypage layui-laypage-default">
+                <a href="javascript:;" class="layui-laypage-prev layui-disabled" data-page="0">
+                    <i class="layui-icon"></i>
+                </a>
+                <span class="layui-laypage-curr">
+                    <em class="layui-laypage-em"></em>
+                    <em>1</em>
+                </span>
+                <a href="javascript:;" data-page="2">2</a>
+                <a href="javascript:;" data-page="3">3</a>
+                <span class="layui-laypage-spr">…</span>
+                <a href="javascript:;" class="layui-laypage-last" title="尾页" data-page="10">10</a>
+                <a href="javascript:;" class="layui-laypage-next" data-page="2">
+                    <i class="layui-icon"></i>
+                </a>
+                <span class="layui-laypage-skip">
+                    到第
+                    <input type="text" min="1" value="1" class="layui-input">页
+                    <button type="button" class="layui-laypage-btn">确定</button>
+                </span>
+                <span class="layui-laypage-count">共 100 条</span>
+                <span class="layui-laypage-limits">
+                    <select lay-ignore="">
+                        <option value="10" selected="">10 条/页</option>
+                        <option value="15">15 条/页</option>
+                        <option value="20">20 条/页</option>
+                        <option value="25">25 条/页</option>
+                        <option value="30">30 条/页</option>
+                    </select>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        layui.config({
+            base: '../lay/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'contlist', 'laydate', 'table'], function () {
+            //常规用法
+            layui.laydate.render({
+                elem: '#laydate'
+            });
+        });
+    </script>
+}

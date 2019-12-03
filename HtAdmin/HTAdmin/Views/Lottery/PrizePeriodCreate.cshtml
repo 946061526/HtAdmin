@@ -1,0 +1,123 @@
+﻿
+
+<div class="layui-card">
+    <div class="layui-card-body">
+        <input type="hidden" id="hdGameCode" value="@ViewBag.GameCode" />
+        <div class="layui-form-item" style="height:327px">
+            <label class="layui-form-label">日期：</label>
+            <div class="layui-inline" style="width:530px">
+                <div class="layui-input-inline" style="width:530px">
+                    <input type="text" id="CreateTime" placeholder="日期" autocomplete="off" class="layui-input" />
+                </div>
+                <input type="hidden" id="hdStartTime" value="" />
+                <input type="hidden" id="hdEndTime" value="" />
+            </div>
+
+            @if (ViewBag.GameCode == "BJPK10")
+            {
+                <label class="layui-form-label">开始期号：</label>
+                <div class="layui-inline" style="width:530px">
+                    <div class="layui-input-inline" style="width:530px">
+                        <input type="number" id="StartIssue" placeholder="开始期号" autocomplete="off" class="layui-input" min="1" />
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="layui-form-item layui-layout-admin">
+            <div class="layui-input-inline">
+                <div class="layui-footer" style="text-align:right;">
+                    <button type="button" class="layui-btn layui-btn-primary" id="btnCancel">取消</button>
+                    <button type="button" class="layui-btn layui-btn-normal" lay-filter="add" id="btn_save" style="margin-right:20px;">保存</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+@section scripts{
+    <script>
+        var GameCode = $("#hdGameCode").val(),
+            tag = false;
+
+        var dType = 'date',
+            dFormat = 'yyyy-MM-dd';
+        if (GameCode == 'SSQ' || GameCode == 'DLT' || GameCode == 'FC3D' || GameCode == 'PL3') {
+            tag = true;
+            dType = 'year';
+            dFormat = 'yyyy';
+        }
+
+        //日期时间
+        layui.laydate.render({
+            elem: '#CreateTime'
+            , type: dType
+            , format: dFormat
+            , range: '~'
+            , done: function (value, sDate, endDate) {
+                var sTime = '',
+                    eTime = '';
+                if (value != '') {
+                    if (tag) {
+                        sTime = sDate.year;
+                        eTime = endDate.year;
+                    } else {
+                        sTime = sDate.year + "-" + sDate.month + "-" + sDate.date;
+                        eTime = endDate.year + "-" + endDate.month + "-" + endDate.date;
+                    }
+                }
+                $("#hdStartTime").val(sTime);
+                $("#hdEndTime").val(eTime);
+            }
+        });
+
+        var _isSubmitting = false;
+        //手动开启奖期
+        $("#btn_save").click(function () {
+
+            if (_isSubmitting) return;
+
+            var StartTime = $("#hdStartTime").val(),
+                EndTime = $("#hdEndTime").val(),
+                StartIssue = $("#StartIssue").val();
+
+            if (!StartTime || !EndTime) {
+                ShowWarnningMsg('请选择日期');
+                return false;
+            }
+            if (GameCode == 'BJPK10') {
+                if (!StartIssue) {
+                    ShowWarnningMsg('请输入开始期号');
+                    return false;
+                }
+            }
+            ShowConfirm('确定要手动开启奖期吗', function () {
+                _isSubmitting = true;
+                var data = {
+                    gameCode: GameCode,
+                    startTime: StartTime,
+                    endTime: EndTime,
+                    startIssue: StartIssue
+                }
+                $.post('/Lottery/PrizePeriodCreateJson', data, function (result) {
+                    if (result.IsSuccess) {
+                        ShowSuccessMsg(result.Msg, false, false, function () {
+                            window.location.reload(true);
+                        });
+                    }
+                    else {
+                        ShowErrorMsg(result.Msg);
+                    }
+                    _isSubmitting = false;
+                });
+            });
+        });
+
+        $("#btnCancel").click(function () {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);//关闭当前页
+        });
+    </script>
+}

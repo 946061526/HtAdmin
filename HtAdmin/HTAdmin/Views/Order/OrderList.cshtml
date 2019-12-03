@@ -1,0 +1,298 @@
+﻿
+
+@using GameBiz.Core;
+@{
+
+    var list = ViewBag.List as OrderInfo_HtCollection;
+    int index = ((int)ViewBag.PageIndex - 1) * (int)ViewBag.PageSize + 1;
+
+    var sTime = ViewBag.StartTime == null ? "" : Convert.ToDateTime(ViewBag.StartTime).ToString("yyyy-MM-dd HH:mm");
+    var eTime = ViewBag.EndTime == null ? "" : Convert.ToDateTime(ViewBag.EndTime).ToString("yyyy-MM-dd HH:mm");
+}
+@section styles{
+    <style>
+        .width260 {
+            width: 260px;
+        }
+    </style>
+}
+<div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <div class="layui-input-inline" style="width:260px">
+                    <input type="text" id="CreateTime" name="CreateTime" placeholder="投注时间" autocomplete="off" class="layui-input width260" value="@((sTime + eTime)==""? "":sTime+" ~ "+eTime)">
+                </div>
+                <input type="hidden" id="hdStartTime" value="@sTime" />
+                <input type="hidden" id="hdEndTime" value="@eTime" />
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" id="UserID" placeholder="用户ID" autocomplete="off" class="layui-input" maxlength="10" value="@ViewBag.UserID">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" id="UserName" placeholder="昵称" autocomplete="off" class="layui-input" maxlength="10" value="@ViewBag.UserName">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" id="IssueNo" placeholder="期号" autocomplete="off" class="layui-input" maxlength="10" value="@ViewBag.IssueNo">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <select id="GameCode">
+                        <option value="" @(ViewBag.GameCode == "" ? "selected=selected" : "")>彩种玩法</option>
+                        <option value="CTZQ" @(ViewBag.GameCode == "CTZQ" ? "selected=selected" : "")>传统足球</option>
+                        <option value="BJDC" @(ViewBag.GameCode == "BJDC" ? "selected=selected" : "")>北京单场</option>
+                        <option value="JCZQ" @(ViewBag.GameCode == "JCZQ" ? "selected=selected" : "")>竞彩足球</option>
+                        <option value="JCLQ" @(ViewBag.GameCode == "JCLQ" ? "selected=selected" : "")>竞彩篮球</option>
+                        <optgroup label="数字彩">
+                            <option value="SSQ" @(ViewBag.GameCode == "SSQ" ? "selected=selected" : "")>双色球</option>
+                            <option value="FC3D" @(ViewBag.GameCode == "FC3D" ? "selected=selected" : "")>福彩3D</option>
+                            <option value="DLT" @(ViewBag.GameCode == "DLT" ? "selected=selected" : "")>大乐透</option>
+                            <option value="PL3" @(ViewBag.GameCode == "PL3" ? "selected=selected" : "")>PL3</option>
+                        </optgroup>
+                        <optgroup label="高频彩">
+                            <option value="CQSSC" @(ViewBag.GameCode == "CQSSC" ? "selected=selected" : "")>重庆时时彩</option>
+                            <option value="JX11X5" @(ViewBag.GameCode == "JX11X5" ? "selected=selected" : "")>江西11X5</option>
+                            <option value="SD11X5" @(ViewBag.GameCode == "SD11X5" ? "selected=selected" : "")>山东11选5</option>
+                            <option value="GD11X5" @(ViewBag.GameCode == "GD11X5" ? "selected=selected" : "")>广东11选5</option>
+                            <option value="GDKLSF" @(ViewBag.GameCode == "GDKLSF" ? "selected=selected" : "")>广东快乐十分</option>
+                            <option value="JSKS" @(ViewBag.GameCode == "JSKS" ? "selected=selected" : "")>江苏快三</option>
+                            <option value="SDKLPK3" @(ViewBag.GameCode == "SDKLPK3" ? "selected=selected" : "")>山东快乐扑克3</option>
+                            <option value="BJPK10" @(ViewBag.GameCode == "BJPK10" ? "selected=selected" : "")>北京PK10</option>
+                            <option value="LOL" @(ViewBag.GameCode == "LOL" ? "selected=selected" : "")>英雄联盟</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <select name="label" id="IsAppend">
+                        <option value="" @(ViewBag.IsAppend == -1 ? "selected=selected" : "")>是否追号</option>
+                        <option value="1" @(ViewBag.IsAppend == 1 ? "selected=selected" : "")>是</option>
+                        <option value="0" @(ViewBag.IsAppend == 0 ? "selected=selected" : "")>否</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <select name="label" id="ProgressStatus">
+                        <option value="" @(ViewBag.ProgressStatus == null ? "selected=selected" : "")>订单状态</option>
+                        <option value="20" @(ViewBag.ProgressStatus == GameBiz.Core.ProgressStatus.AutoStop ? "selected=selected" : "")>自动停止</option>
+                        <option value="80" @(ViewBag.ProgressStatus == GameBiz.Core.ProgressStatus.Aborted ? "selected=selected" : "")>已中断</option>
+                        <option value="90" @(ViewBag.ProgressStatus == GameBiz.Core.ProgressStatus.Complate ? "selected=selected" : "")>已完成</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn" lay-submit lay-filter="btnSearch" id="btnSearch">
+                    查询
+                </button>
+                <button class="layui-btn layui-btn-primary" id="btReset">
+                    重置
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-card-body">
+        <div class="w-margin-t-4">
+            <table class="layui-table w-text-nowrap" lay-skin="line" id="dataList">
+                <colgroup>
+                    <col width="70">
+                    <col width="100">
+                    <col width="100">
+                    <col width="150">
+                    <col width="100">
+                    <col width="100">
+                    <col width="100">
+                    <col width="100">
+                    <col width="150">
+                    <col width="100">
+                    <col width="150">
+                    <col width="100">
+                    <col width="120">
+                    <col width="120">
+                    <col width="120">
+                    <col width="120">
+                    <col width="80">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>用户ID</th>
+                        <th>昵称</th>
+                        <th>投注时间</th>
+                        <th>彩种</th>
+                        <th>玩法</th>
+                        <th>期号</th>
+                        <th>倍数</th>
+                        <th>追号</th>
+                        <th style="text-align: right">订单金额</th>
+                        <th style="text-align: right">中奖状态</th>
+                        <th>加奖到</th>
+                        <th style="text-align: right">奖励金</th>
+                        <th style="text-align: right">红包</th>
+                        <th style="text-align: right">返点</th>
+                        <th>订单状态</th>
+                        <th>详情</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in list.OrderList)
+                    {
+                        <tr>
+                            <td>@(index++)</td>
+                            <td>@item.UserId</td>
+                            <td>@item.UserName</td>
+                            <td>@item.BetTime.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>@item.GameName</td>
+                            <td>@item.GameTypeName</td>
+                            <td>@item.IssuseNumber</td>
+                            <td>@item.Amount</td>
+                            <td>
+                                @if (item.SchemeType == SchemeType.ChaseBetting)
+                                {
+                                    @(item.AppendInfo)
+                                }
+                                else
+                                {
+                                    @("--")
+                                }
+                            </td>
+                            <td class="w-text-right">@item.CurrentBettingMoney.ToString("c")</td>
+                            <td class="w-text-right">
+                                @if ((item.AfterTaxBonusMoney + item.AddMoney) > 0M)
+                                {
+                                    if (item.AfterTaxBonusMoney > 0M)
+                                    {
+                                        <span style="color: Red;">￥@item.AfterTaxBonusMoney.ToString("N2")</span>
+                                    }
+                                    if (item.AddMoney > 0M)
+                                    {
+                                        <span style="color: blue;"> + ￥@item.AddMoney.ToString("N2")</span>
+                                    }
+                                }
+                                else
+                                {
+                                    @("--")
+                                }
+                            </td>
+                            <td>
+                                @if (item.AddMoney > 0)
+                                {
+                                    if (item.BonusAwardsMoney > 0)
+                                    {
+                                        @("奖励金余额")
+                                    }
+                                    else
+                                    {
+                                        @("中奖余额")
+                                    }
+                                }
+                                else
+                                {
+                                    @("--")
+                                }
+                            </td>
+                            <td class="w-text-right">@item.AddMoney.ToString("c")</td>
+                            <td class="w-text-right">@item.RedbagUsedMoney.ToString("c")</td>
+                            <td class="w-text-right">@item.RealPayRebateMoney.ToString("c")</td>
+                            <td>
+                                @{
+                                    var str = ViewHelpers.ConvertOrderStatus(item.ProgressStatus, item.TicketStatus);
+                                    var newStr = str.ToString().Replace("&lt;", "<").Replace("&gt;", ">").Replace("&#39;", "'");
+                                    @Html.Raw(newStr);
+                                }
+                            </td>
+                            <td>
+                                @if (ViewBag.ckddxq)
+                                {
+                                    <a class="layui-btn layui-btn-normal layui-btn-xs" onclick="OpenDetail('@item.SchemeId')">详情</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @ViewHelpers.Pager(ViewBag.PageIndex, ViewBag.PageSize, list.TotalCount)
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script>
+
+        //日期时间
+        layui.laydate.render({
+            elem: '#CreateTime'
+            , type: 'datetime'
+            , format: 'yyyy-MM-dd HH:mm'
+            , range: '~'
+            , done: function (value, sDate, endDate) {
+                if (value == '') {
+                    $("#hdStartTime").val('');
+                    $("#hdEndTime").val('');
+                } else {
+                    $("#hdStartTime").val(sDate.year + "-" + sDate.month + "-" + sDate.date + " " + sDate.hours + ":" + sDate.minutes);
+                    $("#hdEndTime").val(endDate.year + "-" + endDate.month + "-" + endDate.date + " " + endDate.hours + ":" + endDate.minutes);
+                }
+            }
+        });
+
+        var params = {
+            StartTime: '',
+            EndTime: '',
+            UserID: '',
+            UserName: '',
+            IssueNo: '',
+            GameCode: '',
+            IsAppend: -1,
+            ProgressStatus: '',
+            pageIndex: 1
+        };
+
+        /* 查询 */
+        $("#btnSearch").click(function () {
+            params.StartTime = $("#hdStartTime").val();
+            params.EndTime = $("#hdEndTime").val();
+            params.UserID = $("#UserID").val();
+            params.UserName = $("#UserName").val();
+            params.IssueNo = $("#IssueNo").val();
+            params.IsAppend = $("#IsAppend").val() == '' ? '-1' : $("#IsAppend").val();
+            params.GameCode = $("#GameCode").val();
+            params.ProgressStatus = $("#ProgressStatus").val();
+            params.pageIndex = 1;
+
+            publicPagingList(params);
+        });
+
+        /* 重置 */
+        $("#btReset").click(function () {
+            $("#UserID").val("");
+            $("#UserName").val('');
+            $("#IssueNo").val('');
+            $("#GameCode").val('');
+            $("#IsAppend").val('');
+            $("#ProgressStatus").val('');
+            layui.form.render('select');
+        });
+
+        //订单详情
+        var OpenDetail = function (schemeID) {
+            layer.open({
+                type: 2,// 表示是iframe弹框
+                title: "订单详情",
+                content: "/Order/OrderDetail?schemeID=" + schemeID,
+                maxmin: true,
+                area: ['98%', '98%']
+            });
+        }
+    </script>
+
+}
+

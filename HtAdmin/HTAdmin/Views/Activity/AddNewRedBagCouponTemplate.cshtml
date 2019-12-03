@@ -1,0 +1,291 @@
+﻿
+@{
+    ViewBag.Title = "新增红包模板";
+}
+
+<style>
+    .textWidth {
+        width: 300px
+    }
+
+    .labelWidth {
+        width: 120px
+    }
+</style>
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">红包名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="txt_couponName" lay-verify="title" autocomplete="off" placeholder="请输入红包名称" class="layui-input textWidth" id="txt_couponName" maxlength="40">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">面值</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="txt_couponMoney" lay-verify="title" autocomplete="off" placeholder="0" class="layui-input textWidth" id="txt_couponMoney" maxlength="10">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">金额限制</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="txt_couponFillMoney" lay-verify="title" autocomplete="off" placeholder="0" class="layui-input textWidth" id="txt_couponFillMoney" maxlength="10">
+                </div>
+            </div>
+            <div class="layui-form-item" pane="">
+                <label class="layui-form-label labelWidth">彩种限制</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" name="type[all]" lay-skin="primary" lay-filter="chk" title="全部" value="All">
+                </div>
+            </div>
+            <div class="layui-form-item" pane="">
+                <label class="layui-form-label labelWidth"></label>
+                <div class="layui-input-block">
+                    <input type="checkbox" lay-skin="primary" lay-filter="chk" title="数字彩：" value="L-SZC">
+                    <input type="checkbox" value="FC3D" name="gameLimit" lay-skin="primary" title="福彩3D" />
+                    <input type="checkbox" value="PL3" name="gameLimit" lay-skin="primary" title="排列3" />
+                    <input type="checkbox" value="SSQ" name="gameLimit" lay-skin="primary" title="双色球" />
+                    <input type="checkbox" value="DLT" name="gameLimit" lay-skin="primary" title="大乐透" />
+                </div>
+            </div>
+            <div class="layui-form-item" pane="">
+                <label class="layui-form-label labelWidth"></label>
+                <div class="layui-input-block">
+                    <input type="checkbox" lay-skin="primary" lay-filter="chk" title="高频彩：" value="L-GPC">
+                    <input type="checkbox" value="CQSSC" name="gameLimit" lay-skin="primary" title="重庆时时彩" />
+                    <input type="checkbox" value="JX11X5" name="gameLimit" lay-skin="primary" title="江西11选5" />
+                    <input type="checkbox" value="SD11X5" name="gameLimit" lay-skin="primary" title="山东11选5" />
+                </div>
+                <label class="layui-form-label labelWidth"></label>
+                <div class="layui-input-block">
+                    <label class="layui-form-label "></label>
+                    <input type="checkbox" value="GD11X5" name="gameLimit" lay-skin="primary" title="广东11选5" />
+                    <input type="checkbox" value="GDKLSF" name="gameLimit" lay-skin="primary" title="广东快乐十分" />
+                    <input type="checkbox" value="JSKS" name="gameLimit" lay-skin="primary" title="江苏快三" />
+                </div>
+                <label class="layui-form-label labelWidth"></label>
+                <div class="layui-input-block">
+                    <label class="layui-form-label "></label>
+                    <input type="checkbox" value="SDKLPK3" name="gameLimit" lay-skin="primary" title="山东快乐扑克3" />
+                </div>
+            </div>
+            <div class="layui-form-item" pane="">
+                <label class="layui-form-label labelWidth"></label>
+                <div class="layui-input-block">
+                    <input type="checkbox" lay-skin="primary" lay-filter="chk" title="竞技彩：" value="L-JJC">
+                    <input type="checkbox" value="CTZQ" name="gameLimit" lay-skin="primary" title="传统足球" />
+                    <input type="checkbox" value="BJDC" name="gameLimit" lay-skin="primary" title="北京单场" />
+                    <input type="checkbox" value="JCZQ" name="gameLimit" lay-skin="primary" title="竞彩足球" />
+                    <input type="checkbox" value="JCLQ" name="gameLimit" lay-skin="primary" title="竞彩篮球" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">标签</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="txt_RedBagTemTags" lay-verify="title" autocomplete="off" placeholder="多个用英文逗号分隔" class="layui-input textWidth" id="txt_RedBagTemTags">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">状态</label>
+                <div class="layui-input-block">
+                    <input name="temStatus" type="radio" value="1" checked="checked" title="启用" />
+                    <input name="temStatus" type="radio" value="0" title="不启用" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">有效期选择</label>
+                <div class="layui-input-block">
+                    <input name="endUseTimeType" type="radio" value="0" checked="checked" title="有效天数" />
+                    <input name="endUseTimeType" type="radio" value="1" title="确定时间" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">有效期(有效天数)</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="txt_EndUseDay" lay-verify="title" autocomplete="off" placeholder="有效天数" class="layui-input textWidth" id="txt_EndUseDay" value="60">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">有效期(确定时间)</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="txt_EndUseTime" name="txt_EndUseTime" placeholder="确定时间" autocomplete="off" class="layui-input textWidth">
+                </div>
+            </div>
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-inline">
+                    <div class="layui-footer" style="text-align:right;">
+                        <button type="reset" class="layui-btn layui-btn-primary" lay-filter="reset" id="btn_Reset">重置</button>
+                        <button type="button" class="layui-btn layui-btn-normal" lay-filter="add" id="btn_save" style="margin-right:20px;">提交</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+
+        //常规用法
+        layui.laydate.render({
+            elem: '#txt_EndUseTime'
+        });
+
+        var form = layui.form;
+
+        form.on('checkbox(chk)', function (data) {
+            var val = data.value;
+            var isCheck = data.elem.checked;
+            if (val == "All") {
+                if (isCheck) {
+                    //全选
+                    $("[type='checkbox']").prop("checked", true);//全选
+                } else {
+                    //全不选
+                    $("[type='checkbox']").prop("checked", false);//取消全选
+                }
+            } else {
+                if (val == "L-SZC") {
+                    if (isCheck) {
+                        //数字彩 全选
+                        $("[value='FC3D']").prop("checked", true);
+                        $("[value='PL3']").prop("checked", true);
+                        $("[value='SSQ']").prop("checked", true);
+                        $("[value='DLT']").prop("checked", true);
+                    } else {
+                        //数字彩 全不选
+                        $("[value='FC3D']").prop("checked", false);
+                        $("[value='PL3']").prop("checked", false);
+                        $("[value='SSQ']").prop("checked", false);
+                        $("[value='DLT']").prop("checked", false);
+                    }
+                } else if (val == "L-GPC") {
+                    if (isCheck) {
+                        //数字彩 全选
+                        $("[value='CQSSC']").prop("checked", true);
+                        $("[value='JX11X5']").prop("checked", true);
+                        $("[value='SD11X5']").prop("checked", true);
+                        $("[value='GD11X5']").prop("checked", true);
+                        $("[value='GDKLSF']").prop("checked", true);
+                        $("[value='JSKS']").prop("checked", true);
+                        $("[value='SDKLPK3']").prop("checked", true);
+                    } else {
+                        //数字彩 全不选
+                        $("[value='CQSSC']").prop("checked", false);
+                        $("[value='JX11X5']").prop("checked", false);
+                        $("[value='SD11X5']").prop("checked", false);
+                        $("[value='GD11X5']").prop("checked", false);
+                        $("[value='GDKLSF']").prop("checked", false);
+                        $("[value='JSKS']").prop("checked", false);
+                        $("[value='SDKLPK3']").prop("checked", false);
+                    }
+                } else if (val == "L-JJC") {
+                    if (isCheck) {
+                        //数字彩 全选
+                        $("[value='CTZQ']").prop("checked", true);
+                        $("[value='BJDC']").prop("checked", true);
+                        $("[value='JCZQ']").prop("checked", true);
+                        $("[value='JCLQ']").prop("checked", true);
+                    } else {
+                        //数字彩 全不选
+                        $("[value='CTZQ']").prop("checked", false);
+                        $("[value='BJDC']").prop("checked", false);
+                        $("[value='JCZQ']").prop("checked", false);
+                        $("[value='JCLQ']").prop("checked", false);
+                    }
+                }
+            }
+            form.render('checkbox');
+        });
+
+        $('#btn_Reset').click(function () {
+            $("[type='checkbox']").prop("checked", false);//取消全选
+            form.render('checkbox');
+        });
+
+        var _isSubmitting = false;
+        $("#btn_save").click(function () {
+            if (_isSubmitting) return;
+            _isSubmitting = true;
+
+            var txt_couponName = $('#txt_couponName').val(),
+                txt_couponMoney = $('#txt_couponMoney').val(),
+                txt_couponFillMoney = $('#txt_couponFillMoney').val(),
+                txt_RedBagTemTags = $('#txt_RedBagTemTags').val(),
+                gameLimit = getGameCheckBoxValue(),
+                temStatus = $("input[name='temStatus']:checked").val(),
+                endUseTimeType = $("input[name='endUseTimeType']:checked").val(),
+                txt_EndUseDay = $('#txt_EndUseDay').val(),
+                txt_EndUseTime = $('#txt_EndUseTime').val();
+
+            if (!txt_couponName) {
+                ShowWarnningMsg('请输入红包名称');
+                _isSubmitting = false;
+                return false;
+            }
+            if (!txt_couponMoney) {
+                ShowWarnningMsg('请输入红包面值');
+                _isSubmitting = false;
+                return false;
+            }
+            else if (txt_couponMoney <= 0) {
+                ShowWarnningMsg('红包面值必须大于0ID');
+                _isSubmitting = false;
+                return false;
+            }
+            if (endUseTimeType == '0' && !txt_EndUseDay) {
+                ShowWarnningMsg('请输入有效期(有效天数)');
+                _isSubmitting = false;
+                return false;
+            }
+            if (endUseTimeType == '1' && !txt_EndUseTime) {
+                ShowWarnningMsg('请输入有效期(确定时间)');
+                _isSubmitting = false;
+                return false;
+            }
+            $.ajax({
+                type: "POST",
+                url: "/Activity/AddNewRedBagConTem",
+                data: {
+                    txt_couponName: txt_couponName,
+                    txt_couponMoney: txt_couponMoney,
+                    txt_couponFillMoney: txt_couponFillMoney,
+                    txt_RedBagTemTags: txt_RedBagTemTags,
+                    gameLimit: gameLimit,
+                    temStatus: temStatus,
+                    endUseTimeType: endUseTimeType,
+                    txt_EndUseDay: txt_EndUseDay,
+                    txt_EndUseTime: txt_EndUseTime
+                },
+                success: function (res) {
+                    if (res.IsSuccess) {
+                        ShowSuccessMsg('新增成功', true, true);
+                    } else {
+                        ShowErrorMsg('新增失败');
+                    }
+                },
+                error: function (msg) {
+                    ShowErrorMsg('新增失败:' + msg);
+                },
+                complete: function () {
+                    _isSubmitting = false;
+                }
+            });
+        })
+
+        function getGameCheckBoxValue() {
+            var gameLimit = $("input[name='gameLimit']:checked");
+            var checkBoxValue = "";
+            for (var i = 0; i < gameLimit.length; i++) {
+                checkBoxValue += gameLimit[i].value + ",";
+            }
+            if (checkBoxValue.length > 0 && checkBoxValue.indexOf(',') >= 0)
+                checkBoxValue = checkBoxValue.substring(0, checkBoxValue.length - 1);
+
+            return checkBoxValue;
+        }
+    </script>
+
+}
+

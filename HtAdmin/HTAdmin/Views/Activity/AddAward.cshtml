@@ -1,0 +1,324 @@
+﻿@{
+    var addAwards = ViewBag.AddAwards as Activity.Core.BonusMoneyConfigInfoCollection;
+    var activityInfo = ViewBag.ActivityInfo as Activity.Core.ActivityListNewInfo;
+    string url = "/Activity/CreateActivityInfo";
+    bool isEdit = false;
+    int infoId = 0;
+    if (activityInfo != null)
+    {
+        isEdit = true;
+        url = "/Activity/UpdateActivityInfo";
+        infoId = activityInfo.Id;
+    }
+
+
+}
+@section styles{
+    <style>
+        html, body {
+            background-color: white;
+        }
+
+        .addlottery {
+            color: blue;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .removelottery {
+            color: red;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .layui-inline {
+            width: 350px;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .txt-align {
+            text-align: left;
+        }
+
+        .pd0 {
+            padding: 0px;
+        }
+
+        .wd30 {
+            width: 30px;
+        }
+
+        .wd120 {
+            width: 120px;
+        }
+
+        .wd160 {
+            width: 160px;
+        }
+
+        .pos-100 {
+            position: fixed;
+            right: 100px;
+        }
+
+        .pos-20 {
+            position: fixed;
+            right: 20px;
+        }
+    </style>
+}
+
+<div class="layui-card" style="box-shadow:none;">
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">活动名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="ActivityName" value="@(isEdit?activityInfo.ActivityName:"")" lay-verify="required" autocomplete="off" placeholder="请输入活动名称" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">开始时间</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="startTime" name="BeginTime" value="@(isEdit?activityInfo.BeginTime.ToString("yyyy-MM-dd HH:mm"):"")" lay-verify="required" placeholder="活动开始时间" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">结束时间</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="endTime" name="EndTime" value="@(isEdit?activityInfo.EndTime.ToString("yyyy-MM-dd HH:mm"):"")" placeholder="活动结束时间" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div all-lottery>
+                @if (isEdit)
+                {
+                    int i = 0;
+                    foreach (var item in addAwards)
+                    {
+                        <div lottery="" bonus-id="@item.Id">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">彩种名称</label>
+                                <div class="layui-input-block">
+                                    <select name="LotteryType" lay-filter="LotteryType" lay-verify="required">
+                                        @Html.Partial("LotteryType", item.GameCode)
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="layui-inline wd160">
+                                <label class="layui-form-label addlottery pd0" addlottery>增加一条</label>
+                                <label class="layui-form-label removelottery @(i++>0?"":"hide") pd0" removelottery>删除该条</label>
+                            </div>
+                            <div class="layui-form-item">
+                                <div class="layui-inline">
+                                    <label class="layui-form-label">彩种玩法</label>
+                                    <div class="layui-input-block">
+                                        <select name="LotteryPlay" lay-filter="LotteryPlay">
+                                            @Html.Raw(GlobalCache.GetLotterySelectOption(item.GameCode, item.GameType))
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <div class="layui-inline">
+                                    <label class="layui-form-label">过关方式</label>
+                                    <div class="layui-input-block">
+                                        <select name="PassWay" id="passWay">
+                                            <option value="ALL" @(item.PlayType == "ALL" ? "selected='selected'" : "")>不限</option>
+                                            <option value="PM_1" @(item.PlayType == "PM_1" ? "selected='selected'" : "")>过关</option>
+                                            <option value="P1_1" @(item.PlayType == "P1_1" ? "selected='selected'" : "")>单关</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <div class="layui-inline">
+                                    <label class="layui-form-label">加奖比例</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" value="@(item.AddBonusMoneyPercent.ToString("F"))" name="AddAwardPercent" lay-verify="required|money" autocomplete="off" placeholder="请输入加奖比例" class="layui-input">
+                                    </div>
+                                </div>
+                                <div class="layui-inline wd30">
+                                    <label class="layui-form-label txt-align">%</label>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <div class="layui-inline">
+                                    <label class="layui-form-label">最大加奖</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" value="@(item.MaxAddBonusMoney.ToString("F"))" name="MaxAddAward" lay-verify="required|money" autocomplete="off" placeholder="请输入最大加奖金额" class="layui-input">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <div class="layui-inline">
+                                    <label class="layui-form-label">奖金入账户</label>
+                                    <div class="layui-input-block">
+                                        <select name="BonusAccountWay" lay-filter="aihao">
+                                            <option value="10" @(item.AddMoneyWay == "10" ? "selected='selected'" : "")>中奖账户 @*奖金*@</option>
+                                            <option value="70" @(item.AddMoneyWay == "70" ? "selected='selected'" : "")>奖励金账户 @*奖励金*@</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    @Html.Partial("AddAwardPartial")
+                }
+            </div>
+
+            <div class="layui-footer" style="text-align:right;position:fixed;height:40px;width:100%;bottom:0px;">
+                <button type="button" class="layui-btn layui-btn-primary pos-100" id="btnCancel">取消</button>
+                <button class="layui-btn layui-btn-normal pos-20" lay-submit lay-filter="*">保存</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+@section scripts{
+    <script>
+        $(function () {
+            var layer = layui.layer,
+                form = layui.form,
+                laydate = layui.laydate;
+            form.verify({
+                money: [/(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, "请输入正确的数字"]
+            });
+            laydate.render({
+                elem: '#startTime'
+                ,type:'datetime'
+                , format: 'yyyy-MM-dd HH:mm'
+            });
+            laydate.render({
+                elem: '#endTime'
+                ,type:'datetime'
+                , format: 'yyyy-MM-dd HH:mm'
+            });
+            form.on("submit(*)", function (data) {
+                debugger;
+                var d = {};
+                d.ActivityName = $("input[name='ActivityName']").val();
+                d.ActivityCategory = 2;
+                d.ActivityType = 3;
+                d.Status = 1;
+                d.BeginTime = $("input[name='BeginTime']").val();
+                d.EndTime = $("input[name='EndTime']").val();
+                d.BonusList = [];
+                var isEdit = Boolean(@(isEdit?1:0));
+
+                if (isEdit) {
+                    d.Id = @infoId;
+                }
+                $("div[lottery]").each(function (index, ele) {
+                    var obj = {};
+                    var $th = $(this);
+                    if (isEdit) {
+                        if ($th.attr("bonus-id")) {
+                            obj.Id = parseInt($th.attr("bonus-id"));
+                        }
+                    }
+                    obj.GameCode = $(this).find("select[name='LotteryType']").val();
+                    obj.GameType = $(this).find("select[name='LotteryPlay']").val();
+                    obj.AddBonusMoneyPercent = $(this).find("input[name='AddAwardPercent']").val();
+                    obj.MaxAddBonusMoney = $(this).find("input[name='MaxAddAward']").val();
+                    obj.PlayType = $(this).find("select[name='PassWay']").val();
+                    obj.AddMoneyWay = $(this).find("select[name='BonusAccountWay']").val();
+                    d.BonusList.push(obj);
+                });
+                $.post('@url', d, function (r) {
+                    //layer.alert(r.message, function (index) {
+                    //    if (r.Status == 1) {
+                    //        var index = parent.layer.getFrameIndex(window.name);
+                    //        parent.layer.close(index);//关闭当前页
+                    //    }
+                    //    layer.close(index);
+                    //});
+                    if (r.Status == 1) {
+                        ShowSuccessMsg(r.message, true, true);
+                    } else {
+                        ShowErrorMsg(r.message);
+                    }
+                });
+                return false;
+            });
+            $("label[addlottery]").on('click', function () {
+                debugger;
+                var $th = $(this);
+                var $parent = $th.parents("div[lottery]");
+                var $cur = $parent.clone(true).appendTo("div[all-lottery]");
+                $cur.find("label[removelottery]").removeClass('hide');
+                $cur.removeAttr("bonus-id");
+                form.render();
+            });
+            $("label[removelottery]").click(function () {
+                $(this).parents("div[lottery]").remove();
+            });
+            $("#btnCancel").click(function () {
+                var index = parent.layer.getFrameIndex(window.name);
+                parent.layer.close(index);//关闭当前页
+            });
+
+            form.on('select(LotteryType)', function (data) {
+                var $th = $(data.elem);
+                var gameCode = data.value;
+                var $lotteryPlay = $th.parents("div[lottery]").find("select[name='LotteryPlay']");
+                $lotteryPlay.empty();
+                var allOption = "<option value='ALL'>全部</option>";
+                $lotteryPlay.append(allOption);
+                var gameTypeArray = [];
+                if (gameCode == "CTZQ") {
+                    gameTypeArray = ["T14C_14场", "T4CJQ_4场进球", "T6BQC_6场半全", "TR9_任9"];
+                }
+                else if (gameCode == "BJDC") {
+                    gameTypeArray = ["BF_比分", "BQC_半全场", "SPF_胜平负", "SXDS_上下单双", "ZJQ_进球数"];
+                }
+                else if (gameCode == "JCZQ") {
+                    gameTypeArray = ["SPF_胜平负", "BRQSPF_不让球胜平负", "ZJQ_进球数", "BF_比分", "BQC_半全场", "HH_混合过关"];
+                }
+                else if (gameCode == "JCLQ") {
+                    gameTypeArray = ["SF_胜负", "RFSF_让分胜负", "DXF_大小分", "SFC_胜分差", "HH_混合过关"];
+                }
+                else if (gameCode == "CQSSC") {
+                    gameTypeArray = ["1XDX_一星单选", "2XDX_二星单选", "2XHZ_二星和值", "3XDX_三星单选", "5XDX_五星单选", "2XZXFS_二星组选复式", "2XBAODAN_二星组选包胆", "ZX3DS_组三单式", "ZX3FS_组三复式", "ZX6_组选六", "5XTX_五星通选", "DXDS_大小单双"];
+                }
+                else if (gameCode == "JX11X5") {
+                    gameTypeArray = ["RX1_前一直选", "RX2_任选二", "RX3_任选三", "RX4_任选四", "RX5_任选五", "RX6_任选六", "RX7_任选七", "Q2ZHIX_前二直选", "Q2ZUX_前二组选", "Q3ZHIX_前三直选", "Q3ZUX_前三组选"];
+                }
+                else if (gameCode == "SSQ") {
+                    gameTypeArray = ["DS_标准单式", "FS_标准复式", "DT_拖胆投注"];
+                }
+                else if (gameCode == "DLT") {
+                    gameTypeArray = ["DS_标准单式", "FS_标准复式", "DT_拖胆投注"];
+                }
+                else if (gameCode == "FC3D") {
+                    gameTypeArray = ["FS_直选", "HZ_直选和值", "ZX3DS_组三单式", "ZX3FS_组三复式", "ZX6_组选六"];
+                }
+                else if (gameCode == "PL3") {
+                    gameTypeArray = ["FS_直选", "HZ_直选和值", "ZX3DS_组三单式", "ZX3FS_组三复式", "ZX6_组选六"];
+                }
+
+                $.each(gameTypeArray, function (i, item) {
+                    var array = item.split("_");
+                    if (array.length == 2) {
+                        var option = "<option value='" + array[0] + "'>" + array[1]+"</option>'";
+                        $lotteryPlay.append(option);
+                    }
+                    //form.render('select');
+                });
+                form.render('select');
+            });
+        });
+    </script>
+}

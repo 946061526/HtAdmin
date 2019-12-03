@@ -1,0 +1,255 @@
+﻿@{
+    ViewBag.Title = "首页";
+
+    var ListTop = ViewBag.List as External.Core.HTReport.IndexTotalDataList;
+}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <h6>数据汇总</h6>
+            <h7 class="w-color-gray">今日@(DateTime.Now.ToString("HH:mm"))分更新数据</h7>
+        </div>
+        <div class="layui-card-body">
+            <table class="layui-table w-text-nowrap w-text-right" lay-skin="line">
+                <colgroup>
+                    <col width="50">
+                    <col width="150">
+                    <col width="150">
+                    <col width="150">
+                    <col width="150">
+                    <col width="150">
+                    <col width="150">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>
+
+                        </th>
+                        <th style="text-align: right">
+                            新增用户
+                        </th>
+                        <th style="text-align: right">
+                            新增购彩用户
+                        </th>
+                        <th style="text-align: right">
+                            充值金额
+                        </th>
+                        <th style="text-align: right">
+                            提现金额
+                        </th>
+                        <th style="text-align: right">
+                            购彩金额
+                        </th>
+                        <th style="text-align: right">
+                            中奖金额
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in ListTop.DataList)
+                    {
+                        <tr>
+                            <td class="w-text-left">@item.BizDate</td>
+                            <td>
+                                @item.NewUsers
+                            </td>
+                            <td>
+                                @item.NewBuyUsers
+                            </td>
+                            <td>
+                                @item.RechargeMoney.ToString("c")
+                            </td>
+                            <td>
+                                @item.WithdrawMoney.ToString("c")
+                            </td>
+                            <td>
+                                @item.SalesMoney.ToString("c")
+                            </td>
+                            <td>
+                                @item.PrizeMoney.ToString("c")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <h6>购彩用户分布</h6>
+                </div>
+                <div class="layui-card-body">
+                    <div class="layui-btn-group" id="groupButtonLeft">
+                        <button class="layui-btn" type="button" value="1">今日</button>
+                        <button class="layui-btn layui-btn-primary" type="button" value="2">昨日</button>
+                        <button class="layui-btn layui-btn-primary" type="button" value="3">最近7天</button>
+                        <button class="layui-btn layui-btn-primary" type="button" value="4">最近30天</button>
+                    </div>
+                    <div class="w-padding-tb-8">
+                        <div id="lay-chart">
+                            <div style="height: 370px"><i class="layui-icon layui-icon-loading1 layadmin-loading"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md4">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <h6>彩种销售排名</h6>
+                </div>
+                <div class="layui-card-body">
+                    <div class="layui-btn-group" id="groupButtonRight">
+                        <button class="layui-btn" type="button" value="1">今日</button>
+                        <button class="layui-btn layui-btn-primary" type="button" value="2">昨日</button>
+                        <button class="layui-btn layui-btn-primary" type="button" value="3">最近7天</button>
+                        <button class="layui-btn layui-btn-primary" type="button" value="4">最近30天</button>
+                    </div>
+                    <div class="w-padding-tb-5">
+                        <table class="layui-table w-text-nowrap" lay-skin="line">
+                            <colgroup>
+                                <col width="50px">
+                                <col>
+                                <col>
+                            </colgroup>
+                            <tbody id="tbSaleTop10"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        layui.config({
+            base: '../lay/extend/' //静态资源所在路径
+        }).use(['echarts'], function () {
+            var echarts = layui.echarts;
+            var echplat = []
+                , plat = [
+                    {
+                        title: {
+                            text: '',
+                            subtext: ''
+                        },
+                        tooltip: {
+                            trigger: 'item'
+                        },
+                        dataRange: {
+                            orient: 'horizontal',
+                            min: 0,
+                            max: 55000,
+                            text: ['高', '低'],           // 文本，默认为数值文本
+                            splitNumber: 0
+                        },
+                        series: [
+                            {
+                                name: '购彩用户分布(人)',
+                                type: 'map',
+                                mapType: 'china',
+                                mapLocation: {
+                                    x: 'center'
+                                },
+                                selectedMode: 'multiple',
+                                itemStyle: {
+                                    normal: { label: { show: true } },
+                                    emphasis: { label: { show: true } }
+                                },
+                                data: []
+                            }
+                        ]
+                    }
+                ]
+                , elemplat = $('#lay-chart').children('div')
+                , renderplat = function (index, chartData) {
+                    echplat[index] = echarts.init(elemplat[index], layui.echartsTheme);
+                    plat[index].series[0].data = chartData;
+                    echplat[index].setOption(plat[index]);
+                    window.onresize = echplat[index].resize;
+                };
+            if (!elemplat[0]) return;
+
+            var dimTypeChart = 1
+                , groupButtonLeft = $("#groupButtonLeft [type='button']")
+                , getChartData = function () {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Report/GetIndexProvinceUsersList",
+                        data: { dimType: dimTypeChart },
+                        success: function (data) {
+                            if (data.IsSuccess) {
+                                var jsonData = data.DataList.Data;
+                                renderplat(0, jsonData);
+                            } else {
+                                ShowErrorMsg('获取购彩分布数据失败');
+                            }
+                        },
+                        error: function () {
+                            ShowErrorMsg('获取购彩分布数据失败');
+                        }
+                    });
+                };
+            groupButtonLeft.click(function () {
+                $(this).removeClass("layui-btn-primary").siblings().removeClass("layui-btn-primary").addClass("layui-btn-primary");
+                dimTypeChart = $(this).val();
+                getChartData();
+            });
+            getChartData();
+        });
+        
+        //销售排行
+        function initSaleTop10() {
+            var dimType = 1,
+                groupButtonRight = $("#groupButtonRight [type='button']"),
+                bindData = function () {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Report/GetIndexSaleTop10List",
+                        data: { dimType: dimType },
+                        success: function (data) {
+                            if (data.IsSuccess) {
+                                var jsonData = data.DataList.Data;
+                                var html = '';
+                                if (jsonData.length == 0) {
+                                    html += '<tr>';
+                                    html += '   <td>无数据</td>';
+                                    html += '   <td></td>';
+                                    html += '   <td></td>';
+                                    html += '</tr>';
+                                }
+                                else {
+                                    $.each(jsonData, function (index, item) {
+                                        html += '<tr>';
+                                        html += '   <td>' + (index + 1) + '</td>';
+                                        html += '   <td>' + (item.GameName) + '</td>';
+                                        html += '   <td class="w-text-right">¥' + (item.SalesMoney).toFixed(2) + '</td>';
+                                        html += '</tr>';
+                                    });
+                                }
+                                $("#tbSaleTop10").html(html);
+                            } else {
+                                ShowErrorMsg('获取彩种销售排行数据失败');
+                            }
+                        },
+                        error: function () {
+                            ShowErrorMsg('获取彩种销售排行数据失败');
+                        }
+                    });
+                };
+            bindData();
+            //按钮切换
+            groupButtonRight.click(function () {
+                $(this).removeClass("layui-btn-primary").siblings().removeClass("layui-btn-primary").addClass("layui-btn-primary");
+                dimType = $(this).val();
+                bindData();
+            });
+        }
+        initSaleTop10();
+
+    </script>
+
+}

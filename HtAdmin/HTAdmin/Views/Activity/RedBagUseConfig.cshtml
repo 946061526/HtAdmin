@@ -1,0 +1,193 @@
+﻿@using Common
+@using HTAdmin.Models
+@using Activity.Core
+@{
+    ViewBag.Title = "奖励金使用规则 - 后台管理系统 - " + GlobalCache.WebSiteName;
+    var list = ViewBag.List as RadBagConfigInfoConllection;
+    int numIndex = ViewBag.PageIndex * ViewBag.PageSize - ViewBag.PageSize + 1;
+    int pageIndex = 1, pageSize = ViewBag.PageSize;
+    int.TryParse(Request.QueryString["pageindex"], out pageIndex);
+    if (pageIndex <= 0) { pageIndex = 1; }
+    //index = (pageIndex - 1) * pageSize + 1;
+
+    PaginationModel pagination = new PaginationModel()
+    {
+        PageIndex = pageIndex,
+        PageSize = pageSize,
+        TotalCount = 10,
+    };
+}
+@section styles{
+    <link rel="stylesheet" href="@Url.Content("~/lay/style/vendor.css")" media="all">
+}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="w-margin-t-2">
+                <button class="layui-btn layui-btn-normal" onclick='OpenInfo("add","")'>
+                    新增规则
+                </button>
+            </div>
+            <div class="w-margin-t-4">
+                <table class="layui-table w-text-nowrap" lay-skin="line">
+                    <thead>
+                        <tr>
+                            <th>
+                                序号
+                            </th>
+                            <th>
+                                彩种类型
+                            </th>
+                            <th>
+                                彩种名称
+                            </th>
+                            <th>
+                                奖励金使用比例
+                            </th>
+                            <th>
+                                操作
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in list.RadConfigInfoList)
+                        {
+                            <tr>
+                                <td>@(list.RadConfigInfoList.IndexOf(item) + 1)</td>
+                                <td>@item.Category</td>
+                                <td>@ViewHelpers.ConvertGameCode(item.GameCode)</td>
+                                <td>@item.UsePercent.ToString("N2")%</td>
+                                <td>
+                                    <input class="layui-btn layui-btn-xs" type="button" onclick="OpenInfo('edit',@item.Id,'@item.GameCode')" value="修改"/>
+                                    @if (ViewBag.HBSYGZ_SCGZ)
+                                    {
+                                        <input class="layui-btn layui-btn-danger layui-btn-xs" type="button" Delete value="删除" Id="@item.Id" />
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @if (list.RadConfigInfoList.Count > 20)
+                {
+                    @ViewHelpers.Pager(ViewBag.PageIndex, ViewBag.PageSize, list.TotalCount)
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts {
+    <script>
+        layui.config({
+            base: '/lay/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['laydate', 'table', 'laypage'], function () {
+            //常规用法
+            layui.laydate.render({
+                elem: '#StartDateText'
+                , type: 'datetime'
+                , range: true,
+                format: 'yyyy-MM-dd HH:mm',
+                done: function (value, date, endDate) {
+                    console.log(value); //得到日期生成的值，如：2017-08-18
+                    $("input[name='StartDate']").val(date.year + "-" + date.month + "-" + date.date + " " + date.hours + ":" + date.minutes);
+                    $("input[name='EndDate']").val(endDate.year + "-" + endDate.month + "-" + endDate.date + " " + endDate.hours + ":" + endDate.minutes);
+                }
+            });
+        });
+
+
+        $(".DisnableHelp").click(function () {
+            var data = {
+                Did: $(this).find("input:hidden").val(),
+                isEnable: false
+            }
+            var url = "/ContentManage/IsDisnableHelp?r=" + Math.random();
+            layer.confirm('确定禁用吗？', { icon: 3, title: "提示" }, function (index) {
+                $.post(url, data, function (callback) {
+                    if (callback.IsSuccess) {
+                        layer.msg("禁用成功", {
+                            icon: 1,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        }, function (index) {
+                            window.location.reload();
+                        });
+                    }
+                    else {
+                        layer.msg("禁用失败", {
+                            icon: 2,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        });
+                    }
+                });
+            });
+        })
+
+        $(".EnableHelp").click(function () {
+            var data = {
+                Did: $(this).find("input:hidden").val(),
+                isEnable: true
+            }
+            var url = "/ContentManage/IsDisnableHelp?isEnable=true&r=" + Math.random();
+            layer.confirm('确定激活吗？', { icon: 3, title: "提示" }, function (index) {
+                $.post(url, data, function (callback) {
+                    if (callback.IsSuccess) {
+                        layer.msg("激活成功", {
+                            icon: 6,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        }, function (index) {
+                            window.location.reload();
+                        });
+                    }
+                    else {
+                        layer.msg("激活失败", {
+                            icon: 2,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        });
+                    }
+                });
+            });
+        });
+
+        $("input[Delete]").click(function () {
+            var url = "/Activity/DeleteRedBagUseConfig?r=" + Math.random();
+            var data = { id: $(this).attr("Id") };
+            layer.confirm('确认删除吗?', { icon: 3, title: "提示" }, function (index) {
+                $.post(url, data, function (callback) {
+                    if (callback.IsSuccess) {
+                        layer.msg("删除成功!", {
+                            icon: 6,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        }, function (index) {
+                            window.location.reload();
+                        });
+                    }
+                    else {
+                        layer.msg("删除失败!", {
+                            icon: 2,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        });
+                    }
+                });
+            });
+        });
+
+        function OpenInfo(type, id,gameCode) {
+            var title = type.indexOf("add") >= 0 ? "新增规则" : "修改规则";
+            var txt_cnt = "/Activity/AddRedBagUseConfig?Type=" + type + "&gameCode=" + gameCode + "&id=" + id;
+            layer.open({
+                type: 2,// 表示是iframe弹框
+                title: title,
+                content: txt_cnt,
+                maxmin: true,
+                area: ['440px', '290px'],
+                end: function () {
+                    window.location.reload();
+                }, function() {
+                    window.location.reload();
+                }
+            });
+        }
+    </script>
+}

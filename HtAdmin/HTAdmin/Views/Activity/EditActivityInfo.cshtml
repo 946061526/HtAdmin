@@ -1,0 +1,131 @@
+﻿@{
+
+}
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">活动名称</label>
+                <div class="layui-input-block">
+                    <input type="text" name="ActivityName" lay-verify="title" autocomplete="off" placeholder="请输入活动名称" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">开始时间</label>
+                <div class="layui-input-block">
+                    <input type="text" id="startDate" name="StartDate" lay-verify="required" placeholder="活动开始时间" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">结束时间</label>
+                <div class="layui-input-block">
+                    <input type="text" id="endDate" name="EndDate" lay-verify="required" placeholder="活动结束时间" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div lottery="">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">彩种名称</label>
+                    <div class="layui-input-block">
+                        <select name="LotteryType" lay-filter="aihao" id="lotteryType">
+                            @Html.Partial("LotteryType")
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">彩种玩法</label>
+                    <div class="layui-input-block">
+                        <select name="LotteryPlay" lay-filter="aihao" id="lotteryPlay">
+                            <option value="ALL">全部</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">加奖比例</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="ActivityName" lay-verify="title" autocomplete="off" placeholder="请输入活动名称" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">最大加奖</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="ActivityName" lay-verify="title" autocomplete="off" placeholder="请输入活动名称" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">奖金入账户</label>
+                    <div class="layui-input-block">
+                        <select name="interest" lay-filter="aihao">
+                            <option value=""></option>
+                            <option value="0">写作</option>
+                            <option value="1" selected="">阅读</option>
+                            <option value="2">游戏</option>
+                            <option value="3">音乐</option>
+                            <option value="4">旅行</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-block">
+                    <div class="layui-footer" style="left: 0;">
+                        <button type="button" class="layui-btn layui-btn-primary">取消</button>
+                        <button class="layui-btn" lay-submit="" lay-filter="component-form-demo1">立即提交</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section scripts{
+    <script>
+        $(function () {
+            $("#lotteryType").change(function () {
+                var gameCode = $("#lotteryType option:selected").val();
+                $("#lotteryPlay").empty()
+                var allOption = "<option value='ALL'>全部</option>";
+                $("#lotteryPlay").append(allOption);
+                var gameTypeArray = [];
+                if (gameCode == "CTZQ") {
+                    gameTypeArray = ["T14C_14场", "T4CJQ_4场进球", "T6BQC_6场半全", "TR9_任9"];
+                }
+                else if (gameCode == "BJDC") {
+                    gameTypeArray = ["BF_比分", "BQC_半全场", "SPF_胜平负", "SXDS_上下单双", "ZJQ_进球数"];
+                }
+                else if (gameCode == "JCZQ") {
+                    gameTypeArray = ["SPF_胜平负", "BRQSPF_不让球胜平负", "ZJQ_进球数", "BF_比分", "BQC_半全场", "HH_混合过关"];
+                }
+                else if (gameCode == "JCLQ") {
+                    gameTypeArray = ["SF_胜负", "RFSF_让分胜负", "DXF_大小分", "SFC_胜分差", "HH_混合过关"];
+                }
+                else if (gameCode == "CQSSC") {
+                    gameTypeArray = ["1XDX_一星单选", "2XDX_二星单选", "2XHZ_二星和值", "3XDX_三星单选", "5XDX_五星单选", "2XZXFS_二星组选复式", "2XBAODAN_二星组选包胆", "ZX3DS_组三单式", "ZX3FS_组三复式", "ZX6_组选六", "5XTX_五星通选", "DXDS_大小单双"];
+                }
+                else if (gameCode == "JX11X5") {
+                    gameTypeArray = ["RX1_前一直选", "RX2_任选二", "RX3_任选三", "RX4_任选四", "RX5_任选五", "RX6_任选六", "RX7_任选七", "Q2ZHIX_前二直选", "Q2ZUX_前二组选", "Q3ZHIX_前三直选", "Q3ZUX_前三组选"];
+                }
+                else if (gameCode == "SSQ") {
+                    gameTypeArray = ["DS_标准单式", "FS_标准复式", "DT_拖胆投注"];
+                }
+                else if (gameCode == "DLT") {
+                    gameTypeArray = ["DS_标准单式", "FS_标准复式", "DT_拖胆投注"];
+                }
+                else if (gameCode == "FC3D") {
+                    gameTypeArray = ["FS_直选", "HZ_直选和值", "ZX3DS_组三单式", "ZX3FS_组三复式", "ZX6_组选六"];
+                }
+                else if (gameCode == "PL3") {
+                    gameTypeArray = ["FS_直选", "HZ_直选和值", "ZX3DS_组三单式", "ZX3FS_组三复式", "ZX6_组选六"];
+                }
+
+                $.each(gameTypeArray, function (i, item) {
+                    var array = item.split("_");
+                    if (array.length == 2) {
+                        var option = $.format("<option value='{0}'>{1}</option>", array[0], array[1]);
+                        $("#lotteryPlay").append(option);
+                    }
+                })
+            })
+
+        })
+    </script>
+}

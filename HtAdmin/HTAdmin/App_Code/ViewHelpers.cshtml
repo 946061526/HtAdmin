@@ -1,0 +1,1703 @@
+﻿@using System.Web.Mvc;
+@using System.Configuration;
+@using External.Core
+@using GameBiz.Core;
+
+@helper getHtml(string url)
+{
+    @Common.Net.PostManager.Get(url, System.Text.Encoding.UTF8);
+}
+@helper plugins(string pluginsName)
+{
+    <script src="@(res() + "/plugins/" + pluginsName)" type="text/javascript"></script>
+}
+@helper js(string scriptName)
+{
+    //外部资源 - 脚本
+    <script src="@(res() + "/js/" + scriptName)" type="text/javascript"></script>}
+@helper js_oocai(string scriptName)
+{
+    //外部资源 - 脚本
+    <script src="@(res() + "/kindeditor/" + scriptName)" type="text/javascript"></script>}
+@helper js_oocai1(string scriptName)
+{
+    //外部资源 - 脚本
+    <script src="@(res() + "/kindeditor/lang/" + scriptName)" type="text/javascript"></script>}
+@helper css_oocai(string cssName)
+{
+    //外部资源 - CSS
+    <link href="@(res() + "/kindeditor/themes/default/" + cssName)" rel="stylesheet" type="text/css" />}
+@helper js_share(string scriptName)
+{
+    //外部共享资源 - 脚本
+    <script src="@(share() + "/js/" + scriptName)" type="text/javascript"></script>}
+@helper css(string cssName)
+{
+    //外部资源 - CSS
+    <link href="@(res() + "/css/" + cssName)" rel="stylesheet" type="text/css" />}
+@helper css2(string cssName)
+{
+    //外部资源 - CSS
+    <link href="@(res() + "/css/AdminCSS/" + cssName)" rel="stylesheet" type="text/css" />}
+@helper img(string imageName)
+{
+    //外部资源 - 图片
+    @(res() + "/images/" + imageName)
+}
+@helper websiteroot()
+{
+    //外部资源地址，从web.config里读取
+    @ConfigurationManager.AppSettings["WebSiteUrl"].ToString()
+}
+@helper res()
+{
+    //外部资源地址，从web.config里读取
+    @ConfigurationManager.AppSettings["ResourceSiteUrl"].ToString()
+}
+@helper md5(string str)
+{
+    //外部资源地址，从web.config里读取
+    @Common.Cryptography.Encipherment.MD5(str)
+}
+@helper GetPayType(string channelID)
+{
+    //获取代付通道
+    var pay = HTAdmin.Utility.GetPayType(channelID);
+    @pay;
+}
+@helper share()
+{
+    //外部资源地址 - 共享资源
+    @ConfigurationManager.AppSettings["ShareRes"].ToString()
+}
+@helper Calendar(string id, DateTime value)
+{
+    //时间选择控件
+    string imgId = "duedate_trigger_" + id;
+    string datetime = value.ToString("yyyy-MM-dd");
+    <input type="text" id="@id" name="@id" value="@datetime" class="input_calendar" style="width:80px;" />
+    <img height="16" border="0" width="16" title="选择日期" alt="选择日期" src='@img("admin/cal.gif")'
+         id='@imgId' />
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            var calendar_option = {
+                firstDay: (1) - 1,
+                inputField: "@id",
+                button: "@imgId",
+                align: "Tl",
+                singleClick: true,
+                useISO8601WeekNumbers: false,
+                ifFormat: "%Y-%m-%d"
+            };
+            var date = Calendar.setup(calendar_option);
+
+        })
+    </script>
+}
+@helper Calendar2(string id, DateTime value)
+{
+    //时间选择控件
+    string imgId = "duedate_trigger_" + id;
+    string datetime = value.ToString("yyyy-MM-dd");
+    <input type="text" id="@id" name="@id" value="" class="input_calendar" style="width:80px;" />
+    <img height="16" border="0" width="16" title="选择日期" alt="选择日期" src='@img("admin/cal.gif")'
+         id='@imgId' />
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            var calendar_option = {
+                firstDay: (1) - 1,
+                inputField: "@id",
+                button: "@imgId",
+                align: "Tl",
+                singleClick: true,
+                useISO8601WeekNumbers: false,
+                ifFormat: "%Y-%m-%d"
+            };
+            var date = Calendar.setup(calendar_option);
+
+        })
+    </script>
+}
+@helper GetSchemeSourceImageHtml(GameBiz.Core.SchemeSource src)
+{
+    var name = "未知";
+    var url = "";
+    switch (src)
+    {
+        case GameBiz.Core.SchemeSource.Web:
+            name = "网站";
+            url = "web.png";
+            break;
+        case GameBiz.Core.SchemeSource.Android:
+            name = "Android客户端";
+            url = "android.png";
+            break;
+        case GameBiz.Core.SchemeSource.Iphone:
+            name = "iPhone客户端";
+            url = "iphone.png";
+            break;
+        case GameBiz.Core.SchemeSource.Wap:
+            name = "WAP网站";
+            url = "wap.png";
+            break;
+    }
+    <img alt='@name' title='@name' src="@ViewHelpers.img("admin/")@url" width="28" height="28" />
+}
+@helper ConvertSchemeSource(SchemeSource schemeSource)
+{
+    //订单类型
+    string status = string.Empty;
+    switch (schemeSource)
+    {
+        case SchemeSource.Web:
+            status = "网站";
+            break;
+        case SchemeSource.Android:
+            status = "Android客户端";
+            break;
+        case SchemeSource.Iphone:
+            status = "iPhone客户端";
+            break;
+        case SchemeSource.Wap:
+            status = "WAP网站";
+            break;
+        case SchemeSource.Touch:
+            status = "触屏";
+            break;
+        case SchemeSource.WX_GiveLottery:
+            status = "微信送";
+            break;
+        case SchemeSource.Web_GiveLottery:
+            status = "注册送";
+            break;
+        case SchemeSource.LuckyDraw:
+            status = "轮盘抽奖送";
+            break;
+    }
+    @status
+}
+@helper ConvertSchemeType(SchemeType schemeType)
+{
+    //订单类型
+    string status = string.Empty;
+    switch (schemeType)
+    {
+        case SchemeType.GeneralBetting:
+            status = "";
+            break;
+        case SchemeType.ChaseBetting:
+            status = "追";
+            break;
+        case SchemeType.TogetherBetting:
+            status = "合";
+            break;
+        case SchemeType.SaveScheme:
+            status = "保存订单";
+            break;
+        case SchemeType.SingleTreasure:
+            status = "宝单";
+            break;
+        case SchemeType.SingleCopy:
+            status = "抄单";
+            break;
+    }
+    @status
+}
+@helper ConvertSchemeTypeDisplay(SchemeType schemeType)
+{
+    //订单类型
+    string status = string.Empty;
+    switch (schemeType)
+    {
+        case SchemeType.GeneralBetting:
+            status = "";
+            break;
+        case SchemeType.ChaseBetting:
+            status = "数字、高频追号订单";
+            break;
+        case SchemeType.TogetherBetting:
+            status = "合买订单";
+            break;
+    }
+    @status
+}
+@helper ConvertSchemeCategory(SchemeBettingCategory category)
+{
+    //订单类型
+    string status = string.Empty;
+    switch (category)
+    {
+        case SchemeBettingCategory.GeneralBetting:
+            status = "";
+            break;
+        case SchemeBettingCategory.FilterBetting:
+            status = "滤";
+            break;
+        case SchemeBettingCategory.SingleBetting:
+            status = "单";
+            break;
+        case SchemeBettingCategory.ErXuanYi:
+            status = "二选一";
+            break;
+        case SchemeBettingCategory.WinnerModel:
+            status = "赢家平台";
+            break;
+        case SchemeBettingCategory.XianFaQiHSC:
+            status = "先发起后上传";
+            break;
+        case SchemeBettingCategory.YiChangZS:
+            status = "一场致胜";
+            break;
+        case SchemeBettingCategory.YouHua:
+            status = "优化";
+            break;
+    }
+    @status
+}
+@helper ConvertSchemeCategoryDisplay(SchemeBettingCategory category)
+{
+    //订单类型
+    string status = string.Empty;
+    switch (category)
+    {
+        case SchemeBettingCategory.GeneralBetting:
+            status = "";
+            break;
+        case SchemeBettingCategory.FilterBetting:
+            status = "以过滤方式下单";
+            break;
+        case SchemeBettingCategory.SingleBetting:
+            status = "以单式上传方式下单";
+            break;
+    }
+    @status
+}
+@*订单进行状态*@
+@helper ConvertOrderStatus(ProgressStatus progressStatus, TicketStatus ticketStatus)
+{
+    string status = string.Empty;
+    switch (progressStatus)
+    {
+        case ProgressStatus.Waitting:
+            status = "<span class='layui-badge-dot layui-bg-blue'></span>待开始";
+            break;
+        case ProgressStatus.Complate:
+            status = "<span class='layui-badge-dot layui-bg-green'></span>已完成";
+            break;
+        case ProgressStatus.AutoStop:
+            status = "<span class='layui-badge-dot layui-bg-orange'></span>自动停止";
+            break;
+        case ProgressStatus.Aborted:
+            status = "<span class='layui-badge-dot'></span>已中断";
+            break;
+        case ProgressStatus.Running:
+            switch (ticketStatus)
+            {
+                case TicketStatus.Waitting:
+                    status = "<span class='layui-badge-dot layui-bg-blue'></span>等待投注";
+                    break;
+                case TicketStatus.Ticketing:
+                    status = "<span class='layui-badge layui-bg-cyan'></span>投注中";
+                    break;
+                case TicketStatus.PrintTicket:
+                    status = "<span class='layui-badge-dot layui-bg-orange'></span>已打票";
+                    break;
+                case TicketStatus.Ticketed:
+                    status = "<span class='layui-badge-dot layui-bg-green'></span>已出票";
+                    break;
+                case TicketStatus.Skipped:
+                    status = "<span class='layui-badge-dot layui-bg-orange'></span>被跳过";
+                    break;
+                case TicketStatus.Error:
+                    status = "<span class='layui-badge-dot'></span>出票失败";
+                    break;
+                case TicketStatus.Abort:
+                    status = "<span class='layui-badge-dot'></span>被终止";
+                    break;
+            }
+            break;
+    }
+    @status
+}
+@helper GetGameDisplayName(string gamecode)
+{
+    //根据彩种编号获取彩种名称
+    switch (gamecode)
+    {
+        case "CQSSC":
+            @("时时彩")
+            break;
+        case "JXSSC":
+            @("新时时彩")
+            break;
+        case "SD11X5":
+            @("老11选5")
+            break;
+        case "GD11X5":
+            @("新11选5")
+            break;
+        case "JX11X5":
+            @("11选5")
+            break;
+        case "PL3":
+            @("排列三")
+            break;
+        case "FC3D":
+            @("福彩3D")
+            break;
+        case "SSQ":
+            @("双色球")
+            break;
+        case "QXC":
+            @("七星彩")
+            break;
+        case "QLC":
+            @("七乐彩")
+            break;
+        case "DLT":
+            @("大乐透")
+            break;
+        case "SDQYH":
+            @("群英会")
+            break;
+        case "GDKLSF":
+            @("快乐十分")
+            break;
+        case "GXKLSF":
+            @("广西快乐十分")
+            break;
+        case "JSKS":
+            @("江苏快3")
+            break;
+        case "JCZQ":
+            @("竞彩足球")
+            break;
+        case "JCLQ":
+            @("竞彩篮球")
+            break;
+        case "BJDC":
+            @("北京单场")
+            break;
+        case "CTZQ":
+            @("传统足球")
+            break;
+        default:
+            @(gamecode)
+            break;
+    }
+}
+@helper ConvertTicketStatus(TicketStatus ticketStatus)
+{
+    string status = string.Empty;
+    switch (ticketStatus)
+    {
+        case TicketStatus.Waitting:
+            status = "等待投注";
+            break;
+        case TicketStatus.Ticketing:
+            status = "投注中";
+            break;
+        case TicketStatus.PrintTicket:
+            status = "已打票";
+            break;
+        case TicketStatus.Ticketed:
+            status = "已出票";
+            break;
+        case TicketStatus.Skipped:
+            status = "被跳过";
+            break;
+        case TicketStatus.Error:
+            status = "出票失败";
+            break;
+        case TicketStatus.Abort:
+            status = "被终止";
+            break;
+    }
+    @status
+}
+@helper ConvertOrderStatus(ProgressStatus progressStatus)
+{
+    string status = string.Empty;
+    switch (progressStatus)
+    {
+        case ProgressStatus.Waitting:
+            status = "等待中";
+            break;
+        case ProgressStatus.Complate:
+            status = "已完成";
+            break;
+        case ProgressStatus.AutoStop:
+            status = "自动停止";
+            break;
+        case ProgressStatus.Aborted:
+            status = "已中断";
+            break;
+        case ProgressStatus.Running:
+            status = "进行中";
+            break;
+    }
+    @status
+}
+@helper GetDateToNowSpanDisplayName(DateTime timeFrom, DateTime timeTo)
+{
+    string result;
+    var span = (timeTo - timeFrom).TotalMinutes;
+    if (span < 0D)
+    {
+        result = "提前";
+    }
+    else if (span <= 60D)
+    {
+        result = (int)span + "分钟";
+    }
+    else
+    {
+        span = (timeTo - timeFrom).TotalHours;
+        if (span <= 24D)
+        {
+            result = (int)span + "小时";
+        }
+        else
+        {
+            span = (timeTo - timeFrom).TotalDays;
+            if (span < 2D)
+            {
+                result = "一天";
+            }
+            else if (span < 3D)
+            {
+                result = "二天";
+            }
+            else
+            {
+                result = "超过三天";
+            }
+        }
+    }
+    @result;
+}
+@*中奖状态*@
+@helper ConvertBonusStatus(BonusStatus bonusStatus)
+{
+    string status = string.Empty;
+    switch (bonusStatus)
+    {
+        case BonusStatus.Awarding:
+            status = "开奖中";
+            break;
+        case BonusStatus.Error:
+            status = "错误";
+            break;
+        case BonusStatus.Lose:
+            status = "未中奖";
+            break;
+        case BonusStatus.Waitting:
+            status = "";//"未开奖";
+            break;
+        case BonusStatus.Win:
+            status = "已中奖";
+            break;
+    }
+    @status
+}
+@*方案保密性*@
+@helper ConvertSecurityStatus(TogetherSchemeSecurity securityStatus)
+{
+    string status = string.Empty;
+    switch (securityStatus)
+    {
+        case TogetherSchemeSecurity.Public:
+            status = "公开";
+            break;
+        case TogetherSchemeSecurity.JoinPublic:
+            status = "参与后公开";
+            break;
+        case TogetherSchemeSecurity.CompletePublic:
+            status = "完成后公开";
+            break;
+    }
+    @status
+}
+@*合买方案进度*@
+@helper ConvertTogether(TogetherSchemeProgress togetherStatus)
+{
+    string status = string.Empty;
+    switch (togetherStatus)
+    {
+        case TogetherSchemeProgress.SalesIn:
+            status = "销售中";
+            break;
+        case TogetherSchemeProgress.Standard:
+            status = "达到目标";
+            break;
+        case TogetherSchemeProgress.Finish:
+            status = "满员";
+            break;
+        case TogetherSchemeProgress.Completed:
+            status = "已完成";
+            break;
+        case TogetherSchemeProgress.AutoStop:
+            status = "自动停止";
+            break;
+    }
+    @status
+}
+@helper Pager(int pageIndex, int pageSize, int totalCount)
+{
+    //-----------分页控件-----------
+    //计算总页数
+    int pageTotalCount = ((totalCount + pageSize - 1) / pageSize); // ? (totalCount / pageSize) : (totalCount / pageSize) + 1;
+    <div class="layui-box layui-laypage layui-laypage-default layui-form">
+        @{
+            if (pageTotalCount <= 1)//只有一页时，不显示分页
+            {
+                @("");
+                return;
+            }
+
+            //如果当前页为第一页则不显示首页和上一页
+            if (pageIndex == 1)
+            {
+                <a class="layui-laypage-prev layui-disabled" href="javascript:;">
+                    <i class="layui-icon">&#xe603;</i>
+                </a>
+            }
+            else
+            {
+                <a class="layui-laypage-prev" href="javascript:;" onclick="publicPagingList({pageIndex: 1})">
+                    <i class="layui-icon">&#xe603;</i>
+                </a>
+            }
+
+            //中间的页码部分
+            int showPageNumber = pageTotalCount < 10 ? pageTotalCount : 10;
+
+            int startPageNumber = 0;
+            if ((pageIndex + 1) > showPageNumber)
+            {
+                startPageNumber = (pageIndex + 1) - showPageNumber / 2;
+            }
+            //超过了最大页数
+            if ((showPageNumber + startPageNumber) > pageTotalCount)
+            {
+                startPageNumber = pageTotalCount - showPageNumber;
+            }
+            for (int i = startPageNumber + 1; i <= showPageNumber + startPageNumber; i++)
+            {
+                if (i == (pageIndex))
+                {
+                    <span class="layui-laypage-curr">
+                        <em class="layui-laypage-em"></em>
+                        <em>@i</em>
+                    </span>
+                }
+                else
+                {
+                    <a href="javascript:;" onclick="publicPagingList({pageIndex: @i})">@i</a>
+                }
+            }
+
+            // 如果当前页为最后页则不显示下一页和尾页
+            if ((pageIndex) < pageTotalCount)
+            {
+                <a href="javascript:;" class="layui-laypage-next" onclick="publicPagingList({pageIndex: @pageTotalCount})">
+                    <i class="layui-icon">&#xe602;</i>
+                </a>
+            }
+            else
+            {
+                <a href="javascript:;" class="layui-laypage-next layui-disabled">
+                    <i class="layui-icon">&#xe602;</i>
+                </a>
+            }
+
+            //int nowMaxValue = (pageIndex + 1) * pageSize;
+            //if (pageIndex * pageSize > totalCount)
+            //{
+            //    nowMaxValue = totalCount;
+            //}
+            <span class="layui-laypage-skip">
+                到第
+                <input type="number" min="1" value="@pageIndex" id="pageIndex" class="layui-input" max="@pageTotalCount" onchange="PageIndexChange(this,@pageTotalCount)">页
+                <button type="button" id="btn_ToPage" class="layui-laypage-btn">确定</button>
+            </span>
+            <span class="layui-laypage-count">共 @totalCount 条</span>
+            <span class="layui-laypage-limits">
+                <select lay-ignore="" id="pageSizeList">
+                    <option value="10" @(pageSize == 10 ? "selected=selected" : "")>10 条/页</option>
+                    <option value="15" @(pageSize == 15 ? "selected=selected" : "")>15 条/页</option>
+                    <option value="20" @(pageSize == 20 ? "selected=selected" : "")>20 条/页</option>
+                    <option value="25" @(pageSize == 25 ? "selected=selected" : "")>25 条/页</option>
+                    <option value="30" @(pageSize == 30 ? "selected=selected" : "")>30 条/页</option>
+                </select>
+            </span>
+        }
+    </div>
+}
+
+@helper Pager2(HttpRequestBase request, int pageIndex, int pageSize, int totalCount, string pageIndexName = "pageindex", string pageSizeName = "pagesize")
+{
+
+    <div class="pager">
+        @{
+            //int pageTotalCount = (totalCount % pageSize == 0) ? (totalCount / pageSize) : (totalCount / pageSize) + 1;
+            int pageTotalCount = ((totalCount + pageSize - 1) / pageSize); // ? (totalCount / pageSize) : (totalCount / pageSize) + 1;
+            var queryString = string.Empty;
+            foreach (var key in request.QueryString.AllKeys)
+            {
+                if (string.IsNullOrEmpty(key))
+                {
+                    continue;
+                }
+                if (key.ToLower() == pageIndexName.ToLower())
+                {
+                    continue;
+                }
+                if (key.ToLower() == pageSizeName.ToLower())
+                {
+                    continue;
+                }
+
+                queryString += string.Format("&{0}={1}", key, request.QueryString[key]);
+            }
+            string a = "?" + pageIndexName + "={0}&" + pageSizeName + "={1}" + queryString;
+            //如果当前页为第一页则不显示首页和上一页
+            if (pageIndex > 0)
+            {
+                string firstHref = string.Format(a, 0, pageSize);
+                string secondHref = string.Format(a, pageIndex - 1, pageSize);
+                <a href="@firstHref">首页</a>
+                <a href="@secondHref">上一页</a>
+            }
+
+            //中间的页码部分
+            int showPageNumber = pageTotalCount < 10 ? pageTotalCount : 10;
+
+            int startPageNumber = 0;
+            if ((pageIndex + 1) > showPageNumber)
+            {
+                startPageNumber = (pageIndex + 1) - showPageNumber / 2;
+            }
+            //超过了最大页数
+            if ((showPageNumber + startPageNumber) > pageTotalCount)
+            {
+                startPageNumber = pageTotalCount - showPageNumber;
+            }
+            for (int i = startPageNumber + 1; i <= showPageNumber + startPageNumber; i++)
+            {
+                if (i == (pageIndex + 1))
+                {
+                    <a class="on">@i</a>
+                }
+                else
+                {
+                    string pageNumberHref = string.Format(a, (i - 1), pageSize);
+                    <a href="@pageNumberHref">@i</a>
+                }
+            }
+
+            // 如果当前页为最后页则不显示下一页和尾页
+            if ((pageIndex + 1) < pageTotalCount)
+            {
+                string nextHref = string.Format(a, (pageIndex + 1), pageSize);
+                string lastHref = string.Format(a, (pageTotalCount - 1), pageSize);
+                <a href="@nextHref">下一页</a>
+                <a href="@lastHref">尾页</a>
+            }
+
+            int nowMaxValue = (pageIndex + 1) * pageSize;
+            if (pageIndex * pageSize > totalCount)
+            {
+                nowMaxValue = totalCount;
+            }
+            string logInfo = string.Format("第{0}-{1}条 / 共{2}页（{3}条）", (pageIndex * pageSize + 1), nowMaxValue, pageTotalCount, totalCount);
+            <span>@logInfo</span>
+        }
+    </div>
+}
+@*公告----使用状态*@
+@helper ConvertUseStatur(Common.EnableStatus enableStatus)
+{
+    string status = string.Empty;
+    switch (enableStatus)
+    {
+        case Common.EnableStatus.Disable:
+            status = "禁用";
+            break;
+        case Common.EnableStatus.Enable:
+            status = "激活";
+            break;
+        case Common.EnableStatus.Unknown:
+            status = "未知";
+            break;
+    }
+    @status
+}
+@*公告优先级*@
+@helper ConvertPriority(int priority)
+{
+    string priorityStr = string.Empty;
+    switch (priority)
+    {
+        case 1:
+            priorityStr = "高";
+            break;
+        case 2:
+            priorityStr = "中";
+            break;
+        case 3:
+            priorityStr = "低";
+            break;
+    }
+    @priorityStr
+}
+@*公告置顶*@
+@helper ConvertIsPutTop(int isPutTop)
+{
+    string isPutTopStr = string.Empty;
+    switch (isPutTop)
+    {
+        case 0:
+            isPutTopStr = "不置顶";
+            break;
+        case 1:
+            isPutTopStr = "置顶";
+            break;
+
+    }
+    @isPutTopStr
+}
+@*!公告*@ @*处理状态*@
+@helper ConvertFillStatus(FillMoneyStatus fillStatus)
+{
+    string status = string.Empty;
+    switch (fillStatus)
+    {
+        case FillMoneyStatus.Requesting:
+            status = "请求中";
+            break;
+        case FillMoneyStatus.Success:
+            status = "成功";
+            break;
+        case FillMoneyStatus.Failed:
+            status = "失败";
+            break;
+    }
+    @status
+}
+@*会员管理----用户来源*@
+@helper ConvertComeFrom(string comeFrom)
+{
+    string status = string.Empty;
+    if (string.IsNullOrEmpty(comeFrom))
+    {
+        @status
+    }
+    switch (comeFrom.ToUpper())
+    {
+        case "INNER":
+            status = "内部用户";
+            break;
+        case "ALIPAY":
+            status = "支付宝";
+            break;
+        case "QQ":
+            status = "QQ";
+            break;
+        case "LOCAL":
+            status = ConfigurationManager.AppSettings["WebSiteName"].ToString(); //" 网";
+            break;
+        case "INDEX":
+            status = "首页";
+            break;
+        case "TOUCH":
+            status = "触屏";
+            break;
+        case "APP":
+            status = "安卓";
+            break;
+        case "IOS":
+            status = "苹果";
+            break;
+        default:
+            status = comeFrom;
+            break;
+    }
+    @status
+}
+@*提现状态*@
+@helper ConvertWithdrawStatus(WithdrawStatus withdrawStatus)
+{
+    string status = string.Empty;
+    switch (withdrawStatus)
+    {
+        case WithdrawStatus.Refused:
+            status = "被拒绝";
+            break;
+        case WithdrawStatus.Requesting:
+            status = "请求中";
+            break;
+        case WithdrawStatus.Success:
+            status = "已结算";
+            break;
+        case WithdrawStatus.Request:
+            status = "已提交，待处理";
+            break;
+    }
+    @status
+}
+@*提现类别*@
+@helper ConvertWithdrawType(WithdrawAgentType withdrawType)
+{
+    string status = string.Empty;
+    switch (withdrawType)
+    {
+        case WithdrawAgentType.Alipay:
+            status = "支付宝";
+            break;
+        case WithdrawAgentType.BankCard:
+            status = "银行卡";
+            break;
+        case WithdrawAgentType.Yeepay:
+            status = "易宝";
+            break;
+    }
+    @status
+}
+@*意见反馈状态*@
+@helper ConvertIdeaStatus(string ideaStatus)
+{
+    string status = string.Empty;
+    switch (ideaStatus)
+    {
+        case "Request":
+            status = "未处理";
+            break;
+        case "Handle":
+            status = "已处理";
+            break;
+    }
+    @status
+}
+@helper SubStr(string str)
+{
+    if (str.Length > 15)
+    {
+        str = str.Substring(0, 14);
+        str += "...";
+    }
+    @str
+}
+@helper ConvertIssuseStatus(IssuseStatus issuseStatus)
+{
+    string status = string.Empty;
+    switch (issuseStatus)
+    {
+        case IssuseStatus.OnSale:
+            status = "未开奖";
+            break;
+        case IssuseStatus.Awarded:
+            status = "开奖中";
+            break;
+        case IssuseStatus.Stopped:
+            status = "已完成";
+            break;
+    }
+    @status
+}
+@helper ConvertGameCode(string gameCode)
+{
+    string status = string.Empty;
+    switch (gameCode.Trim())
+    {
+        case "SSQ":
+            status = "双色球";
+            break;
+        case "DLT":
+            status = "大乐透";
+            break;
+        case "QXC":
+            status = "七星彩";
+            break;
+        case "QLC":
+            status = "七乐彩";
+            break;
+        case "Facai888":
+            status = " 888";
+            break;
+        case "Football":
+            status = "足球盛典";
+            break;
+        case "Gold":
+            status = "淘金狂人";
+            break;
+        case "Car":
+            status = "动感赛车";
+            break;
+        case "CQSSC":
+            status = "重庆时时彩";
+            break;
+        case "JXSSC":
+            status = "江西时时彩";
+            break;
+        case "GD11X5":
+            status = "广东11选5";
+            break;
+        case "JX11X5":
+            status = "江西11选5";
+            break;
+        case "SD11X5":
+            status = "山东11选5";
+            break;
+        case "GDKLSF":
+            status = "广东快乐十分";
+            break;
+        case "GXKLSF":
+            status = "广西快乐十分";
+            break;
+        case "JSKS":
+            status = "江苏快三";
+            break;
+        case "SDKLPK3":
+            status = "山东快乐扑克3";
+            break;
+        case "PL3":
+            status = "排列3";
+            break;
+        case "FC3D":
+            status = "福彩3D";
+            break;
+        case "SDQYH":
+            status = "山东群英会";
+            break;
+        case "JCZQ":
+            status = "竞彩足球";
+            break;
+        case "JCLQ":
+            status = "竞彩篮球";
+            break;
+        case "BJDC":
+            status = "北京单场";
+            break;
+        case "CTZQ":
+            status = "传统足球";
+            break;
+        case "OZB":
+            status = "欧洲杯";
+            break;
+        case "SJB":
+            status = "世界杯";
+            break;
+        case "jczqdg":
+            status = "竞彩足球单关";
+            break;
+        case "BJPK10":
+            status = "北京PK10";
+            break;
+        case "LOL":
+            status = "英雄联盟";
+            break;
+    }
+    @status
+}
+@helper ConvertGameType(string gameType)
+{
+    string status = gameType;
+    if (!string.IsNullOrEmpty(gameType))
+    {
+        switch (gameType.ToLower())
+        {
+            case "spf":
+                status = "让球胜平负";
+                break;
+            case "brqspf":
+                status = "不让球胜平负";
+                break;
+            case "zjq":
+                status = "总进球";
+                break;
+            case "bf":
+                status = "比分";
+                break;
+            case "bqc":
+                status = "半全场";
+                break;
+            case "ds":
+                status = "单式";
+                break;
+            case "fs":
+                status = "复式";
+                break;
+            case "dt":
+                status = "胆拖";
+                break;
+            case "t14c":
+                status = "胜负14场";
+                break;
+            case "tr9":
+                status = "任9场";
+                break;
+            case "t6bqc":
+                status = "6场半全场";
+                break;
+            case "t4cjq":
+                status = "4场进球";
+                break;
+            case "hz":
+                status = "直选和值";
+                break;
+        }
+    }
+    @status
+}
+@helper ConvertArticleCategory(string category)
+{
+    string status = string.Empty;
+    switch (category.Trim())
+    {
+        case "INFO":
+            status = "赛事资讯";
+            break;
+        case "ZDZT":
+            status = "置顶主题";
+            break;
+        case "CPZJ":
+            status = "彩票中奖";
+            break;
+        case "HOT":
+            status = "热点彩讯";
+            break;
+        case "FocusCMS":
+            status = "焦点新闻";
+            break;
+        case "ZQDP":
+            status = "足球点评";
+            break;
+        case "LQDP":
+            status = "篮球点评";
+            break;
+        case "SZZX":
+            status = "数字资讯";
+            break;
+        case "CPBK":
+            status = "彩票百科";
+            break;
+        case "Lottery_Hot":
+            status = "热点资讯";
+            break;
+        case "Match_Comment ":
+            status = "赛事点评";
+            break;
+        case "Lottery_Know":
+            status = "彩票百科";
+            break;
+        case "Lottery_GameCode":
+            status = "彩种资讯";
+            break;
+        case "BJPK10":
+            status = "北京PK10";
+            break;
+        default:
+            status = category;
+            break;
+    }
+    @status
+}
+@helper ConvertVIP(int vip)
+{
+    string status = string.Empty;
+    if (vip > 0)
+    {
+        status = "VIP " + vip;
+    }
+    @status
+}
+@helper ConvertValidationMobileCategory(string category)
+{
+    string status = string.Empty;
+    switch (category)
+    {
+        case "ImportCoupons":
+            status = "充值券校验码";
+            break;
+        case "MobileAuthentication":
+            status = "认证校验码";
+            break;
+        case "Withdraw":
+            status = "提现校验码";
+            break;
+    }
+    @status
+}
+@helper ConvertFillMoneyAgentType(FillMoneyAgentType fillMoneyAgentType)
+{
+    string status = string.Empty;
+    switch (fillMoneyAgentType)
+    {
+        case FillMoneyAgentType.Alipay:
+            status = "支付宝";
+            break;
+        case FillMoneyAgentType.AlipayWAP:
+            status = "支付宝-WAP支付";
+            break;
+        case FillMoneyAgentType.CallsPay:
+            status = "手机充值卡支付";
+            break;
+        case FillMoneyAgentType.ChinaPay:
+            status = "网银在线";
+            break;
+        case FillMoneyAgentType.KuanQian:
+            status = "快钱";
+            break;
+        case FillMoneyAgentType.ManualDeduct:
+            status = "手工扣款";
+            break;
+        case FillMoneyAgentType.ManualFill:
+            status = "手工充值";
+            break;
+        case FillMoneyAgentType.Tenpay:
+            status = "财付通";
+            break;
+        case FillMoneyAgentType.Yeepay:
+            status = "易宝";
+            break;
+        case FillMoneyAgentType.YiJiFu:
+            status = "易极付";
+            break;
+        case FillMoneyAgentType.YingBao:
+            status = "银宝";
+            break;
+        case FillMoneyAgentType.BiFuBao:
+            status = "币付宝";
+            break;
+        case FillMoneyAgentType.IPS:
+            status = "环迅充值";
+            break;
+        case FillMoneyAgentType.IPS_Bank:
+            status = "环迅网银";
+            break;
+        case FillMoneyAgentType.ZF_Bank:
+            status = "智付网银";
+            break;
+        case FillMoneyAgentType.HC_Bank:
+            status = "汇潮网银";
+            break;
+        case FillMoneyAgentType.HC_Quick:
+            status = "汇潮快捷";
+            break;
+        case FillMoneyAgentType.WXPay:
+            status = "微信支付";
+            break;
+        case FillMoneyAgentType.YS_Bank:
+            status = "银盛支付";
+            break;
+        case FillMoneyAgentType.YF_WEIXIN:
+            status = "微信(优付)";
+            break;
+        case FillMoneyAgentType.ZTPay:
+            status = "中铁微信";
+            break;
+        case FillMoneyAgentType.ZTAlipay:
+            status = "中铁支付宝";
+            break;
+        case FillMoneyAgentType.HWAlipay:
+            status = "支付宝(汇旺)";
+            break;
+        case FillMoneyAgentType.ZT_Bank:
+            status = "中铁网银";
+            break;
+        case FillMoneyAgentType.HW_Bank:
+            status = "汇旺网银";
+            break;
+        case FillMoneyAgentType.HW_Quick:
+            status = "汇旺快捷";
+            break;
+        case FillMoneyAgentType.ka101_express:
+            status = "101卡快捷";
+            break;
+        case FillMoneyAgentType.ka101_bank:
+            status = "101卡网银";
+            break;
+        case FillMoneyAgentType.ka101_weixin:
+            status = "101卡微信";
+            break;
+        case FillMoneyAgentType.ka101_alipay:
+            status = "101卡支付宝";
+            break;
+        case FillMoneyAgentType.slf_alipay:
+            status = "顺利付支付宝";
+            break;
+        case FillMoneyAgentType.slf_weixin:
+            status = "顺利付微信";
+            break;
+        case FillMoneyAgentType.slf_express:
+            status = "顺利付快捷";
+            break;
+        case FillMoneyAgentType.slf_bank:
+            status = "顺利付网银";
+            break;
+        case FillMoneyAgentType.slf_qq:
+            status = "顺利付qq";
+            break;
+        case FillMoneyAgentType.slf_upay:
+            status = "顺利付银联";
+            break;
+        case FillMoneyAgentType.mobao_express:
+            status = "摩宝快捷";
+            break;
+        case FillMoneyAgentType.payworth_weixin:
+            status = "华势微信";
+            break;
+        case FillMoneyAgentType.payworth_alipay:
+            status = "华势支付宝";
+            break;
+        case FillMoneyAgentType.payworth_bank:
+            status = "华势网银";
+            break;
+        case FillMoneyAgentType.jhz_weixin:
+            status = "金海哲微信";
+            break;
+        case FillMoneyAgentType.jhz_alipay:
+            status = "金海哲支付宝";
+            break;
+        case FillMoneyAgentType.jhz_bank:
+            status = "金海哲网银";
+            break;
+        case FillMoneyAgentType.sandpay_bank:
+            status = "杉德网银";
+            break;
+        case FillMoneyAgentType.sandpay_express:
+            status = "杉德快捷";
+            break;
+        case FillMoneyAgentType.sandpay_alipay:
+            status = "杉德支付宝";
+            break;
+        case FillMoneyAgentType.sandpay_weixin:
+            status = "杉德微信";
+            break;
+        case FillMoneyAgentType.duodebao_bank:
+            status = "多得宝网银";
+            break;
+        case FillMoneyAgentType.duodebao_weixin:
+            status = "多得宝微信";
+            break;
+        case FillMoneyAgentType.duodebao_alipay:
+            status = "多得宝支付宝";
+            break;
+        case FillMoneyAgentType.duodebao_qq:
+            status = "多得宝QQ";
+            break;
+        case FillMoneyAgentType.txf_bank:
+            status = "天下付网银";
+            break;
+        case FillMoneyAgentType.txf_weixin:
+            status = "天下付微信";
+            break;
+        case FillMoneyAgentType.txf_alipay:
+            status = "天下付支付宝";
+            break;
+        case FillMoneyAgentType.txf_qq:
+            status = "天下付qq";
+            break;
+        case FillMoneyAgentType.txf_upay:
+            status = "天下付银联扫码";
+            break;
+        case FillMoneyAgentType.sfb_bank:
+            status = "速汇宝网银";
+            break;
+        case FillMoneyAgentType.sfb_weixin:
+            status = "速汇宝微信";
+            break;
+        case FillMoneyAgentType.sfb_alipay:
+            status = "速汇宝支付宝";
+            break;
+        case FillMoneyAgentType.sfb_qq:
+            status = "速汇宝qq";
+            break;
+        case FillMoneyAgentType.ZT_qq:
+            status = "中铁qq";
+            break;
+        case FillMoneyAgentType.hfb_bank:
+            status = "合付宝网银";
+            break;
+        case FillMoneyAgentType.hfb_express:
+            status = "合付宝快捷";
+            break;
+        case FillMoneyAgentType.czzy:
+            status = "充值专员";
+            break;
+        case FillMoneyAgentType.af_bank:
+            status = "艾付网银";
+            break;
+        case FillMoneyAgentType.af_upay:
+            status = "艾付银联";
+            break;
+        case FillMoneyAgentType.af_alipay:
+            status = "艾付支付宝";
+            break;
+        case FillMoneyAgentType.af_weixin:
+            status = "艾付微信";
+            break;
+        case FillMoneyAgentType.af_qq:
+            status = "艾付qq";
+            break;
+        case FillMoneyAgentType.af_H5qqWap:
+            status = "艾付H5qq";
+            break;
+        case FillMoneyAgentType.af_H5wxWap:
+            status = "艾付H5微信";
+            break;
+        case FillMoneyAgentType.haoyi_weixin:
+            status = "好易微信";
+            break;
+        case FillMoneyAgentType.haoyi_qq:
+            status = "好易qq";
+            break;
+        case FillMoneyAgentType.haoyi_express:
+            status = "好易快捷";
+            break;
+        case FillMoneyAgentType.haoyi_alipay:
+            status = "好易支付宝";
+            break;
+        case FillMoneyAgentType.haoyi_H5wxWap:
+            status = "好易H5微信";
+            break;
+        case FillMoneyAgentType.haoyi_H5alipayWap:
+            status = "好易H5支付宝";
+            break;
+        case FillMoneyAgentType.xinfu_bank://新付网银
+            status = "新付网银";
+            break;
+        case FillMoneyAgentType.xinfu_express://新付快捷
+            status = "新付快捷";
+            break;
+        case FillMoneyAgentType.xinfu_qq://新付QQ
+            status = "新付H5QQ";
+            break;
+        case FillMoneyAgentType.xinfu_weixin://新付微信
+            status = "新付H5微信";
+            break;
+        default:
+            status = "";
+            break;
+    }
+    @status
+}
+@*获取配置文件中后台名称*@
+@helper WebSiteName(string lngMark)
+{
+    string str = string.Empty;
+    switch (lngMark)
+    {
+        case "1"://页签标题
+            str = ConfigurationManager.AppSettings["WebSiteName"].ToString() + "后台管理系统";
+            break;
+        case "2"://页面标题
+            str = ConfigurationManager.AppSettings["WebSiteName"].ToString();
+            break;
+    }
+    @str
+}
+@*获取配置文件中后台背景图片*@
+@helper WebSiteImage()
+{
+    string str = ConfigurationManager.AppSettings["WebSiteName"].ToString();
+    switch (str.Trim())
+    {
+        case "大奖网":
+            str = img("admin/admin_bg.gif").ToString();
+            break;
+        case "挖彩宝":
+            str = img("admin/ht_bg.gif").ToString();
+            break;
+        case "快三网":
+            str = img("admin/k3_bg.jpg").ToString();
+            break;
+    }
+    @*<style type="text/css">
+         body{background-image: url('@str');}
+        </style>*@
+}
+@*竞彩管理----场次*@
+@helper ConvertScreenings(int lngWeekDay)
+{
+    string status = string.Empty;
+    switch (lngWeekDay)
+    {
+        case 1:
+            status = "周一";
+            break;
+        case 2:
+            status = "周二";
+            break;
+        case 3:
+            status = "周三";
+            break;
+        case 4:
+            status = "周四";
+            break;
+        case 5:
+            status = "周五";
+            break;
+        case 6:
+            status = "周六";
+            break;
+        case 7:
+            status = "周日";
+            break;
+    }
+    @status
+}
+@helper AccountTypeName(AccountType type)
+{
+    switch (type)
+    {
+        case AccountType.Bonus:
+            @("奖金账户")
+            break;
+        case AccountType.Commission:
+            @("返点账户")
+            break;
+        case AccountType.Experts:
+            @("名家账户")
+            break;
+        case AccountType.FillMoney:
+            @("充值账户")
+            break;
+        case AccountType.Freeze:
+            @("冻结账户")
+            break;
+        case AccountType.RedBag:
+            @("奖励金账户")
+            break;
+        case AccountType.RedBagCoupon:
+            @("红包优惠券")
+            break;
+        default:
+            break;
+    }
+}
+@helper ConvertResultStatus(Common.ResultStatus resultStatus)
+{
+    string status = string.Empty;
+    switch (resultStatus)
+    {
+        case Common.ResultStatus.Failed:
+            status = "失败";
+            break;
+
+        case Common.ResultStatus.Successful:
+            status = "成功";
+            break;
+        case Common.ResultStatus.Unknown:
+            status = "未知";
+            break;
+    }
+    @status
+}
+@helper ConvertBannerType(string bannerType)
+{
+    string str = string.Empty;
+    switch (bannerType)
+    {
+        case "HF":
+            str = "首页横幅";
+            break;
+        case "HDP":
+            str = "首页幻灯片";
+            break;
+        case "MEMTOP":
+            str = "会员中心顶部广告";
+            break;
+        case "BETTOP":
+            str = "投注页面顶部广告";
+            break;
+        case "TOP":
+            str = "通用顶部广告";
+            break;
+        case "ZXHDP":
+            str = "资讯幻灯片";
+            break;
+        case "ZXHF":
+            str = "资讯横幅";
+            break;
+    }
+    @str
+}
+@helper GameSelector(string gamecode)
+{
+    //选择彩种列表框
+    <select id="game" name="GameType">
+        <option value="">全部彩种</option>
+        <optgroup label="竞技彩">
+            <option value="jczq" @(gamecode.ToLower() == "jczq" ? "selected='selected'" : string.Empty)>
+                竞彩足球
+            </option>
+            <option value="jclq" @(gamecode.ToLower() == "jclq" ? "selected='selected'" : string.Empty)>
+                竞彩篮球
+            </option>
+            <option value="bjdc" @(gamecode.ToLower() == "bjdc" ? "selected='selected'" : string.Empty)>
+                北京单场
+            </option>
+            <option value="ctzq" @(gamecode.ToLower() == "ctzq" ? "selected='selected'" : string.Empty)>
+                传统足球
+            </option>
+        </optgroup>
+        <optgroup label="高频彩">
+            <option value="CQSSC" @(gamecode == "CQSSC" ? "selected='selected'" : string.Empty)>
+                时时彩
+            </option>
+            @*<option value="JXSSC" @(gamecode == "JXSSC" ? "selected='selected'" : string.Empty) >
+                新时时彩</option>*@
+            <option value="JX11X5" @(gamecode == "JX11X5" ? "selected='selected'" : string.Empty)>
+                11选5
+            </option>
+            <option value="SD11X5" @(gamecode == "SD11X5" ? "selected='selected'" : string.Empty)>
+                老11选5
+            </option>
+            @*  <option value="GD11X5" @(gamecode == "GD11X5" ? "selected='selected'" : string.Empty) >
+                新11选5</option>*@ @*<option class="hide" value="SDQYH" @(gamecode == "SDQYH" ? "selected='selected'" : string.Empty) >
+                群英会</option>*@
+                <option class="hide" value="GDKLSF" @(gamecode == "GDKLSF" ? "selected='selected'" : string.Empty)>
+                    快乐十分
+                </option>
+                <option class="hide" value="JSKS" @(gamecode == "JSKS" ? "selected='selected'" : string.Empty)>
+                    江苏快3
+                </option>
+            </optgroup>
+            <optgroup label="福彩">
+                <option value="ssq" @(gamecode == "ssq" ? "selected='selected'" : string.Empty)>双色球</option>
+                <option value="FC3D" @(gamecode == "FC3D" ? "selected='selected'" : string.Empty)>福彩3D</option>
+            </optgroup>
+            <optgroup label="体彩">
+                <option value="dlt" @(gamecode == "dlt" ? "selected='selected'" : string.Empty)>大乐透</option>
+                <option value="PL3" @(gamecode == "PL3" ? "selected='selected'" : string.Empty)>排列三</option>
+            </optgroup>
+        </select>
+}
+@helper ConvertApplyState(ApplyState applyState)
+{
+    string str = string.Empty;
+    switch (applyState)
+    {
+        case ApplyState.Pending:
+            str = "申请中";
+            break;
+        case ApplyState.Sending:
+            str = "派送中";
+            break;
+        case ApplyState.Refusal:
+            str = "已拒绝";
+            break;
+        case ApplyState.SendCarryout:
+            str = "派送完成";
+            break;
+        case ApplyState.Canceled:
+            str = "已取消";
+            break;
+    }
+    @str;
+}
+@helper Bet_Type(string type)
+{
+
+    string str = "";
+    if (!string.IsNullOrEmpty(type))
+    {
+        if (type.ToLower() == "ds")
+        {
+            str = "单式";
+        }
+        if (type.ToLower() == "fs")
+        {
+            str = "复式";
+        }
+        else
+        {
+            string New_type = type.Substring(0, 1);
+            if (New_type.ToLower() == "p")
+            {
+                New_type = type.Substring(1);
+                string[] types = New_type.Split('_');
+                str = types[0] + "串" + types[1];
+            }
+        }
+    }
+    @str;
+}
+@helper ConvertGameTypeName(string gamecode, string type = "")
+{
+    string strGameType = string.Empty;
+    if (string.IsNullOrEmpty(gamecode))
+    {
+        strGameType = "";
+    }
+    type = string.IsNullOrEmpty(type) ? gamecode : type;
+    //根据彩种编号获取彩种名称
+    switch (gamecode.ToLower())
+    {
+        case "cqssc": strGameType = "时时彩"; break;
+        case "jxssc": strGameType = "新时时彩"; break;
+        case "sd11x5": strGameType = "老11选5"; break;
+        case "gd11x5": strGameType = "新11选5"; break;
+        case "jx11x5": strGameType = "11选5"; break;
+        case "pl3": strGameType = "排列三"; break;
+        case "fc3d": strGameType = "福彩3D"; break;
+        case "ssq": strGameType = "双色球"; break;
+        case "qxc": strGameType = "七星彩"; break;
+        case "qlc": strGameType = "七乐彩"; break;
+        case "dlt": strGameType = "大乐透"; break;
+        case "sdqyh": strGameType = "群英会"; break;
+        case "gdklsf": strGameType = "快乐十分"; break;
+        case "gxklsf": strGameType = "广西快乐十分"; break;
+        case "jsks": strGameType = "江苏快3"; break;
+        case "jczq":
+            switch (type.ToLower())
+            {
+                case "spf": strGameType = "竞彩让球胜平负"; break;
+                case "brqspf": strGameType = "竞彩胜平负"; break;
+                case "bf": strGameType = "竞彩比分"; break;
+                case "zjq": strGameType = "竞彩总进球数"; break;
+                case "bqc": strGameType = "竞彩半全场"; break;
+                case "hh": strGameType = "竞彩混合过关"; break;
+                default: strGameType = "竞彩足球"; break;
+            }
+            break;
+        case "jclq":
+            switch (type.ToLower())
+            {
+                case "sf": strGameType = "篮球胜负"; break;
+                case "rfsf": strGameType = "篮球让分胜负"; break;
+                case "sfc": strGameType = "篮球胜分差"; break;
+                case "dxf": strGameType = "篮球大小分"; break;
+                case "hh": strGameType = "篮球混合过关"; break;
+                default: strGameType = "竞彩篮球"; break;
+            }
+            break;
+        case "ctzq":
+            switch (type.ToLower())
+            {
+                case "t14c": strGameType = "14场胜负"; break;
+                case "tr9": strGameType = "任9场"; break;
+                case "t6bqc": strGameType = "6场半全"; break;
+                case "t4cjq": strGameType = "4场进球"; break;
+                default: strGameType = "传统足球"; break;
+            }
+            break;
+        case "bjdc":
+            switch (type.ToLower())
+            {
+                case "sxds": strGameType = "单场上下单双"; break;
+                case "spf": strGameType = "单场胜平负"; break;
+                case "zjq": strGameType = "单场总进球"; break;
+                case "bf": strGameType = "单场比分"; break;
+                case "bqc": strGameType = "单场半全场"; break;
+                default: strGameType = "北京单场"; break;
+            }
+            break;
+        default: strGameType = gamecode; break;
+    }
+    @strGameType;
+}

@@ -1,0 +1,226 @@
+﻿@{
+    ViewBag.Title = "用户管理";
+}
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+            <form class="layui-form">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" name="UserId" placeholder="账号Id" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" name="DisplayName" placeholder="昵称" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" name="Mobile" placeholder="手机号码" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <select name="RegistrationTime">
+                                <option value="">注册时长</option>
+                                <option value="0">今天</option>
+                                <option value="1-3">1-3天</option>
+                                <option value="3-7">3-7天</option>
+                                <option value="7-15"> 7-15天</option>
+                                <option value="15-30">15-30天</option>
+                                <option value="30-90">30-90天</option>
+                                <option value="90">90天以上</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <select name="PurchaseCount">
+                                <option value="">累计购彩次数</option>
+                                <option value="1">1次</option>
+                                <option value="2">2次</option>
+                                <option value="3">3次</option>
+                                <option value="4-6"> 4-6次</option>
+                                <option value="6-10">6-10次</option>
+                                <option value="10">10次以上</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <select name="TotalLotteryMoney">
+                                <option value="">累计购彩金额</option>
+                                <option value="0-10">0-10元</option>
+                                <option value="10-30">10-30元</option>
+                                <option value="30-100">30-100元</option>
+                                <option value="100-500"> 100-500元</option>
+                                <option value="500-2000">500-200元</option>
+                                <option value="2000-10000">2000-10000元</option>
+                                <option value="10000-50000">10000-50000元</option>
+                                <option value="50000">50000元以上</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <select name="IsEnable">
+                                <option value="">账号状态</option>
+                                <option value="0">暂停</option>
+                                <option value="1">启用</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layui-btn-normal" lay-submit lay-filter="*">
+                            查询
+                        </button>
+                        <button class="layui-btn layui-btn-primary" type="reset">
+                            重置
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="layui-card-body">
+            @*<div class="w-margin-t-2">
+                    @if (ViewBag.AddRole)
+                    {
+                        <button class="layui-btn layui-btn-normal" id="btnAddRole">添加角色</button>
+                    }
+                </div>*@
+            <table class="layui-table w-text-nowrap" lay-skin="line" id="table"></table>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            var layer = layui.layer;
+            var table = layui.table;
+            var form = layui.form;
+            var options = {
+                elem: '#table'
+                , url: '/UserManage/GetUserList'
+                , request: {
+                    pageName: 'PageIndex', //页码的参数名称，默认：page
+                    limitName: 'PageSize' //每页数据量的参数名，默认：limit
+                }
+                , skin: 'line'
+                ,loading:true
+                , cols: [[
+                    { field: 'RowId', title: '序号',width:70, sort: false }
+                    , { field: 'UserId',  title: '账号ID', sort: false }
+                    , { field: 'DisplayName', title: '昵称', sort: false }
+                    , { field: 'Mobile',  title: '手机号码', sort: false }
+                    , {
+                        field: 'RegisterTime', title: '注册时长', sort: true, templet: function (row) {
+                            if (!row.RegisterTime) {
+                                return "未知";
+                            }
+                            var reg = new Date(row.RegisterTime);
+                            var cur = new Date();
+                            var days = Math.ceil((cur - reg) / 86400000);
+                            return days + "天";
+                        }
+                    }
+                    , {
+                        field: 'LastPurchaseLotteryTime', title: '上次购彩', sort: true, templet: function (row) {
+                            if (!row.LastPurchaseLotteryTime) {
+                                return "未购过";
+                            }
+                            var last = new Date(row.LastPurchaseLotteryTime);
+                            var cur = new Date();
+                            var days = Math.ceil((cur - last) / 86400000);
+                            if (last.getFullYear() == cur.getFullYear() && last.getMonth() == cur.getMonth()) {
+                                if (last.getDate() - cur.getDate() == 0) {
+                                    return "今天";
+                                }
+                                else if (last.getDate() - cur.getDate() == 1) {
+                                    return "昨天";
+                                }
+                                else {
+                                    return days + "天前";
+                                }
+                            }
+                            else {
+                                return days + "天前";
+                            }
+                        }
+                    }
+                    , {
+                        field: 'OrderCount',  title: '累计购彩次数', sort: true, templet: function (row) {
+                            if (!row.OrderCount) {
+                                return "0";
+                            }
+                            return row.OrderCount + "次";
+                        }
+                    }
+                    , { field: 'TotalLotteryMoney', style:"text-align:right", title: '累计购彩金额', sort: true }
+                    , { field: 'TotalAssets',  style: "text-align:right", title: '总资产', sort: true }
+                    , {
+                        field: 'IsEnable',  title: '账号状态', sort: false, templet: function (row) {
+                            if (row.IsEnable) {
+                                return '<span class="layui-badge-dot layui-bg-green"></span> '+'正常';
+                            }
+                            else {
+                                return '<span class="layui-badge-dot"></span> '+'暂停';
+                            }
+                        }
+                    }
+                    , {
+                        field: 'Operation', title: '操作', sort: false, templet: function (r) {
+                            var html = '';
+                            html += ' <a class="layui-btn layui-btn-normal layui-btn-xs" href="javascript:;" detail="' + r.UserId + '">详情</a>';
+                            return html;
+                        }
+                    }
+                ]]
+                , page: true
+                , limits: [10, 20, 50, 100]
+                , limit: 20
+                , done: function (res, curr, count) {
+                    if (typeof (count) == "number" && count <= 20) {
+                        $(".layui-table-page").css("display", "none");
+                    }
+                    // 用户详情页
+                    $("a[detail]").click(function () {
+                        layer.open({
+                            type: 2,// 表示是iframe弹框
+                            title: "用户详情信息",
+                            content: "/UserManage/GetUserDetailInfo?userId=" + $(this).attr("detail"),
+                            maxmin: true,
+                            area: ['800px', '100%'],
+                            end: function () {
+                                //window.location.reload();
+                            }
+                        });
+                    });
+                }
+            };
+            var tableObj = table.render(options);
+            form.on("submit(*)", function (data) {
+                debugger;
+                var p = {};
+                p.UserId = $("input[name='UserId']").val();
+                p.DisplayName = $("input[name='DisplayName']").val();
+                p.Mobile = $("input[name='Mobile']").val();
+                var isEnable = $("select[name='IsEnable']").val();
+                if (isEnable == '0') {
+                    p.IsEnable = false;
+                }
+                else if (isEnable == '1') {
+                    p.IsEnable = true;
+                }
+                p.RegistrationTime = $("select[name='RegistrationTime']").val();
+                p.PurchaseCount = $("select[name='PurchaseCount']").val();
+                p.TotalLotteryMoney = $("select[name='TotalLotteryMoney']").val();
+                options.where = p;
+                tableObj.reload(options);
+                return false;
+            });
+        });
+    </script>
+}

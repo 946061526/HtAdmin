@@ -1,0 +1,417 @@
+﻿@model External.Core.SystemConfig.CompanyConfig
+@{
+    ViewBag.Title = "公司信息配置";
+}
+<style>
+    .layui-form-label {
+        width: 200px;
+    }
+
+    .layui-form-item .layui-input-inline {
+        width: 492px;
+    }
+</style>
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form id="companyForm" class="layui-form" enctype="multipart/form-data" method="post">
+            <input type="hidden" name="oldindex" value="@Model.Id" />
+            <div class="layui-form-item">
+                <label class="layui-form-label">导航Logo</label>
+                <div class="layui-input-inline">
+                    <div class="layui-upload">
+                        <input type="hidden" name="toplogourl" id="toplogourl" value="@Model.TopLogoUrl" />
+                        @if (Request["edit"] != null)
+                        {<button type="button" class="layui-btn topLogoUrl-upload-normal" data-field="toplogourl">选择图片</button>
+                            <div class="layui-upload-list">
+                                <img class="layui-upload-img" width="100px" src="@Model.TopLogoUrl">
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="layui-upload-list">
+                                <img class="layui-upload-img" width="100px" src="@Model.TopLogoUrl">
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">底部Logo</label>
+                <div class="layui-input-inline">
+                    <div class="layui-upload">
+                        <input type="hidden" name="bottonlogourl" id="bottonlogourl" value="@Model.BottonLogoUrl" />
+                        @if (Request["edit"] != null)
+                        {
+                            <button type="button" class="layui-btn bottonLogoUrl-upload-normal" data-field="bottonlogourl">选择图片</button>
+                            <div class="layui-upload-list">
+                                <img class="layui-upload-img" width="100px" src="@Model.BottonLogoUrl">
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="layui-upload-list">
+                                <img class="layui-upload-img" width="100px" src="@Model.BottonLogoUrl">
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">微信二维码图片</label>
+                <div class="layui-input-inline">
+                    <div class="layui-upload">
+
+                        <input type="hidden" name="weixinurl" id="weixinurl" value="@Model.Remark" />
+                        @if (Request["edit"] != null)
+                        {<button type="button" class="layui-btn remark-upload-normal" data-field="weixinurl">选择图片</button>
+                            <div class="layui-upload-list">
+                                <img class="layui-upload-img" src="@Model.Remark">
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="layui-upload-list">
+                                <img class="layui-upload-img" width="100px" src="@Model.Remark">
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">客服微信号</label>
+                <div class="layui-input-inline layui-col-md4">
+                    @if (Request["edit"] != null)
+                    {
+                        <input type="text" name="CustomerWxAccount" value="@Model.CustomerWxAccount" placeholder="请输入客服微信号" autocomplete="off" class="layui-input" />
+                    }
+                    else
+                    {
+                        @Model.CustomerWxAccount
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">网站名称</label>
+                <div class="layui-input-inline layui-col-md4">
+                    @if (Request["edit"] != null)
+                    {
+                        <input type="text" name="websitename" lay-verify="websitename" value="@Model.WebSiteName"
+                               autocomplete="off" placeholder="请输入网站名称" class="layui-input">
+                    }
+                    else
+                    {
+                        @Model.WebSiteName
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">公司名称</label>
+                <div class="layui-input-inline layui-col-md4">
+                    @if (Request["edit"] != null)
+                    {
+                        <input type="text" name="companyname" lay-verify="companyname" value="@Model.CompanyName"
+                               autocomplete="off" placeholder="请输入公司名称" class="layui-input">
+                    }
+                    else
+                    {
+                        @Model.CompanyName
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">备案信息</label>
+                <div class="layui-input-inline layui-col-md4">
+                    @if (Request["edit"] != null)
+                    {
+                        <input type="text" name="icp" lay-verify="icp" value="@Model.Icp"
+                               autocomplete="off" placeholder="请输入备案信息" class="layui-input">
+                    }
+                    else
+                    {
+                        @Model.Icp
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">客服电话</label>
+                <div class="layui-input-inline layui-col-md4">
+                    @if (Request["edit"] != null)
+                    {
+                        <input type="text" name="tell" lay-verify="tell" value="@Model.Tell"
+                               autocomplete="off" placeholder="请输入客服电话" class="layui-input">
+                    }
+                    else
+                    {
+                        @Model.Tell
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">网站域名</label>
+                <div class="layui-input-inline layui-col-md4">
+                    @if (Request["edit"] != null)
+                    {
+                        <input type="text" name="websiteurl" lay-verify="websiteurl" value="@Model.WebSiteUrl"
+                               autocomplete="off" placeholder="请输入网站域名" class="layui-input">
+                    }
+                    else
+                    {
+                        @Model.WebSiteUrl
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">商务合作联系人</label>
+                <div class="layui-input-inline layui-col-md4">
+                    @if (Request["edit"] != null)
+                    {
+                        <input type="text" name="businesscontactsname" lay-verify="businesscontactsname" value="@Model.BusinessContactsName"
+                               autocomplete="off" placeholder="请输入商务合作联系人" class="layui-input"> }
+                    else
+                    {
+                        @Model.BusinessContactsName
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">商务合作联系人邮箱</label>
+                <div class="layui-input-inline layui-col-md4">
+                    @if (Request["edit"] != null)
+                    {
+                        <input type="text" name="businesscontactsemail" lay-verify="businesscontactsemail" value="@Model.BusinessContactsEmail"
+                               autocomplete="off" placeholder="请输入商务合作联系人邮箱" class="layui-input"> }
+                    else
+                    {
+                        @Model.BusinessContactsEmail
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">客服名称</label>
+                <div class="layui-input-inline layui-col-md4">
+                    @if (Request["edit"] != null)
+                    {
+                        <input type="text" name="servicename" lay-verify="servicename" value="@Model.ServiceName"
+                               autocomplete="off" placeholder="请输入客服名称" class="layui-input">
+                    }
+                    else
+                    {
+                        @Model.ServiceName
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">客服邮箱</label>
+                <div class="layui-input-inline layui-col-md4">
+                    @if (Request["edit"] != null)
+                    {
+                        <input type="text" name="serviceemail" lay-verify="serviceemail" value="@Model.ServiceEmail"
+                               autocomplete="off" placeholder="请输入客服邮箱" class="layui-input">
+                    }
+                    else
+                    {
+                        @Model.ServiceEmail
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">PC端支付站点</label>
+                <div class="layui-input-inline layui-col-md4">
+                    @if (Request["edit"] != null)
+                    {
+                        <input type="text" name="paysiteurl" lay-verify="paysiteurl" value="@Model.PaySiteUrl"
+                               autocomplete="off" placeholder="请输入PC端支付站点" class="layui-input">
+                    }
+                    else
+                    {
+                        @Model.PaySiteUrl
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">M端支付站点</label>
+                <div class="layui-input-inline layui-col-md4">
+                    @if (Request["edit"] != null)
+                    {
+                        <input type="text" name="mpaysiteurl" lay-verify="mpaysiteurl" value="@Model.MPaySiteUrl"
+                               autocomplete="off" placeholder="请输入M端支付站点" class="layui-input">
+                    }
+                    else
+                    {
+                        @Model.MPaySiteUrl
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">在线客服</label>
+                <div class="layui-input-inline layui-col-md4">
+                    @if (Request["edit"] != null)
+                    {
+                        <input type="text" name="servicesiteurl" lay-verify="servicesiteurl" value="@Model.ServiceSiteUrl"
+                               autocomplete="off" placeholder="请输入在线客服" class="layui-input">
+                    }
+                    else
+                    {
+                        @Model.ServiceSiteUrl
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">提现手续费</label>
+                <div class="layui-input-inline layui-col-md4">
+                    @if (Request["edit"] != null)
+                    {
+                        <input type="text" name="ServicePercent" lay-verify="ServicePercent" value="@Model.ServicePercent.Value.ToString("N2")"
+                               autocomplete="off" placeholder="请输入提现手续费" class="layui-input">
+                    }
+                    else
+                    {
+                        @Model.ServicePercent.Value.ToString("N2")
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">APP下载二维码图片</label>
+                <div class="layui-input-inline layui-col-md4">
+                    <div class="layui-upload">
+                        <input type="hidden" id="appdownloadurl" name="appdownloadurl" value="@Model.AppDownloadUrl" />
+                        @if (Request["edit"] != null)
+                        {
+                            <button type="button" class="layui-btn appdownloadurl-upload-normal" data-field="appdownloadurl">选择图片</button>
+                            <div class="layui-upload-list">
+                                <img class="layui-upload-img" src="@Model.AppDownloadUrl">
+                            </div>
+                        }
+                        else
+                        {
+                            
+                            <div class="layui-upload-list">
+                                <img class="layui-upload-img" width="100px" src="@Model.AppDownloadUrl">
+                            </div>
+                        }
+
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-inline layui-col-md4">
+                    <div class="layui-footer" style="left: 0;">
+                        @if (Request["edit"] == null)
+                        {
+                            <button type="button" class="layui-btn" id="btn_update">修改</button>
+                        }
+                        else
+                        {
+                            <button type="button" class="layui-btn" id="btn_submit" lay-submit lay-filter="btn_save" name="btn">立即提交</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        //普通图片上传
+        layui.upload.render({
+            elem: '.topLogoUrl-upload-normal',
+            url: '/ContentManage/UploadFile',
+            auto: true,
+            data: {
+                imgName: 'header_logo',
+            },
+            field: 'images',
+            done: function (res, index, upload) {
+                var item = this.item;
+                var field = $(item).data("field");
+                $("#toplogourl").val(res.Data);
+                $(item).nextAll("div").find('img').attr("src", res.Data);
+            }
+        });
+
+        layui.upload.render({
+            elem: '.bottonLogoUrl-upload-normal',
+            url: '/ContentManage/UploadFile',
+            auto: true,
+            data: {
+                imgName: 'footer_logo',
+            },
+            field: 'images',
+            done: function (res, index, upload) {
+                var item = this.item;
+                var field = $(item).data("field");
+                $("#bottonlogourl").val(res.Data);
+                $(item).nextAll("div").find('img').attr("src", res.Data);
+            }
+        });
+
+        layui.upload.render({
+            elem: '.remark-upload-normal',
+            url: '/ContentManage/UploadFile',
+            auto: true,
+            data: {
+                imgName: 'weixin_logo',
+            },
+            field: 'images',
+            done: function (res, index, upload) {
+                var item = this.item;
+                var field = $(item).data("field");
+                $("#weixinurl").val(res.Data);
+                $(item).nextAll("div").find('img').attr("src", res.Data);
+            }
+        });
+
+        layui.upload.render({
+            elem: '.appdownloadurl-upload-normal',
+            url: '/ContentManage/UploadFile',
+            auto: true,
+            data: {
+                imgName: 'appdownload',
+            },
+            field: 'images',
+            done: function (res, index, upload) {
+                var item = this.item;
+                var field = $(item).data("field");
+                $("#appdownloadurl").val(res.Data);
+                $(item).nextAll("div").find('img').attr("src", res.Data);
+            }
+        });
+
+        //提交事件
+        $("#btn_submit").on("click", function () {
+            $.ajax({
+                url: "/contentmanage/RequestCompanyConfigInfo",
+                type: "post",
+                data: $('#companyForm').serialize(),
+                success: function (data) {
+                    if (data.success) {
+                        layer.msg(
+                            data.msg,
+                            { icon: 1, time: 2000 }
+                            , function (i) {
+                                location.href = "/contentmanage/CompanyConfigInfo?r=" + Math.random();
+                                
+                            });
+                    }
+                    else {
+                        layer.msg(
+                            data.msg,
+                            { icon: 5, time: 2000 }
+                            , function (i) {
+                                location.href = "/contentmanage/CompanyConfigInfo?r=" + Math.random();
+                            });
+                    }
+                },
+                error: function (e) {
+                    ShowErrorMsg('请求异常');
+                }
+            });
+        });
+
+        $("#btn_update").on("click", function () {
+            var url = "CompanyConfigInfo?edit=true&r=" + Math.random();
+            location.href = url;
+        });
+    </script>
+}

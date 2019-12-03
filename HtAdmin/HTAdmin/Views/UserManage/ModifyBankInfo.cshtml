@@ -1,0 +1,106 @@
+﻿@{
+    ViewBag.Title = "ModifyBankInfo";
+    var banks = ViewBag.BankInfos as External.Core.BankInfo.BankInfoCollection;
+}
+@section styles{
+    <style>
+        .layui-form-select dl {
+            max-height: 200px;
+        }
+    </style>
+
+}
+<div class="layui-fluid" style="background-color:white;height:100%;">
+    <div class="pd" id="divRealName">
+        <form class="layui-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">开户行：</label>
+                <div class="layui-input-block">
+                    <select name="BackName" lay-verify="required">
+                        <option value="-1">请选择开户行</option>
+                        @foreach (var item in banks.HelpList)
+                        {
+                            <option value="@item.bank_code">@item.bank_name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">支行名称：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="BankSubName" lay-verify="required" placeholder="请输入支行名称" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">银行卡号：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="BankCardNumber" lay-verify="required" placeholder="请输入银行卡号" autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-item layui-layout-admin">
+                    <div class="layui-input-block">
+                        <div class="layui-footer" style="text-align:right;">
+                            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="*"  id="btnOk">
+                                确定
+                            </button>
+                            <button type="button" class="layui-btn layui-btn-primary" style="margin-right:15px;" id="btnCancel">取消</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts{
+
+    <script type="text/javascript">
+        $(function(){
+            var form = layui.form;
+            var layer = layui.layer;
+            form.on("submit(*)", function (data) {
+                var userId = '@ViewBag.UserId';
+                var bankCode = $("select").val();
+                var cardNumber = $("input[name='BankCardNumber']").val();
+                var bankSubName = $("input[name='BankSubName']").val();
+
+                if (!bankCode || bankCode == "-1") {
+                    layer.alert("请选择开户行");
+                    return false;
+                }
+                if (!cardNumber || cardNumber.length < 6) {
+                    layer.alert("请输入正确的银行卡号");
+                    return false;
+                }
+                if (!bankSubName || bankSubName < 2) {
+                    layer.alert("请选择正确的支行");
+                    return false;
+                }
+                $.post("/UserManage/UpdateBankInfoForUser", {
+                    userId: userId,
+                    bankCode: bankCode,
+                    cardNumber: cardNumber,
+                    bankSubName: bankSubName
+                }, function (r) {
+                    if (r.status == 1) {
+                        layer.alert(r.message, function (i) {
+                            var index = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(index);//关闭当前页
+                            layer.close(i);
+                        });
+                    }
+                    else {
+                        layer.alert(r.message);
+                    }
+                });
+                return false;
+            });
+
+            $("#btnCancel").click(function () {
+                var index = parent.layer.getFrameIndex(window.name);
+                parent.layer.close(index);//关闭当前页
+            });
+     });
+    </script>
+
+}
+

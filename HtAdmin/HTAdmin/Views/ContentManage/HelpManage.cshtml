@@ -1,0 +1,329 @@
+﻿@using Common
+@using HTAdmin.Models
+@{
+    ViewBag.Title = "帮助中心管理 - 后台管理系统 - " + GlobalCache.WebSiteName;
+    var notice = ViewBag.HelpM as External.Core.Help.HelpMenuDetailListCollection;
+    var userList = ViewBag.UserListInfo as List<HTAdmin.Models.AdminUserModel>;
+    var menu = ViewBag.HelpType as List<External.Core.Help.HelpMenuListInfo>;
+    int numIndex = ViewBag.PageIndex * ViewBag.PageSize - ViewBag.PageSize + 1;
+    int pageIndex = 1, pageSize = ViewBag.PageSize;
+    int.TryParse(Request.QueryString["pageindex"], out pageIndex);
+    if (pageIndex <= 0) { pageIndex = 1; }
+    //index = (pageIndex - 1) * pageSize + 1;
+
+    PaginationModel pagination = new PaginationModel()
+    {
+        PageIndex = pageIndex,
+        PageSize = pageSize,
+        TotalCount = 10,
+    };
+}
+@section styles{
+    <link rel="stylesheet" href="@Url.Content("~/lay/style/vendor.css")" media="all">
+}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <form action="/ContentManage/HelpManage" method="get">
+            @{ var sdate = string.IsNullOrWhiteSpace(Convert.ToString(ViewBag.StartTime)) ? "" : ViewBag.StartTime.ToString("yyyy-MM-dd HH:mm");}
+            @{ var edate = string.IsNullOrWhiteSpace(Convert.ToString(ViewBag.EndTime)) ? "" : ViewBag.EndTime.ToString("yyyy-MM-dd HH:mm");}
+            <input type="hidden" name="StartDate" value="@sdate" />
+            <input type="hidden" name="EndDate" value="@edate" />
+            <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <select name="menu">
+                                <option value="">类别</option>
+                                @{
+                                    for (int i = 0; i < menu.Count; i++)
+                                    {
+                                        if (ViewBag.MenuId == menu[i].HMenuid.ToString())
+                                        {
+                                            <option value="@menu[i].HMenuid" selected>@menu[i].DisplayName</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@menu[i].HMenuid">@menu[i].DisplayName</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" name="key" placeholder="标题" autocomplete="off" class="layui-input" value="@(ViewBag.HtmlTitle == null ? null : ViewBag.HtmlTitle)">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width:260px">
+                            <input type="text" id="StartDateText" name="StartDateText" placeholder="时间" autocomplete="off" class="layui-input date" value="@((sdate + edate)==""? "":sdate+" - "+edate)">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <select name="userId">
+                                <option value="">请选择人员</option>
+                                @foreach (var item in userList)
+                                {
+                                    <option value="@item.UserId" @(ViewBag.UserId == item.UserId ? "selected" : "")>@item.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <select name="status">
+                                <option value="" @(ViewBag.Status == null ? "selected=selected" : "")>状态</option>
+                                <option value="1" @(ViewBag.Status == 1 ? "selected=selected" : "")>正常</option>
+                                <option value="0" @(ViewBag.Status == 0 ? "selected=selected" : "")>暂停</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <button class="layui-btn layui-btn-normal" lay-submit lay-filter="LAY-app-contlist-search" type="submit">
+                            查询
+                        </button>
+                        <input type="button" value="重置" class="layui-btn layui-btn-primary" onclick='location.href="HelpManage?val=reset"' />
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="layui-card-body">
+            <div class="w-margin-t-2">
+                <button class="layui-btn layui-btn-normal" onclick='OpenHelpManageInfo("add",)'>
+                    新增帮助内容
+                </button>
+            </div>
+            <div class="w-margin-t-4">
+                <table class="layui-table w-text-nowrap" lay-skin="line">
+                    <colgroup>
+                        <col width="100">
+                        <col>
+                        <col width="200">
+                        <col>
+                        <col width="150">
+                        <col width="150">
+                        <col width="200">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>
+                                <span>序号</span>
+                            </th>
+                            <th>
+                                类别
+                            </th>
+                            <th>
+                                标题
+                            </th>
+                            <th>
+                                创建时间
+                            </th>
+                            <th>
+                                浏览
+                            </th>
+                            <th>
+                                有帮助/无帮助
+                            </th>
+                            <th>
+                                操作人
+                            </th>
+                            <th>
+                                状态
+                            </th>
+                            <th>
+                                操作
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in notice.HelpList)
+                        {
+                            <tr>
+                                <td>
+                                    @(numIndex++)
+                                </td>
+                                <td>
+                                    @menu.Where(a => a.HMenuid == item.HMenuid).FirstOrDefault().DisplayName
+                                </td>
+                                <td>
+                                    @(item.DisplayName.Length > 20 ? item.DisplayName.Substring(0, 20) + "..." : item.DisplayName)
+                                </td>
+                                <td>
+                                    @item.CreateTime.Value.ToString("yyyy-MM-dd HH:mm:ss")
+                                </td>
+                                <td>
+                                    @item.ReadCount
+                                </td>
+                                <td>
+                                    @(item.YHelp + "/" + item.NHelp)
+                                </td>
+                                <td>
+                                    @item.InUserName
+                                </td>
+                                <td>
+                                    @if ((bool)item.IsEnabled)
+                                    {<span class="layui-badge-dot layui-bg-green"></span> }
+                                    else
+                                    {<span class="layui-badge-dot"></span>}
+                                    @ViewHelpers.ConvertUseStatur((Common.EnableStatus)((bool)item.IsEnabled ? 0 : 1))
+                                </td>
+                                <td>
+                                    <a class="getNoticeInfo layui-btn layui-btn-container layui-btn-xs" title="查看公告" href="javascript:void(0);" onclick='OpenHelpManageInfo("info",@item.DId)'>
+                                        查看
+                                    </a>
+                                    @if (ViewBag.Update)
+                                    {
+                                        <a class="getNoticeInfo layui-btn layui-btn-normal layui-btn-xs" title="修改公告" href="javascript:void(0);" onclick='OpenHelpManageInfo("edit",@item.DId)'>
+                                            编辑
+                                        </a>
+                                    }
+                                    @if (ViewBag.JyQy)
+                                    {
+                                        if ((Common.EnableStatus)((bool)item.IsEnabled ? 0 : 1) == Common.EnableStatus.Enable)
+                                        {
+                                            <a class="DisnableHelp layui-btn layui-btn-container layui-btn-xs" href="javascript:void(0);">禁用<input type="hidden" value="@item.DId" /></a>
+                                        }
+                                        else if ((Common.EnableStatus)((bool)item.IsEnabled ? 0 : 1) == Common.EnableStatus.Disable)
+                                        {
+                                            <a class="EnableHelp layui-btn layui-btn-container layui-btn-xs" href="javascript:void(0);">激活<input type="hidden" value="@item.DId" /></a>
+                                            if (ViewBag.Delete)
+                                            {
+                                                <a class="DeleteHelp layui-btn layui-btn-danger layui-btn-xs" title="删除公告" id="a_Del" href="javascript:void(0);">
+                                                    删除<input type="hidden" value="@item.DId" />
+                                                </a>
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            <a href="javascript:void(0);">未知</a>
+                                        }
+
+                                    }
+                                    <input type="hidden" id="hid_did" value="@item.DId" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @if (notice.HelpList.Count > 20)
+                {
+                    @ViewHelpers.Pager(ViewBag.PageIndex, ViewBag.PageSize, notice.TotalCount)
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts {
+    <script>
+        layui.config({
+            base: '/lay/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['laydate', 'table', 'laypage'], function () {
+            //常规用法
+            layui.laydate.render({
+                elem: '#StartDateText'
+                , type: 'datetime'
+                , range: true,
+                format: 'yyyy-MM-dd HH:mm',
+                done: function (value, date, endDate) {
+                    console.log(value); //得到日期生成的值，如：2017-08-18
+                    $("input[name='StartDate']").val(date.year + "-" + date.month + "-" + date.date + " " + date.hours + ":" + date.minutes);
+                    $("input[name='EndDate']").val(endDate.year + "-" + endDate.month + "-" + endDate.date + " " + endDate.hours + ":" + endDate.minutes);
+                }
+            });
+        });
+
+
+        $(".DisnableHelp").click(function () {
+            var data = {
+                Did: $(this).find("input:hidden").val(),
+                isEnable: false
+            }
+            var url = "/ContentManage/IsDisnableHelp?r=" + Math.random();
+            layer.confirm('确定禁用吗？', { icon: 3, title: "提示" }, function (index) {
+                $.post(url, data, function (callback) {
+                    if (callback.IsSuccess) {
+                        layer.msg("禁用成功", {
+                            icon: 1,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        }, function (index) {
+                            window.location.reload();
+                        });
+                    }
+                    else {
+                        layer.msg("禁用失败", {
+                            icon: 2,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        });
+                    }
+                });
+            });
+        })
+        $(".EnableHelp").click(function () {
+            var data = {
+                Did: $(this).find("input:hidden").val(),
+                isEnable: true
+            }
+            var url = "/ContentManage/IsDisnableHelp?isEnable=true&r=" + Math.random();
+            layer.confirm('确定激活吗？', { icon: 3, title: "提示" }, function (index) {
+                $.post(url, data, function (callback) {
+                    if (callback.IsSuccess) {
+                        layer.msg("激活成功", {
+                            icon: 6,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        }, function (index) {
+                            window.location.reload();
+                        });
+                    }
+                    else {
+                        layer.msg("激活失败", {
+                            icon: 2,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        });
+                    }
+                });
+            });
+        })
+
+        $(".DeleteHelp").click(function () {
+
+            var data = {
+                Did: $(this).find("input:hidden").val()
+            }
+            var url = "/ContentManage/Delete_HelpManage?r=" + Math.random();
+            layer.confirm('确定删除吗？', { icon: 3, title: "提示" }, function (index) {
+                $.post(url, data, function (callback) {
+                    if (callback.IsSuccess) {
+                        layer.msg("删除成功", {
+                            icon: 6,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        }, function (index) {
+                            window.location.reload();
+                        });
+                    }
+                    else {
+                        layer.msg("删除失败", {
+                            icon: 2,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        });
+                    }
+                });
+            });
+        });
+
+        function OpenHelpManageInfo(type, mid) {
+            var title = type.indexOf("add") >= 0 ? "新增帮助内容" : type.indexOf("edit") >= 0 ? "修改帮助内容" : "查看帮助内容";
+            var txt_cnt = "/ContentManage/HelpManageInfo?Type=" + type + "&DId=" + mid;
+            LayuiOpen(title, txt_cnt, function () {
+                window.location.reload();
+            }, function () {
+                window.location.reload();
+            });
+        }
+    </script>
+}

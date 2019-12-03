@@ -1,0 +1,246 @@
+﻿@using GameBiz.Core;
+@{
+    ViewBag.Title = "" + GlobalCache.WebSiteName;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var detail = ViewBag.Detail as SiteMessageBannerInfo;
+}
+@section styles{
+    <style>
+        .layui-input-block {
+            float: none;
+        }
+    </style>
+}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form class="layui-form" enctype="multipart/form-data">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">位置：</label>
+                    <div class="layui-input-block layui-col-md2 layui-fo">
+                        <select name="bannerType" lay-filter="bannerType" lay-verify="required">
+                            <option value="">请选择</option>
+                            <option value="10" @(detail != null && detail.BannerType == BannerType.Index ? "selected" : "")>PC 首页</option>
+                            <option value="40" @(detail != null && detail.BannerType == BannerType.Index_ZiXun ? "selected" : "")>PC 资讯</option>
+                            <option value="60" @(detail != null && detail.BannerType == BannerType.Touch_Index ? "selected" : "")>M 首页</option>
+                            <option value="20" @(detail != null && detail.BannerType == BannerType.APP ? "selected" : "")>APP 首页</option>
+                            <option value="80" @(detail != null && detail.BannerType == BannerType.APP_Satart ? "selected" : "")>APP 启动页</option>
+                            <option value="90" @(detail != null && detail.BannerType == BannerType.APP_First_Popup ? "selected" : "")>APP 首页弹窗</option>
+                        </select>
+                        <input type="hidden" id="bannerType" value='@(detail != null ? (int)detail.BannerType:0 )' />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">名称：</label>
+                    <div class="layui-input-block layui-col-md4">
+                        @if (!string.IsNullOrWhiteSpace(Request["Type"]) && Request["Type"] != "info")
+                        {
+                            <input type="text" name="bannerTitle" lay-verify="required" placeholder="请输入" class="layui-input" value="@(detail == null?"":detail.BannerTitle)" />
+                        }
+                        else
+                        {
+                            @(detail == null ? "" : detail.BannerTitle )
+                        }
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">图片：</label>
+                    <div class="layui-input-block  layui-col-md4">
+                        <input type="hidden" name="bannerImageUrl" value="@(detail == null?"":detail.ImageUrl)" />
+                        @if (!string.IsNullOrWhiteSpace(Request["Type"]) && Request["Type"] != "info")
+                        {
+                            <button type="button" class="layui-btn Url-upload-normal" data-field="toplogourl">选择图片</button>
+                            <div class="layui-upload-list">
+                                <img class="layui-upload-img" name="imgUrl" width="100px" src="@(detail == null?"":detail.ImageUrl)">
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="layui-upload-list">
+                                <img class="layui-upload-img" name="imgUrl" width="100px" src="@(detail == null?"":detail.ImageUrl)">
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">跳转：</label>
+                    <div class="layui-input-block  layui-col-md4">
+                        <div class="layui-btn-group" id="groupButton">
+                            <button class="layui-btn @(detail == null || detail.JumpType==1?"":"layui-btn-primary" )" type="button" value="1">链接</button>
+                            <button class="layui-btn @(detail != null && detail.JumpType==2?"":"layui-btn-primary" )" type="button" value="2">Activity</button>
+                            <button class="layui-btn @(detail != null && detail.JumpType==0?"":"layui-btn-primary" )" type="button" value="0">不跳转</button>
+                        </div>
+                        <input type="hidden" name="jumpType" value="@(detail != null ? detail.JumpType:0)" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">跳转地址：</label>
+                    <div class="layui-input-block layui-col-md1">
+                        @if (!string.IsNullOrWhiteSpace(Request["Type"]) && Request["Type"] != "info")
+                        {
+                            <input type="text" id="jumpUrl" name="jumpUrl" placeholder="请输入" autocomplete="off" class="layui-input date" value='@(detail == null ? "" : detail.JumpUrl )'>
+                            <select id="jumpUrl_Activity" name="jumpUrl_Activity" lay-verify="">
+                                <option value="">请选择</option>
+                                <option @(detail != null && detail.JumpUrl == "HOME" ? "selected='selected'" : "") value="HOME">首页</option>
+                                <option @(detail != null && detail.JumpUrl == "TZ_SSQ" ? "selected='selected'" : "") value="TZ_SSQ">双色球投注</option>
+                                <option @(detail != null && detail.JumpUrl == "TZ_DLT" ? "selected='selected'" : "") value="TZ_DLT">大乐透投注</option>
+                                <option @(detail != null && detail.JumpUrl == "TZ_FC3D" ? "selected='selected'" : "") value="TZ_FC3D">福彩3D投注</option>
+                                <option @(detail != null && detail.JumpUrl == "TZ_PL3" ? "selected='selected'" : "") value="TZ_PL3">排列3投注</option>
+                                <option @(detail != null && detail.JumpUrl == "TZ_SSQ" ? "selected='selected'" : "") value="TZ_SSQ">双色球投注</option>
+                                <option @(detail != null && detail.JumpUrl == "TZ_JCZQ" ? "selected='selected'" : "") value="TZ_JCZQ">竞彩足球投注</option>
+                                <option @(detail != null && detail.JumpUrl == "TZ_JCLQ" ? "selected='selected'" : "") value="TZ_JCLQ">竞彩篮球球投注</option>
+                                <option @(detail != null && detail.JumpUrl == "TZ_BJDC" ? "selected='selected'" : "") value="TZ_BJDC">北京单场投注</option>
+                                <option @(detail != null && detail.JumpUrl == "TZ_CTZQ" ? "selected='selected'" : "") value="TZ_CTZQ">传统足球投注</option>
+                                <option @(detail != null && detail.JumpUrl == "TZ_JSKS" ? "selected='selected'" : "") value="TZ_JSKS">江苏快三投注</option>
+                                <option @(detail != null && detail.JumpUrl == "TZ_CQSSC" ? "selected='selected'" : "") value="TZ_CQSSC">重庆时时彩投注</option>
+                                <option @(detail != null && detail.JumpUrl == "TZ_GD11X5" ? "selected='selected'" : "") value="TZ_GD11X5">广东11选5投注</option>
+                                <option @(detail != null && detail.JumpUrl == "TZ_JX11X5" ? "selected='selected'" : "") value="TZ_JX11X5">江西11选5投注</option>
+                                <option @(detail != null && detail.JumpUrl == "TZ_SD11X5" ? "selected='selected'" : "") value="TZ_SD11X5">山东11选5投注</option>
+                                <option @(detail != null && detail.JumpUrl == "TZ_SDKLPK" ? "selected='selected'" : "") value="TZ_SDKLPK">山东快乐扑克投注</option>
+                                <option @(detail != null && detail.JumpUrl == "TZ_GDKLSF" ? "selected='selected'" : "") value="TZ_GDKLSF">广东快乐十分投注</option>
+                                <option @(detail != null && detail.JumpUrl == "HOME_KJ" ? "selected='selected'" : "") value="HOME_KJ">开奖信息首页</option>
+                                <option @(detail != null && detail.JumpUrl == "HOME_JX" ? "selected='selected'" : "") value="HOME_JX">精选</option>
+                                <option @(detail != null && detail.JumpUrl == "LOGIN_CODE" ? "selected='selected'" : "") value="LOGIN_CODE">登录</option>
+                                <option @(detail != null && detail.JumpUrl == "REGISTER" ? "selected='selected'" : "") value="REGISTER">注册</option>
+                            </select>
+                        }
+                        else
+                        {
+                            @(detail == null ? "" : detail.JumpUrl)
+                        }
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">排序：</label>
+                    <div class="layui-input-block">
+                        @if (!string.IsNullOrWhiteSpace(Request["Type"]) && Request["Type"] != "info")
+                        {
+                            <input type="text" name="bannerIndex" placeholder="请输入" autocomplete="off" class="layui-input" value='@(detail == null ? 0 : detail.BannerIndex )'>
+                            <input type="hidden" name="jumpType" value="@(detail != null ? detail.JumpType : 0)" />
+                        }
+                        else
+                        {
+                            @(detail == null ? 0 : detail.BannerIndex)
+                        }
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否显示：</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="isEnable" class="layui-input" title="是" value="1" @(detail == null ? "checked" : (bool)detail.IsEnable ? "checked" : "") />
+                        <input type="radio" name="isEnable" class="layui-input" title="否" value="0" @(detail == null ? "" : !(bool)detail.IsEnable ? "checked" : "") />
+                    </div>
+                </div>
+                <input type="hidden" name="bannerId" value="@(detail == null ?"":detail.BannerId.ToString())" />
+                <div class="layui-form-item layui-layout-admin">
+                    <div class="layui-input-block">
+                        <div class="layui-footer" style="text-align:right;z-index: 9999;">
+                            <button type="button" class="layui-btn layui-btn-primary" id="btnCancel">取消</button>
+                            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="btn_save" style="margin-right:15px;" id="btnOk">
+                                @if (detail == null)
+                                {
+                                    @("确定")
+                                }
+                                else
+                                {
+                                    @("保存")
+                                }
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        var bannerType = null; 
+        layui.use(['form'], function () {
+            var form = layui.form;
+            //监听提交
+            form.on('submit(btn_save)', function (data) {
+                $.post({
+                    url: "/ContentManage/RequestBanner"
+                    , type: "post"
+                    , data: data.field
+                    , dataType: "json"
+                    , success: function (data) {
+                        if (data.code == 200) {
+
+                        }
+                        layer.alert(data.message, function (i) {
+                            var index = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(index);
+                        });
+                    }
+                });
+                return false;
+            });
+
+            form.on('select(bannerType)', function (data) {
+                $("#bannerType").val(data.value); //得到被选中的值
+                $("#groupButton [type='button']").eq(0).click();
+            });
+        });
+
+        layui.config({
+            base: '/lay/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['form', 'laydate', 'upload'], function () {
+            //普通图片上传
+            layui.upload.render({
+                elem: '.Url-upload-normal',
+                url: '/UpLoad/UpLoadImage',
+                auto: true,
+                field:'imgFile',
+                multiple: true,
+                before: function (obj) {
+                    var $ = layui.jquery
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function (index, file, result) {
+                        $('.layui-upload-img').attr("src", result);  //图片链接（base64）
+                        $('input[name=ImageUrl]').val(result);
+                    });
+                }
+            });
+            });
+
+        $("#groupButton [type='button']").click(function () {
+            if ($("#bannerType").val() != 20 && $("#bannerType").val() != 80 && $("#bannerType").val() != 90 && $(this).val() != 2) {
+                $(this).removeClass("layui-btn-primary").siblings().removeClass("layui-btn-primary").addClass("layui-btn-primary");
+            }
+            if ($("#bannerType").val() == 20 || $("#bannerType").val() == 80 || $("#bannerType").val() == 90) {
+                $(this).removeClass("layui-btn-primary").siblings().removeClass("layui-btn-primary").addClass("layui-btn-primary");
+                if ($(this).val() == 2) {
+                    $(".layui-form-item:eq(4)").css("display", "block");
+                    $(".layui-form-select:eq(1)").css("display", "block");
+                    $("#jumpUrl").css("display", "none");
+                }
+            }
+            if ($(this).val() == 0) {
+                $(".layui-form-item:eq(4)").css("display", "none");
+            }
+            else if ($(this).val() == 1) {
+                $(".layui-form-item:eq(4)").css("display", "block");
+                $(".layui-form-select:eq(1)").css("display", "none");
+                $("#jumpUrl").css("display", "block");
+            }
+            $("input[name=jumpType]").val($(this).val());
+        });
+
+        $("#btnCancel").click(function () {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);//关闭当前页
+        });
+
+        var btns = $("#groupButton [type='button']");
+        for (var i = 0; i < btns.length; i++) {
+            if (!$(btns[i]).hasClass("layui-btn-primary")) {
+                $(btns[i]).click();
+            }
+        }
+    </script>
+}

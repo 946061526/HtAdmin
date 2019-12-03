@@ -1,0 +1,149 @@
+﻿@using GameBiz.Core
+@{
+    var WithdrawDetail = ViewBag.WithdrawInfo as GameBiz.Core.Withdraw_QueryInfo;
+}
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" style="height:476px">
+            <input type="hidden" id="hdID" value="@ViewBag.OrderID" />
+            <input type="hidden" value="@(WithdrawDetail == null ? "" : WithdrawDetail.RequesterUserKey)" id="hdUid" />
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">订单号：</label>
+                <div class="layui-input-inline" style="margin-top:5px">
+                    <label> @ViewBag.OrderID</label>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">提款账号：</label>
+                <div class="layui-input-inline" style="margin-top:5px;width:500px">
+                    @if (WithdrawDetail != null)
+                    {
+                        var str = WithdrawDetail.BankName;
+                        if (!string.IsNullOrEmpty(WithdrawDetail.BankSubName))
+                        {
+                            str += " (" + WithdrawDetail.BankSubName + ") ";
+                        }
+                        if (!string.IsNullOrEmpty(WithdrawDetail.BankCardNumber))
+                        {
+                            str += " [" + WithdrawDetail.BankCardNumber + "] ";
+                        }
+
+                        @(string.IsNullOrEmpty(str) ? "--" : str)
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">提现金额：</label>
+                <div class="layui-input-inline" style="margin-top:5px">
+                    @if (WithdrawDetail != null)
+                    {
+                        @WithdrawDetail.RequestMoney.ToString("c")
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">到账金额：</label>
+                <div class="layui-input-inline" style="margin-top:5px">
+                    @if (WithdrawDetail != null)
+                    {
+                        @(WithdrawDetail.ResponseMoney != null ? Convert.ToDecimal(WithdrawDetail.ResponseMoney).ToString("c") : "0.00")
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">申请时间：</label>
+                <div class="layui-input-inline" style="width:260px;margin-top:5px">
+                    @if (WithdrawDetail != null)
+                    {
+                        @(WithdrawDetail.RequestTime != null ? WithdrawDetail.RequestTime.ToString("yyyy-MM-dd HH:mm") : "")
+                    }
+                    @if (WithdrawDetail.Status == GameBiz.Core.WithdrawStatus.Requesting)
+                    {
+                        <span style="color: Red;">[@ViewHelpers.GetDateToNowSpanDisplayName(WithdrawDetail.RequestTime, DateTime.Now)前]</span>
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">总充值：</label>
+                <div class="layui-input-inline" id="divTotalReccharge" style="margin-top:5px">
+
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">总提现：</label>
+                <div class="layui-input-inline" id="divTotalWithdraw" style="margin-top:5px">
+
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">提现状态：</label>
+                <div class="layui-input-inline" style="margin-top:5px">
+                    @if (WithdrawDetail != null)
+                    {
+                        switch (WithdrawDetail.Status)
+                        {
+                            case WithdrawStatus.Requesting:
+                                @("审批中");
+                                break;
+                            case WithdrawStatus.Request:
+                                @("打款中");
+                                break;
+                            case WithdrawStatus.Success:
+                                @("提现完成");
+                                break;
+                            case WithdrawStatus.Refused:
+                                @("已拒绝");
+                                break;
+                        }
+                    }
+                </div>
+            </div>
+            @if (WithdrawDetail != null && WithdrawDetail.Status == WithdrawStatus.Refused)
+            {
+                <div class="layui-form-item">
+                    <label class="layui-form-label labelWidth">处理说明：</label>
+                    <div class="layui-input-inline" style="width:500px;margin-top:5px">
+                        @WithdrawDetail.ResponseMessage
+                    </div>
+                </div>
+            }
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-inline">
+                    <div class="layui-footer" style="text-align:right;">
+                        <button type="button" class="layui-btn layui-btn-primary" id="btnCancel" style="margin-right:20px;">关闭</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        var userId = $("#hdUid").val();
+        if (userId != '') {
+            var QueryUserTotalRecharge = function () {
+                var url = "/Finance/QueryUserTotalRecharge?userId=" + userId + "&r=" + Math.random();
+                $.get(url, function (c) {
+                    $("#divTotalReccharge").text(c);
+                });
+            }
+            var QueryUserTotalWithdraw = function () {
+                var url = "/Finance/QueryUserTotalWithdraw?userId=" + userId + "&r=" + Math.random();
+                $.get(url, function (c) {
+                    $("#divTotalWithdraw").text(c);
+                });
+            }
+
+            QueryUserTotalRecharge();
+            QueryUserTotalWithdraw();
+        }
+        //取消
+        $("#btnCancel").click(function () {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);//关闭当前页
+        });
+
+    </script>
+}

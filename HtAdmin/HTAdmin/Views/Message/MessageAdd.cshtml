@@ -1,0 +1,265 @@
+﻿@{
+    ViewBag.Title = "发送消息";
+}
+<style>
+    .textWidth300 {
+        width: 300px
+    }
+
+    .textWidth450 {
+        width: 450px
+    }
+
+    .labelWidth {
+        width: 120px
+    }
+</style>
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form">
+            @*<div class="layui-form-item">
+                    <label class="layui-form-label labelWidth">发送给</label>
+                    <div class="layui-input-inline">
+                        <div class="layui-btn-group" id="UserGroupButton">
+                            <button class="layui-btn" type="button" value="All">全部用户</button>
+                        </div>
+                    </div>
+                </div>*@
+            @*<div class="layui-form-item">
+                    <label class="layui-form-label labelWidth">类别</label>
+                    <div class="layui-input-inline">
+                        <div class="layui-btn-group" id="TypeGroupButton">
+                            <button class="layui-btn" type="button" value="Activity">活动消息</button>
+                        </div>
+                    </div>
+                </div>*@
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">消息标题</label>
+                <div class="layui-input-inline">
+                    <input type="text" lay-verify="title" autocomplete="off" placeholder="请输入消息标题" class="layui-input textWidth450" id="Title" maxlength="20">
+                </div>
+            </div>
+            <div class="layui-form-item" pane="">
+                <label class="layui-form-label labelWidth">消息简介</label>
+                <div class="layui-input-inline">
+                    @*<input type="text" lay-verify="title" autocomplete="off" placeholder="请输入消息简介" class="layui-input" id="Content" maxlength="200">*@
+                    <textarea placeholder="请输入消息简介" id="Content" maxlength="200" class="layui-input" style="width:450px;height:50px"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">消息封面</label>
+                @*<div class="layui-input-inline">
+                        <div class="layui-upload">
+                            <button type="button" class="layui-btn bottonLogoUrl-upload-normal" data-field="MsgImg">选择图片</button>
+                            <input type="hidden" name="MsgImg" id="MsgImg" value="" />
+                            <div class="layui-upload-list">
+                                <img class="layui-upload-img" src="">
+                            </div>
+                        </div>
+                    </div>*@
+                <div class="layui-input-block">
+                    <div class="layui-upload-drag" id="upload">
+                        <i class="layui-icon"></i>
+                        <p>点击上传</p>
+                    </div>
+                    <input type="hidden" name="MsgImg" id="MsgImg" value="" />
+                    <div style="display:inline-block; vertical-align:top;" id="btnUpload"></div>
+                </div>
+            </div>
+            <div class="layui-form-item" pane="">
+                <label class="layui-form-label labelWidth">跳转链接</label>
+                <div class="layui-input-inline">
+                    <input type="text" lay-verify="title" autocomplete="off" placeholder="请输入跳转链接" class="layui-input textWidth450" id="Url" maxlength="200">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">是否推送</label>
+                <div class="layui-input-inline">
+                    <input name="IsPush" type="radio" value="0" checked="checked" title="不推送" lay-filter="IsPush" />
+                    <input name="IsPush" type="radio" value="1" title="推送" lay-filter="IsPush" />
+                </div>
+            </div>
+            <div id="divPush" style="display:none">
+                <div class="layui-form-item">
+                    <label class="layui-form-label labelWidth">推送标题</label>
+                    <div class="layui-input-inline">
+                        <input type="text" lay-verify="title" autocomplete="off" placeholder="请输入推送标题" class="layui-input textWidth450" id="PushTitle" maxlength="20">
+                    </div>
+                </div>
+                <div class="layui-form-item" pane="">
+                    <label class="layui-form-label labelWidth">推送内容</label>
+                    <div class="layui-input-inline">
+                        <textarea placeholder="请输入推送内容" id="PushContent" maxlength="200" class="layui-input" style="width:450px;height:50px"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label labelWidth">跳转到</label>
+                    <div class="layui-input-block">
+                        @*<input name="TransferTo" type="radio" value="0" title="应用" lay-filter="TransferTo" />
+                            <input name="TransferTo" type="radio" value="3" title="用户自定义" lay-filter="TransferTo" />*@
+                        <input name="TransferTo" type="radio" value="4" title="首页" lay-filter="TransferTo" />
+                        <input name="TransferTo" type="radio" value="2" title="指定页" lay-filter="TransferTo" />
+                        <input name="TransferTo" type="radio" value="1" checked="checked" title="链接" lay-filter="TransferTo" />
+                    </div>
+                </div>
+                <div class="layui-form-item" id="divPushUrl">
+                    <label class="layui-form-label labelWidth">跳转链接</label>
+                    <div class="layui-input-inline">
+                        <input type="text" lay-verify="title" autocomplete="off" placeholder="请输入跳转链接" class="layui-input textWidth450" id="PushUrl" maxlength="200">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-inline">
+                    <div class="layui-footer" style="text-align:right;">
+                        <button type="button" class="layui-btn layui-btn-primary" id="btnCancel">取消</button>
+                        <button type="button" class="layui-btn layui-btn-normal" lay-filter="add" id="btnSave" style="margin-right:20px;">提交</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section scripts{
+    <script>
+        var uploadInst = layui.upload.render({
+            elem: '#upload', //绑定元素
+            accept: 'images', //允许上传的文件类型
+            multiple: false, //允许多文件上传
+            auto: true, //选完文件后不要自动上传
+            number: 1,
+            field: 'imgFile',
+            //bindAction: '#btnOk', //指定一个按钮触发上传
+            url: '/UpLoad/UploadImage', //上传接口
+            size: 2 * 1024,// 大小限制  单位  kb
+            done: function (res) {
+                //上传完毕回调
+                var imgobj = new Image(); //创建新img对象
+                imgobj.src = res.url; //指定数据源
+                imgobj.className = 'thumb';
+                imgobj.style = "width:120px;height:120px;";
+                var prev = document.getElementById("btnUpload");
+                while (prev.hasChildNodes()) {
+                    prev.removeChild(prev.firstChild);
+                }
+                prev.appendChild(imgobj);
+                $("input[name='MsgImg']").val(res.url);
+            },
+            error: function (r) {
+                //请求异常回调
+                ShowErrorMsg('上传失败');
+            }
+        });
+
+        var IsPush = 0;
+        layui.form.on('radio(IsPush)', function (data) {
+            IsPush = data.value - 0;
+            if (IsPush == 0) {
+                $("#divPush").hide();
+            } else {
+                $("#divPush").show();
+            }
+        });
+        var _isSubmitting = false;
+        $("#btnSave").click(function () {
+            if (_isSubmitting) return;
+            _isSubmitting = true;
+
+            var Title = $('#Title').val(),
+                Content = $('#Content').val(),
+                ImgUrl = $('#MsgImg').val(),
+                LinkUrl = $('#Url').val();
+
+            var PushTitle = $('#PushTitle').val(),
+                PushContent = $('#PushContent').val(),
+                PushUrl = $('#PushUrl').val(),
+                AfterOpenType = $("input[name='TransferTo']:checked").val();
+
+
+            if (!Title) {
+                ShowWarnningMsg('请输入消息标题');
+                _isSubmitting = false;
+                return false;
+            }
+            if (!Content) {
+                ShowWarnningMsg('请输入消息内容');
+                _isSubmitting = false;
+                return false;
+            }
+            if (IsPush == 1) {
+                if (!PushTitle) {
+                    ShowWarnningMsg('请输入推送标题');
+                    _isSubmitting = false;
+                    return false;
+                }
+                if (!PushContent) {
+                    ShowWarnningMsg('请输入推送内容');
+                    _isSubmitting = false;
+                    return false;
+                }
+                if (!PushUrl) {
+                    ShowWarnningMsg('请输入推送跳转链接');
+                    _isSubmitting = false;
+                    return false;
+                }
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/Message/MessageAddJson",
+                data: {
+                    Title: Title,
+                    Content: Content,
+                    LinkUrl: LinkUrl,
+                    ImgUrl: ImgUrl,
+                    IsPush: IsPush
+                },
+                success: function (res) {
+                    if (res.IsSuccess) {
+                        //推送
+                        if (IsPush == 1) {
+                            Push(PushTitle, PushContent, PushUrl, AfterOpenType, LinkUrl);
+                        }
+                        ShowSuccessMsg('提交成功',true,true);
+                    } else {
+                        ShowErrorMsg('提交失败');
+                    }
+                },
+                error: function () {
+                    ShowErrorMsg('提交失败');
+                },
+                complete: function () {
+                    _isSubmitting = false;
+                }
+            });
+
+        });
+        //推送
+        function Push(PushTitle, PushContent, PushUrl, AfterOpenType, LinkUrl) {
+            $.ajax({
+                type: "POST",
+                url: "/Message/MessagePushJson",
+                data: {
+                    PushTitle: PushTitle,
+                    PushContent: PushContent,
+                    PushLinkUrl: PushUrl,
+                    AfterOpenType: AfterOpenType,
+                    Activity: LinkUrl,
+                    IsMsg: 1
+                },
+                success: function (res) {
+                    if (res.IsSuccess) {
+
+                    } else {
+                        //ShowErrorMsg('推送失败');
+                    }
+                }
+            });
+        }
+
+        $("#btnCancel").click(function () {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);//关闭当前页
+        });
+    </script>
+}

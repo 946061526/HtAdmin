@@ -1,0 +1,164 @@
+﻿
+
+@{
+    var GameCode = ViewBag.GameCode;
+    var MatchZQ = new GameBiz.Core.CoreJCZQMatchInfo();
+    var MatchLQ = new GameBiz.Core.CoreJCLQMatchInfo();
+    var MatchDC = new GameBiz.Core.CoreBJDCMatchInfo();
+    var MatchName = "";
+    var MatchState = "1";
+    var privileArray = new string[] { };
+
+    if (GameCode == "JCZQ")
+    {
+        MatchZQ = ViewBag.Match as GameBiz.Core.CoreJCZQMatchInfo;
+        MatchName = MatchZQ == null ? "" : (MatchZQ.MatchIdName + "   " + MatchZQ.LeagueName + "   " + MatchZQ.HomeTeamName + " vs " + MatchZQ.GuestTeamName);
+        MatchState = MatchZQ == null ? "1" : MatchZQ.MatchState.ToString();
+        privileArray = MatchZQ == null ? new string[] { } : MatchZQ.PrivilegesType.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+    }
+    else if (GameCode == "JCLQ")
+    {
+        MatchLQ = ViewBag.Match as GameBiz.Core.CoreJCLQMatchInfo;
+        MatchName = MatchLQ == null ? "" : (MatchLQ.MatchIdName + "   " + MatchLQ.LeagueName + "   " + MatchLQ.HomeTeamName + " vs " + MatchLQ.GuestTeamName);
+        MatchState = MatchLQ == null ? "1" : MatchLQ.MatchState.ToString();
+        privileArray = MatchLQ == null ? new string[] { } : MatchLQ.PrivilegesType.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+    }
+    else if (GameCode == "BJDC")
+    {
+        MatchDC = ViewBag.Match as GameBiz.Core.CoreBJDCMatchInfo;
+        var week = MatchDC == null ? -1 : (int)MatchDC.StartDateTime.DayOfWeek;
+        var str = MatchDC == null ? "" : ViewHelpers.ConvertScreenings(week == 0 ? 7 : week) + MatchDC.MatchOrderId;
+
+        MatchName = MatchDC == null ? "" : (str + "   " + MatchDC.LeagueName + "   " + MatchDC.HomeTeamName + " vs " + MatchDC.GuestTeamName);
+        MatchState = MatchDC == null ? "1" : MatchDC.MatchState.ToString();
+        privileArray = MatchDC == null ? new string[] { } : MatchDC.PrivilegesType.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+    }
+}
+<style>
+    .textWidth {
+        width: 450px
+    }
+</style>
+<div class="layui-card">
+    <input type="hidden" id="hdID" value="@ViewBag.ID" />
+    <input type="hidden" id="hdCode" value="@GameCode" />
+    <div class="layui-card-body">
+        <form class="layui-form" style="height:270px">
+            <div class="layui-form-item">
+                <label class="layui-form-label ">比赛：</label>
+                <div class="layui-input-block">
+                    <input type="text" lay-verify="title" autocomplete="off" class="layui-input textWidth" disabled value="@MatchName">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">状态：</label>
+                <div class="layui-input-inline">
+                    <input name="MatchState" type="radio" value="0" @(MatchState == "0" ? "checked=checked" : "") title="正常" />
+                    <input name="MatchState" type="radio" value="1" @(MatchState == "1" ? "checked=checked" : "") title="取消" />
+                </div>
+            </div>
+            <div class="layui-form-item" pane="">
+                <label class="layui-form-label">玩法限制：</label>
+                <div class="layui-input-block">
+                    @if (GameCode == "JCZQ")
+                    {
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("1") ? "checked=checked" : string.Empty) value="1" title="胜平负单关" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("2") ? "checked=checked" : string.Empty) value="2" title="胜平负单关" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("3") ? "checked=checked" : string.Empty) value="3" title="胜平负单关" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("4") ? "checked=checked" : string.Empty) value="4" title="胜平负单关" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("5") ? "checked=checked" : string.Empty) value="5" title="胜平负单关" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("6") ? "checked=checked" : string.Empty) value="6" title="胜平负单关" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("7") ? "checked=checked" : string.Empty) value="7" title="胜平负单关" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("8") ? "checked=checked" : string.Empty) value="8" title="胜平负单关" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("9") ? "checked=checked" : string.Empty) value="9" title="胜平负单关" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("10") ? "checked=checked" : string.Empty) value="10" title="胜平负单关" />
+                    }
+                    else if (GameCode == "JCLQ")
+                    {
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("1") ? "checked=checked" : string.Empty) value="1" title="胜平负单关" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("2") ? "checked=checked" : string.Empty) value="2" title="让分胜负单关" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("3") ? "checked=checked" : string.Empty) value="3" title="胜分差单关" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("4") ? "checked=checked" : string.Empty) value="4" title="大小分单关" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("5") ? "checked=checked" : string.Empty) value="5" title="胜负过关" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("6") ? "checked=checked" : string.Empty) value="6" title="让分胜负过关" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("7") ? "checked=checked" : string.Empty) value="7" title="胜分差过关" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("8") ? "checked=checked" : string.Empty) value="8" title="大小分过关" />
+                    }
+                    else if (GameCode == "BJDC")
+                    {
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("1") ? "checked=checked" : string.Empty) value="1" title="比分" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("2") ? "checked=checked" : string.Empty) value="2" title="半全场" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("3") ? "checked=checked" : string.Empty) value="3" title="胜平负" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("4") ? "checked=checked" : string.Empty) value="4" title="上下单双" />
+                        <input type="checkbox" lay-skin="primary" @(privileArray.Contains("5") ? "checked=checked" : string.Empty) value="5" title="进球数" />
+                    }
+                </div>
+            </div>
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-inline">
+                    <div class="layui-footer" style="text-align:right;">
+                        <button type="button" class="layui-btn layui-btn-primary" id="btnCancel">取消</button>
+                        <button type="button" class="layui-btn layui-btn-normal" lay-filter="add" id="btnSave" style="margin-right:20px;">提交</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section scripts{
+    <script>
+
+        layui.form.render('radio');
+        layui.form.render('checkbox');
+
+        function getGameCheckBoxValue() {
+            var gameLimit = $("input[type='checkbox']:checked");
+            var checkBoxValue = "";
+            for (var i = 0; i < gameLimit.length; i++) {
+                checkBoxValue += gameLimit[i].value + ",";
+            }
+            if (checkBoxValue.length > 0 && checkBoxValue.indexOf(',') >= 0)
+                checkBoxValue = checkBoxValue.substring(0, checkBoxValue.length - 1);
+
+            return checkBoxValue;
+        }
+
+        var _isSubmitting = false;
+        $("#btnSave").click(function () {
+            if (_isSubmitting) return;
+            _isSubmitting = true;
+
+            var pri = getGameCheckBoxValue();
+            var data = {
+                GameCode: $("#hdCode").val(),
+                MatchID: $("#hdID").val(),
+                status: $("input[name='MatchState']:checked").val(),
+                privilegesType: pri,
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/Lottery/MatchSetJson",
+                data: data,
+                success: function (res) {
+                    if (res.IsSuccess) {
+                        ShowSuccessMsg('提交成功', true, true);
+                    } else {
+                        ShowErrorMsg('提交失败');
+                    }
+                },
+                error: function () {
+                    ShowErrorMsg('提交失败');
+                },
+                complete: function () {
+                    _isSubmitting = false;
+                }
+            });
+        });
+
+        $("#btnCancel").click(function () {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);//关闭当前页
+        });
+    </script>
+}

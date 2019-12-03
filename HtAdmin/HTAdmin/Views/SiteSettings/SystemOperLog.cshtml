@@ -1,0 +1,184 @@
+﻿@using Common
+@using HTAdmin.Models
+@{
+    ViewBag.Title = "系统日志查询 - 后台管理系统 - " + GlobalCache.WebSiteName;
+
+}
+@section styles{
+    <link rel="stylesheet" href="@Url.Content("~/lay/style/vendor.css")" media="all">
+}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+            <form class="layui-form">
+                <div class="layui-form-item">
+
+                    <div class="layui-inline" style="width:300px;">
+                        <div class="layui-input-inline" style="width:300px;">
+                            <input type="text" id="CreationDate" name="CreationDate" placeholder="创建时间" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <select name="Name">
+                                <option value="">请选择人员</option>
+                                @foreach (var item in ViewBag.Admins)
+                                {
+                                    <option value="@item.UserId">@item.LoginName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" name="OperationName" placeholder="模块" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" name="Description" placeholder="描述" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layui-btn-normal" lay-submit lay-filter="*">
+                            查询
+                        </button>
+                        <button class="layui-btn layui-btn-primary" type="reset">
+                            重置
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="layui-card-body">
+            <div class="w-margin-t-4">
+                <table class="layui-table w-text-nowrap" lay-skin="line" id="table"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+
+    <script type="text/javascript">
+         $(function () {
+            var form=layui.form;
+            var table = layui.table,laydate = layui.laydate;
+            var options = {
+                elem: '#table'
+                , url: '/SiteSettings/GetSystemOperLogInfos'
+                , request: {
+                    pageName: 'PageIndex', //页码的参数名称，默认：page
+                    limitName: 'PageSize' //每页数据量的参数名，默认：limit
+                }
+                , cellMinWidth: 100
+                , skin: 'line'
+                , loading: true
+                , cols: [[{ field: 'Id', width:'60', title: '序号', sort: false }
+                    , { field: 'CreationDate', width: '200', title: '创建时间', sort: false }
+                    , { field: 'Name', title: '操作人', sort: false }
+                    , { field: 'RoleName', width: '100', title: '角色' }
+                    , { field: 'OperationName', width: '200', title: '模块', sort: false }
+                    , { field: 'Description', width: '800', title: '描述', sort: false }
+                ]]
+                , page: true
+                , limits: [1, 20, 50, 100]
+                , limit: 20
+                , done: function (res, curr, count) {
+                    if (typeof (count) == "number" && count <= 20) {
+                        $(".layui-table-page").css("display", "none");
+                    }
+                    $("a[edit]").on("click", function () {
+                        layer.open({
+                            title: '编辑公告',
+                            type: 2,
+                            area: ['800px', '100%'],
+                            content: "/ContentManage/BulletinInfo?bulletinId=" + $(this).attr("noticeid"),
+                            done: function (index) {
+                                layer.close(index);
+                                window.location.reload(true);
+                            }
+                        });
+                    });
+                    $("a[status]").click(function () {
+                        var id = $(this).attr("noticeid")
+                            , status = $(this).attr("status");
+                        var tip = status == '0' ? '启用' : '暂停';
+                        ShowConfirm('确定' + tip + '吗', function () {
+                            $.post("/ContentManage/EnableBulletin", { id: id, status: status }, function (result) {
+                                if (result.status == 1) {
+                                    ShowSuccessMsg(tip + '成功', false, false, function () { window.location.reload(true); });
+                                } else {
+                                    ShowErrorMsg(tip + '失败:' + result.message);
+                                }
+                            });
+                        });
+
+                    });
+                    $("a[delete]").click(function () {
+                        var $th = $(this);
+                        ShowConfirm('确定删除吗', function () {
+                            var url = "/ContentManage/DeleteBulletin";
+                            $.post(url, { id: $th.attr("noticeid") }, function (result) {
+                                if (result.status == 1) {
+                                    ShowSuccessMsg('删除成功', false, false, function () { window.location.reload(true); });
+                                } else {
+                                    ShowErrorMsg('删除失败:' + result.message);
+                                }
+                            });
+                        });
+                    });
+                }
+            };
+            var tableObj = table.render(options);
+             form.on("submit(*)", function (data) {
+                 var creationDate = $("input[name='CreationDate']").val();
+                 var arr = [];
+                 if (creationDate && creationDate.indexOf("~")>=0) {
+                     arr = creationDate.split("~");
+                 }
+                 options.where = {
+                     StartCreationDate: arr.length > 0 ? arr[0] : null,
+                     EndCreationDate: arr.length > 1 ? arr[1] : null,
+                     Name: $("select[name='Name']").val(),
+                     Description: $("input[name='Description']").val(),
+                     OperationName: $("input[name='OperationName']").val(),
+                 };
+                 options.page = {
+                     curr: 1 //重新从第 1 页开始
+                 };
+                 tableObj.reload(options);
+                 $("table").css("width", "100%");
+                return false;
+            });
+
+             //日期时间范围选择
+             laydate.render({
+                 elem: '#CreationDate'
+                 , type: 'datetime'
+                 , format: 'yyyy-MM-dd HH:mm'
+                 , range: '~' //或 range: '~' 来自定义分割字符
+             });
+
+             $("#btnAddBulletin").click(function () {
+                layer.open({
+                    title: '新增公告',
+                    type: 2,
+                    maxmin: true,
+                    area: ['800px', '100%'],
+                    content: "/ContentManage/BulletinInfo",
+                    end: function () {
+                        window.location.reload(true);
+                    }
+                });
+             });
+
+
+        });
+
+        $(document).ready(function () {
+            $("table").css("width", "100%");
+        });
+    </script>
+}
+

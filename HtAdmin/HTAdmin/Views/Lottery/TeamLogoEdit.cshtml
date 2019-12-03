@@ -1,0 +1,134 @@
+﻿
+@{
+    var indexMatchInfo = ViewBag.IndexMatchInfo as GameBiz.Core.IndexMatchInfo;
+    var imgPath = (indexMatchInfo != null && !string.IsNullOrEmpty(indexMatchInfo.ImgPath)) ? indexMatchInfo.ImgPath : "";
+}
+
+<div class="layui-card">
+    <input type="hidden" id="hdID" value="@(indexMatchInfo == null ? string.Empty : indexMatchInfo.Id.ToString())" />
+    <div class="layui-card-body">
+        <form class="layui-form" style="height:270px">
+            <div class="layui-form-item">
+                <label class="layui-form-label ">队伍名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" lay-verify="title" autocomplete="off" class="layui-input" id="Title" maxlength="20" disabled value="@(indexMatchInfo == null ? string.Empty : indexMatchInfo.MatchName)">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label ">队伍图标</label>
+                <div class="layui-input-block">
+                    <div class="layui-upload-drag" id="upload">
+                        <i class="layui-icon"></i>
+                        <p>点击上传</p>
+                    </div>
+                    <input type="hidden" name="imgPath" id="imgPath" value="@imgPath" />
+                    <div style="display:inline-block; vertical-align:top;" id="btnUpload">
+                        @if (!string.IsNullOrEmpty(imgPath))
+                        {
+                            if (imgPath.Contains("img.jiangkk.com"))
+                            {
+                                <img style="width:50px;height:50px;" src="@imgPath" />
+                            }
+                            else
+                            {
+                                var url = imgPath;
+                                if (!url.Contains(ViewBag.ImgSite))
+                                {
+                                    url = ViewBag.ImgSite + imgPath;
+                                }
+                                <img src="@(url)" style="width:100px;height:100px;" />
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-inline">
+                    <div class="layui-footer" style="text-align:right;">
+                        <button type="button" class="layui-btn layui-btn-primary" id="btnCancel">取消</button>
+                        <button type="button" class="layui-btn layui-btn-normal" lay-filter="add" id="btnSave" style="margin-right:20px;">提交</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section scripts{
+    <script>
+        var uploadInst = layui.upload.render({
+            elem: '#upload', //绑定元素
+            accept: 'images', //允许上传的文件类型
+            multiple: false, //允许多文件上传
+            auto: true, //选完文件后不要自动上传
+            number: 1,
+            field: 'imgFile',
+            //url: '/UpLoad/UploadImage', //上传接口
+            url: '/UpLoad/UploadImageNew',
+            size: 2 * 1024,// 大小限制  单位  kb
+            done: function (res) {
+                //上传完毕回调
+                //上传完毕回调
+                if (res.code == 0) {
+                    var imgobj = new Image(); //创建新img对象
+                    imgobj.src = res.fullpath; //指定数据源
+                    imgobj.className = 'thumb';
+                    imgobj.style = "width:100px;height:100px;";
+                    var prev = document.getElementById("btnUpload");
+                    while (prev.hasChildNodes()) {
+                        prev.removeChild(prev.firstChild);
+                    }
+                    prev.appendChild(imgobj);
+                    $("input[name='imgPath']").val(res.path);
+                } else {
+                    ShowErrorMsg('上传失败');
+                }
+            },
+            error: function (r) {
+                //请求异常回调
+                ShowErrorMsg('上传失败');
+            }
+        });
+
+        var _isSubmitting = false;
+        $("#btnSave").click(function () {
+            if (_isSubmitting) return;
+            _isSubmitting = true;
+
+            var id = $('#hdID').val(),
+                imgPath = $('#imgPath').val();
+
+            if (!imgPath) {
+                ShowWarnningMsg('请上传图标');
+                _isSubmitting = false;
+                return false;
+            }
+            $.ajax({
+                type: "POST",
+                url: "/Lottery/TeamLogoEditJson",
+                data: {
+                    id: id,
+                    imgPath: imgPath
+                },
+                success: function (res) {
+                    if (res.IsSuccess) {
+                        ShowSuccessMsg('提交成功', true, true);
+                    } else {
+                        ShowErrorMsg('提交失败');
+                    }
+                },
+                error: function () {
+                    ShowErrorMsg('提交失败');
+                },
+                complete: function () {
+                    _isSubmitting = false;
+                }
+            });
+
+        });
+
+        $("#btnCancel").click(function () {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);//关闭当前页
+        });
+    </script>
+}

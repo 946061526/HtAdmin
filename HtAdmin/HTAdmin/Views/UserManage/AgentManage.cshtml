@@ -1,0 +1,218 @@
+﻿@using Common
+@using HTAdmin.Models
+@{
+    ViewBag.Title = "代理管理 - 后台管理系统 - " + GlobalCache.WebSiteName;
+
+}
+@section styles{
+    <link rel="stylesheet" href="@Url.Content("~/lay/style/vendor.css")" media="all">
+}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+            <form class="layui-form">
+                <div class="layui-form-item">
+                    <div class="layui-inline" style="width:300px;">
+                        <div class="layui-input-inline" style="width:300px;">
+                            <input type="text" id="UserId" name="UserId" placeholder="账号ID" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" name="DisplayName" placeholder="昵称" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" name="Mobile" placeholder="手机号码" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <select name="AgentGrade">
+                                <option value="">代理类型</option>
+                                <option value="1">一级代理</option>
+                                <option value="2">下级代理</option>
+                                <option value="3">下级用户</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" name="ParentAgentId" placeholder="上级代理" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <select name="IsAgent">
+                                <option value="">有效状态</option>
+                                <option value="1">启用</option>
+                                <option value="0">暂停</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layui-btn-normal" lay-submit lay-filter="*">
+                            查询
+                        </button>
+                        <button class="layui-btn layui-btn-primary" type="reset">
+                            重置
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="layui-card-body">
+            <div class="w-margin-t-2">
+                <button class="layui-btn layui-btn-normal" btnAddAgent id="btnAddAgent">新增代理</button>
+            </div>
+            <div class="w-margin-t-4">
+                <table class="layui-table w-text-nowrap" lay-skin="line" id="table"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+
+    <script type="text/javascript">
+         $(function () {
+            var form=layui.form;
+            var table = layui.table,laydate = layui.laydate;
+            var options = {
+                elem: '#table'
+                , url: '/UserManage/GetAgentDetailInfos'
+                , request: {
+                    pageName: 'PageIndex', //页码的参数名称，默认：page
+                    limitName: 'PageSize' //每页数据量的参数名，默认：limit
+                }
+                , cellMinWidth: 120
+                , skin: 'line'
+                , loading: true
+                , cols: [[{ field: 'RowNumber', width: '60', title: '序号', sort: false }
+                    , { field: 'UserId', width: '100', title: '账号ID', sort: false }
+                    , { field: 'DisplayName', title: '昵称' }
+                    , { field: 'Mobile', title: '手机号码' }
+                    , {
+                    field: 'AgentGrade', title: '代理类型', templet: function (row) {
+                        if (row.ParentPath == null) {
+                            return "一级代理"
+                        } else if (row.ParentPath != null) {
+                            return "下级代理"
+                        } else { return "未知类型" }
+                    }
+                }
+                    , { field: 'AgentId', width: '100', title: '上级代理', sort: false }
+                    , {
+                         field: '', title: '返点比例', sort: false, templet: function (row) {
+                             if (row.MinRebate != '' && row.MaxRebate != '')
+                                 return parseInt(row.MinRebate) + '% ～ ' + parseInt(row.MaxRebate) + '%';
+                             else
+                                 return '0% ～ 0%';
+                    }}
+                    , { field: 'SubAgentCount', width: '100', title: '下级代理', sort: false }
+                    , { field: 'SubUserCount', width: '100', title: '下级用户', sort: false }
+                    , {
+                        field: 'SubUserCount', width: '100', title: '状态', templet: function (row) {
+                            if (row.IsAgent) {
+                                return "<span class='layui-badge-dot layui-bg-green'></span> " + "启用";
+                            }
+                            else {
+                                return "<span class='layui-badge-dot'></span> " + "暂停";
+                            }
+                        }, sort: false
+                    }
+                    ,
+                    {
+                        field: 'Operation', width:'150', title: '操作', sort: false, templet: function (row) {
+                            var html = '';
+                            if (row.IsAgent) {
+                                html += '<a class="layui-btn layui-btn-success layui-btn-xs" href="javascript:;" status="0" userId="' + row.UserId + '">暂停</a>';
+                            }
+                            else {
+                                html += '<a class="layui-btn layui-btn-success layui-btn-xs" href="javascript:;" status="1" userId="' + row.UserId + '">启用</a>';
+                            }
+                            html += ' <a class="layui-btn layui-btn layui-btn-xs" href="javascript:;" rabate userId="' + row.UserId + '"></i>返点比例</a>';
+                            return html;
+                        }
+                    }
+                ]]
+                , page: true
+                , limits: [1, 20, 50, 100]
+                , limit: 20
+                , done: function (res, curr, count) {
+                    if (typeof (count) == "number" && count <= 20) {
+                        $(".layui-table-page").css("display", "none");
+                    }
+                    $("button[btnAddAgent]").on("click", function () {
+                        layer.open({
+                            title: '新增代理',
+                            type: 2,
+                            area: ['440px', '290px'],
+                            content: "/UserManage/AddAgent?userId=" + $(this).attr("noticeid"),
+                            done: function (index) {
+                                layer.close(index);
+                                window.location.reload(true);
+                            }
+                        });
+                    });
+                    $("a[status]").click(function () {
+                        var userId = $(this).attr("userId");
+                        var status = $(this).attr("status");
+                        var tip = status == '0' ? '暂停' : '启用';
+                        ShowConfirm('确定' + tip + '吗', function () {
+                            $.post("/UserManage/IsResAgent", { userId: userId, status: status }, function (result) {
+                                if (result.code == 200) {
+                                    ShowSuccessMsg(tip + '成功', false, false, function () { window.location.reload(true); });
+                                } else {
+                                    ShowErrorMsg(tip + '失败:' + result.message);
+                                }
+                            });
+                        });
+
+                    });
+                    $("a[rabate]").click(function () {
+                        layer.open({
+                            title: '返点比例',
+                            type: 2,
+                            area: ['800px', '100%'],
+                            content: "/UserManage/AgentRebateInfo?userId=" + $(this).attr("userId"),
+                            done: function (index) {
+                                layer.close(index);
+                                window.location.reload(true);
+                            }
+                        });
+                    });
+                }
+            };
+            var tableObj = table.render(options);
+             form.on("submit(*)", function (data) {
+                 var creationDate = $("input[name='CreationDate']").val();
+                 var arr = [];
+                 if (creationDate && creationDate.indexOf("~")>=0) {
+                     arr = creationDate.split("~");
+                 }
+                 options.where = {
+                     UserId: $("input[name='UserId']").val(),
+                     DisplayName: $("input[name='DisplayName']").val(),
+                     Mobile: $("input[name='Mobile']").val(),
+                     ParentAgentId: $("input[name='ParentAgentId']").val(),
+                     IsAgent: $("select[name='IsAgent']").val(),
+                     Mobile: $("input[name='Mobile']").val(),
+                     AgentGrade: $("select[name='AgentGrade']").val(),
+                 };
+                 options.page = {
+                     curr: 1 //重新从第 1 页开始
+                 };
+                 tableObj.reload(options);
+                 $("table").css("width", "100%");
+                return false;
+            });
+        });
+
+        $(document).ready(function () {
+            $("table").css("width", "100%");
+        });
+    </script>
+}
+

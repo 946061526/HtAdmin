@@ -1,0 +1,84 @@
+﻿@using GameBiz.Core;
+@using Activity.Core;
+@{
+    ViewBag.Title = "添加代理" + GlobalCache.WebSiteName;
+    var games = ViewBag.GameList as GameInfoCollection;
+    var info = ViewBag.Info as RadBagConfigInfo;
+    var isnull = info == null ? true : false;
+}
+@section styles{
+    <style>
+        .layui-form-select dl {
+            max-height: 200px;
+        }
+    </style>
+}
+<div class="layui-fluid" style="background-color:white;height:100%;">
+    <div class="pd" id="divRealName">
+        <form class="layui-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">彩种：</label>
+                <div class="layui-input-block">
+                    <select id="GameCode" name="GameCode" lay-filter="GameCode" lay-verify="required">
+                        <option value="">请选择彩种</option>
+                        @foreach (var item in games)
+                        {
+                            <option value="@item.GameCode" @(isnull ? "" : info.GameCode == item.GameCode ? "selected" : "")>@item.DisplayName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">使用比例:</label>
+                <div class="layui-input-block">
+                    <input type="text" id="UsePercent" name="UsePercent" lay-verify="required" placeholder="请输入使用比例" value='@(isnull ? "":info.UsePercent.ToString("N2"))' autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-block">
+                    <div class="layui-footer" style="text-align:right;">
+                        <button type="button" class="layui-btn layui-btn-primary" id="btnCancel">取消</button>
+                        <button class="layui-btn layui-btn-normal" lay-submit lay-filter="*" style="margin-right:15px;" id="bt_sub">
+                            提交
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        var $ = layui.jquery;
+        layui.use(['form'], function () {
+            var form = layui.form;
+            //监听提交
+            form.on('submit(*)', function (data) {
+                $.post({
+                    url: "/Activity/AddRedBagConfig"
+                    , type: "post"
+                    , data: data.field
+                    , dataType: "json"
+                    , success: function (data) {
+                        if (data.IsSuccess) {
+                            console.log(1);
+                            layer.alert(data.Msg, function (i) {
+                                var index = parent.layer.getFrameIndex(window.name);
+                                parent.layer.close(index);
+                            });
+                        }
+                        else {
+                            layer.alert(data.Msg);
+                        }
+                    }
+                });
+                return false;
+            });
+        });
+
+        $("#btnCancel").click(function () {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);//关闭当前页
+        });
+    </script>
+}

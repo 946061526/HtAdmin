@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - 彩票运营后台管理系统</title>
+    @*@Styles.Render("~/Content/css")
+        @Scripts.Render("~/bundles/modernizr")*@
+    <link rel="stylesheet" href="@Url.Content("~/lay/layui/css/layui.css")" media="all">
+    <link rel="stylesheet" href="@Url.Content("~/lay/style/admin.css?v="+DateTime.Now.ToString("yyyyMMddHHmmss"))" media="all">
+    <link href="~/lay/style/vendor.css" rel="stylesheet" />
+    <script src="~/lay/editor/neditor.config.js"></script>
+    <script src="~/lay/editor/neditor.all.min.js"></script>
+    <script src="~/lay/editor/i18n/zh-cn/zh-cn.js"></script>
+    @RenderSection("styles", required: false)
+</head>
+<body>
+    @RenderBody()
+    <script src="@Url.Content("~/lay/layui/layui.all.js")"></script>
+    <script>
+        var $ = layui.jquery;
+
+        /*全局通用：弹出成功提示（主要用于提交成功等等）
+         @@msg {string} 提示信息
+         @@closeWin {bool} 为true表示关闭当前窗口
+         @@reloadParent {bool} 为true表示刷新父页面
+         @@callback {function} 回调函数
+         @@return {无}
+        */
+        var ShowSuccessMsg = function (msg, closeWin, reloadParent, callback) {
+            layer.msg(msg, {
+                icon: 1,
+                time: 1000 //2秒关闭（如果不配置，默认是3秒）
+            }, function () {
+                if (closeWin) {
+                    var index = parent.layer.getFrameIndex(window.name);
+                    parent.layer.close(index);//关闭当前页
+                }
+                if (reloadParent)
+                    parent.location.reload();
+                if (callback)
+                    callback();
+            });
+        };
+
+        /*全局通用：弹出失败提示（主要用于提交失败等等）
+            @@msg {string} 提示信息
+            @@closeWin {bool} 为true表示关闭当前窗口
+            @@reloadParent {bool} 为true表示刷新父页面
+            @@callback {function} 回调函数
+            @@return {无}
+       */
+        var ShowErrorMsg = function (msg, closeWin, reloadParent, callback) {
+            layer.msg(msg, {
+                icon: 2,
+                time: 1500 //2秒关闭（如果不配置，默认是3秒）
+            }, function () {
+                if (closeWin) {
+                    var index = parent.layer.getFrameIndex(window.name);
+                    parent.layer.close(index);//关闭当前页
+                }
+                if (reloadParent)
+                    parent.location.reload();
+                if (callback)
+                    callback();
+            });
+        };
+
+        /*全局通用：弹出警告提示（主要用于输入不能为空提示等等）
+             @@msg {string} 提示信息
+             @@closeWin {bool} 为true表示关闭当前窗口
+             @@reloadParent {bool} 为true表示刷新父页面
+             @@callback {function} 回调函数
+             @@return {无}
+        */
+        var ShowWarnningMsg = function (msg, closeWin, reloadParent, callback) {
+            layer.msg(msg, {
+                icon: 7,
+                time: 1500 //2秒关闭（如果不配置，默认是3秒）
+            }, function () {
+                if (closeWin) {
+                    var index = parent.layer.getFrameIndex(window.name);
+                    parent.layer.close(index);//关闭当前页
+                }
+                if (reloadParent)
+                    parent.location.reload();
+                if (callback)
+                    callback();
+            });
+        };
+
+        /*全局通用：弹出是否确定提示（主要用于危险操作提示等等）
+             @@msg {string} 提示信息
+             @@callback {function} 回调函数
+             @@return {无}
+        */
+        var ShowConfirm = function (msg, callback) {
+            return layer.confirm(msg, { icon: 3, title: "提示" }, callback);
+        };
+
+        /*全局通用：loading
+             @@msg {string} 提示信息
+             @@callback {function} 回调函数
+             @@return {无}
+        */
+        var ShowLoading = function (msg) {
+            return layer.msg(msg, { icon: 16, shade: 0.3, time: 0 });
+        };
+    </script>
+    <script>
+        var Common = {
+            /**
+             * 格式化日期（含时间）
+             */
+            formatterDate: function (date) {
+                if (date == undefined) {
+                    return "";
+                }
+
+                /*json格式时间转js时间格式*/
+                date = date.substr(1, date.length - 2);
+                var obj = eval('(' + "{Date: new " + date + "}" + ')');
+                var date = obj["Date"];
+                if (date.getFullYear() < 1900) {
+                    return "";
+                }
+
+                var datetime = date.getFullYear()
+                    + "-"// "年"
+                    + ((date.getMonth() + 1) >= 10 ? (date.getMonth() + 1) : "0" + (date.getMonth() + 1))
+                    + "-"// "月"
+                    + (date.getDate() < 10 ? "0" + date.getDate() : date.getDate())
+                    + " " + (date.getHours() < 10 ? "0" + date.getHours() : date.getHours())
+                    + ":" + (date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes());
+
+                return datetime;
+            }
+        }
+    </script>
+    <script src="@Url.Content("~/lay/common.js?v=1.0")"></script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>

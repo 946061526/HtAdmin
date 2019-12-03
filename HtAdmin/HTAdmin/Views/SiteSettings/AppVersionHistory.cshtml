@@ -1,0 +1,28 @@
+﻿@{
+    var list = ViewBag.List as IList<External.Core.Version.VersionUpdateCollection>;
+}
+<div class="layui-card">
+    <div class="layui-card-body">
+        @if (list == null || list.Count == 0)
+        {
+            <div class="layui-timeline-content layui-text">暂无记录</div>
+        }
+        else
+        {
+            <ul class="layui-timeline">
+                @foreach (var item in list)
+                {
+                    <li class="layui-timeline-item">
+                        <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+                        <div class="layui-timeline-content layui-text">
+                            <h3 class="layui-timeline-title">V @item.VersionNo &nbsp;&nbsp;&nbsp; @item.created_time.ToString("yyyy-MM-dd HH:mm") </h3>
+                            <p>
+                                @item.UpdateDes
+                            </p>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</div>

@@ -1,0 +1,178 @@
+﻿@{
+
+}
+@section styles{
+<link rel="stylesheet" href="@Url.Content("~/lay/style/vendor.css")" media="all">
+    }
+<div class="layui-card">
+    <div class="layui-card-header"><h4>基本信息</h4></div>
+    <div class="layui-card-body w-padding-tb-4">
+        <div class="layui-row">
+            <div class="layui-col-xs4">
+                ID：12345
+            </div>
+            <div class="layui-col-xs4">
+                手机号码：18565896547
+            </div>
+            <div class="layui-col-xs4">
+                昵称：福彩玩家
+            </div>
+        </div>
+        <div class="layui-row w-margin-t-2">
+            <div class="layui-col-xs4">
+                注册来源：PC端
+            </div>
+            <div class="layui-col-xs4">
+                注册时间：2018-04-12 12:12
+            </div>
+            <div class="layui-col-xs4">
+                账号状态：正常<a href="javascript:;" class="w-color-primary w-padding-lr-4">禁用</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-header"><h4>安全信息</h4><a href="javascript:;" class="w-color-primary w-padding-lr-4">修改实名认证</a><a href="javascript:;" class="w-color-primary">修改银行卡</a></div>
+    <div class="layui-card-body w-padding-tb-4">
+        <div class="layui-row">
+            <div class="layui-col-xs4">
+                ID：12345
+            </div>
+            <div class="layui-col-xs4">
+                手机号码：18565896547
+            </div>
+            <div class="layui-col-xs4">
+                昵称：福彩玩家
+            </div>
+        </div>
+        <div class="layui-row w-margin-t-2">
+            <div class="layui-col-xs4">
+                注册来源：PC端
+            </div>
+            <div class="layui-col-xs4">
+                注册时间：2018-04-12 12:12
+            </div>
+            <div class="layui-col-xs4">
+                账号状态：正常<a href="javascript:;" class="w-color-primary w-padding-lr-4">禁用</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-header"><h4>红包</h4></div>
+    <div class="layui-card-body w-padding-tb-4">
+        <table class="layui-table w-text-nowrap" lay-skin="line">
+            <colgroup>
+                <col width="100">
+                <col>
+                <col width="200">
+                <col width="150">
+                <col width="150">
+                <col width="150">
+                <col width="200">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>
+                        <span>文章ID</span>
+                        <span class="layui-table-sort layui-inline">
+                            <i class="layui-edge layui-table-sort-asc"></i>
+                            <i class="layui-edge layui-table-sort-desc"></i>
+                        </span>
+                    </th>
+                    <th>
+                        文章标题
+                    </th>
+                    <th>
+                        <div class="w-text-right">金额</div>
+                    </th>
+                    <th>
+                        图标
+                    </th>
+                    <th>
+                        <span>上传时间</span>
+                        <span class="layui-table-sort layui-inline">
+                            <i class="layui-edge layui-table-sort-asc"></i>
+                            <i class="layui-edge layui-table-sort-desc"></i>
+                        </span>
+                    </th>
+                    <th>
+                        发布状态
+                    </th>
+                    <th>
+                        操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        007
+                    </td>
+                    <td>
+                        体育
+                    </td>
+                    <td class="w-text-right">
+                        1,123,223.00
+                    </td>
+                    <td>
+                        <img width="30" height="30" />
+                    </td>
+                    <td>
+                        20180515
+                    </td>
+                    <td>
+                        <button class="layui-btn layui-btn-primary layui-btn-xs">待修改</button>
+                    </td>
+                    <td>
+                        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit">
+                            <i class="layui-icon layui-icon-edit"></i>编辑
+                        </a>
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">
+                            <i class="layui-icon layui-icon-delete"></i>删除
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        007
+                    </td>
+                    <td>
+                        体育
+                    </td>
+                    <td class="w-text-right">
+                        1,123,223.00
+                    </td>
+                    <td>
+                        <img width="30" height="30" />
+                    </td>
+                    <td>
+                        20180515
+                    </td>
+                    <td>
+                        <button class="layui-btn layui-btn-primary layui-btn-xs">待修改</button>
+                    </td>
+                    <td>
+                        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit">
+                            <i class="layui-icon layui-icon-edit"></i>编辑
+                        </a>
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">
+                            <i class="layui-icon layui-icon-delete"></i>删除
+                        </a>
+                    </td>
+                </tr>
+                </tdody>
+        </table>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        layui.config({
+            base: '@Url.Content("~/lay/")' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        });
+    </script>
+
+}

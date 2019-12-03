@@ -1,0 +1,204 @@
+﻿@{
+    var addAwards = ViewBag.AddAwards as Activity.Core.BonusMoneyConfigInfoCollection;
+    var configInfo = ViewBag.Config as Activity.Core.RechargeConfigInfo;
+    string url = "/RechargeActivity/CreateActivityInfo";
+    bool isEdit = false;
+    int infoId = 0;
+    if (configInfo != null)
+    {
+        isEdit = true;
+        url = "/RechargeActivity/UpdateActivityInfo";
+        infoId = configInfo.Id;
+    }
+
+
+}
+@section styles{
+    <style>
+        html, body {
+            background-color: white;
+        }
+
+        .addlottery {
+            color: blue;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .removelottery {
+            color: red;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .layui-inline {
+            width: 350px;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .txt-align {
+            text-align: left;
+        }
+
+        .pd0 {
+            padding: 0px;
+        }
+
+        .wd30 {
+            width: 30px;
+        }
+
+        .wd120 {
+            width: 120px;
+        }
+
+        .wd160 {
+            width: 160px;
+        }
+
+        .pos-100 {
+            position: fixed;
+            right: 100px;
+        }
+
+        .pos-20 {
+            position: fixed;
+            right: 20px;
+        }
+    </style>
+}
+
+<div class="layui-card" style="box-shadow:none;">
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div>
+                <div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">彩种名称</label>
+                        <div class="layui-input-block">
+                            <select name="LotteryType" lay-filter="LotteryType" lay-verify="required">
+                                @Html.Partial("LotteryType", item.GameCode)
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline wd160">
+                        <label class="layui-form-label addlottery pd0" addlottery>增加一条</label>
+                        <label class="layui-form-label removelottery @(i++>0?"":"hide") pd0" removelottery>删除该条</label>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">彩种玩法</label>
+                            <div class="layui-input-block">
+                                <select name="LotteryPlay" lay-filter="LotteryPlay">
+                                    @Html.Raw(GlobalCache.GetLotterySelectOption(item.GameCode, item.GameType))
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">过关方式</label>
+                            <div class="layui-input-block">
+                                <select name="PassWay" id="passWay">
+                                    <option value="ALL" @(item.PlayType == "ALL" ? "selected='selected'" : "")>不限</option>
+                                    <option value="PM_1" @(item.PlayType == "PM_1" ? "selected='selected'" : "")>过关</option>
+                                    <option value="P1_1" @(item.PlayType == "P1_1" ? "selected='selected'" : "")>单关</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">加奖比例</label>
+                            <div class="layui-input-block">
+                                <input type="text" value="@(item.AddBonusMoneyPercent.ToString("F"))" name="AddAwardPercent" lay-verify="required|money" autocomplete="off" placeholder="请输入加奖比例" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline wd30">
+                            <label class="layui-form-label txt-align">%</label>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">最大加奖</label>
+                            <div class="layui-input-block">
+                                <input type="text" value="@(item.MaxAddBonusMoney.ToString("F"))" name="MaxAddAward" lay-verify="required|money" autocomplete="off" placeholder="请输入最大加奖金额" class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">奖金入账户</label>
+                            <div class="layui-input-block">
+                                <select name="BonusAccountWay" lay-filter="aihao">
+                                    <option value="10" @(item.AddMoneyWay == "10" ? "selected='selected'" : "")>中奖账户 @*奖金*@</option>
+                                    <option value="70" @(item.AddMoneyWay == "70" ? "selected='selected'" : "")>奖励金账户 @*奖励金*@</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-footer" style="text-align:right;position:fixed;height:40px;width:100%;bottom:0px;">
+                <button type="button" class="layui-btn layui-btn-primary pos-100" id="btnCancel">取消</button>
+                <button class="layui-btn layui-btn-normal pos-20" lay-submit lay-filter="*">保存</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+@section scripts{
+    <script>
+        $(function () {
+            var layer = layui.layer,
+                form = layui.form,
+                laydate = layui.laydate;
+            form.on("submit(*)", function (data) {
+                debugger;
+                var d = {};
+                d.ActivityName = $("input[name='ActivityName']").val();
+                d.ActivityCategory = 2;
+                d.ActivityType = 3;
+                d.Status = 1;
+                d.BeginTime = $("input[name='BeginTime']").val();
+                d.EndTime = $("input[name='EndTime']").val();
+                d.BonusList = [];
+                var isEdit = Boolean(@(isEdit?1:0));
+
+                if (isEdit) {
+                    d.Id = @infoId;
+                }
+                $.post('@url', d, function (r) {
+                    if (r.Status == 1) {
+                        ShowSuccessMsg(r.message, true, true);
+                    } else {
+                        ShowErrorMsg(r.message);
+                    }
+                });
+                return false;
+            });
+            $("label[addlottery]").on('click', function () {
+                debugger;
+                var $th = $(this);
+                var $parent = $th.parents("div[lottery]");
+                var $cur = $parent.clone(true).appendTo("div[all-lottery]");
+                $cur.find("label[removelottery]").removeClass('hide');
+                $cur.removeAttr("bonus-id");
+                form.render();
+            });
+            $("label[removelottery]").click(function () {
+                $(this).parents("div[lottery]").remove();
+            });
+            $("#btnCancel").click(function () {
+                var index = parent.layer.getFrameIndex(window.name);
+                parent.layer.close(index);//关闭当前页
+            });
+
+        });
+    </script>
+}

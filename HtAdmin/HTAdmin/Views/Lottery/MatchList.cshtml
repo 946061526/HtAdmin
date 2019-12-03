@@ -1,0 +1,377 @@
+﻿
+
+@{
+    //var jczqList = ViewBag.JCZQMatch as GameBiz.Core.CoreJCZQMatchInfo_Collection;
+    //var jclqList = ViewBag.JCLQMatch as GameBiz.Core.CoreJCLQMatchInfo_Collection;
+    //var bjdcList = ViewBag.BJDCMatch as GameBiz.Core.CoreBJDCMatchInfo_Collection;
+
+    var jczqList = ViewBag.JCZQMatch as GameBiz.Core.CoreJCZQMatchInfoCollection;
+    var jclqList = ViewBag.JCLQMatch as GameBiz.Core.CoreJCLQMatchInfoCollection;
+    var bjdcList = ViewBag.BJDCMatch as GameBiz.Core.CoreBJDCMatchInfoCollection;
+
+    //int index = ((int)ViewBag.PageIndex - 1) * (int)ViewBag.PageSize + 1;
+}
+
+<div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+        <div class="layui-form-item">
+            <div class="layui-btn-group" id="GroupButton">
+                <button class="layui-btn @(ViewBag.GameCode=="JCZQ"?"":"layui-btn-primary")" type="button" value="JCZQ">竞猜足球</button>
+                <button class="layui-btn @(ViewBag.GameCode=="JCLQ"?"":"layui-btn-primary")" type="button" value="JCLQ">竞彩篮球</button>
+                <button class="layui-btn @(ViewBag.GameCode=="BJDC"?"":"layui-btn-primary")" type="button" value="BJDC">北京单场</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-card-body">
+        <div class="w-margin-t-4">
+            <table class="layui-table w-text-nowrap" lay-skin="line" id="dataList">
+                <colgroup>
+                    <col width="100">
+                    <col width="150">
+                    <col width="150">
+                    <col width="150">
+                    <col width="230">
+                    <col width="160">
+                    <col width="160">
+                    <col width="300">
+                    <col width="100">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>比赛编号</th>
+                        <th>编号名称</th>
+                        <th>联赛</th>
+                        <th>队伍 (主队 vs 客队)</th>
+                        <th>比赛开始时间</th>
+                        <th>停止投注时间</th>
+                        <th>限制玩法</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (jczqList != null && jczqList.Count > 0)
+                    {
+                        foreach (var item in jczqList)
+                        {
+                            var currentColor = item.LeagueColor;
+                            <tr>
+                                @*<td>@(index++)</td>*@
+                                <td>1</td>
+                                <td>@item.MatchId</td>
+                                <td>@item.MatchIdName</td>
+                                <td style="background-color:@currentColor">@item.LeagueName</td>
+                                <td>@item.HomeTeamName vs @item.GuestTeamName</td>
+                                <td>@item.StartDateTime.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>@item.FSStopBettingTime.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>
+                                    @{
+                                        if (item.MatchState == 1)
+                                        {
+                                            @(new HtmlString("<span class='layui-badge-dot'></span>比赛取消"));
+                                        }
+                                        else
+                                        {
+                                            var privileArray = item.PrivilegesType.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+
+                                            var strPri = "";
+                                            if (privileArray.Contains("1"))
+                                            {
+                                                strPri += "胜平负单关、";
+                                            }
+                                            if (privileArray.Contains("2"))
+                                            {
+                                                strPri += "比分单关、";
+                                            }
+                                            if (privileArray.Contains("3"))
+                                            {
+                                                strPri += "进球数单关、";
+                                            }
+                                            if (privileArray.Contains("4"))
+                                            {
+                                                strPri += "半全场单关、";
+                                            }
+                                            if (privileArray.Contains("5"))
+                                            {
+                                                strPri += "胜平负过关、";
+                                            }
+                                            if (privileArray.Contains("6"))
+                                            {
+                                                strPri += "比分过关、";
+                                            }
+                                            if (privileArray.Contains("7"))
+                                            {
+                                                strPri += "进球数过关、";
+                                            }
+                                            if (privileArray.Contains("8"))
+                                            {
+                                                strPri += "半全场过关、";
+                                            }
+                                            if (privileArray.Contains("9"))
+                                            {
+                                                strPri += "不让球胜平负单关、";
+                                            }
+                                            if (privileArray.Contains("10"))
+                                            {
+                                                strPri += "不让球胜平负过关、";
+                                            }
+
+                                            strPri = strPri.TrimEnd('、');
+                                            if (privileArray.Length == 10)
+                                            {
+                                                <a onclick='openDetail("@strPri","@item.MatchId")' id="@item.MatchId">@("全部")</a>
+                                            }
+                                            else
+                                            {
+                                                if (strPri.Length > 20)
+                                                {
+                                                    <a onclick='openDetail("@strPri","@item.MatchId")' id="@item.MatchId">@(strPri.Substring(0, 20) + "...")</a>
+                                                }
+                                                else
+                                                {
+                                                    @(strPri)
+                                                }
+                                            }
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @if (ViewBag.jybs)
+                                    {
+                                        <a class="layui-btn layui-btn-normal layui-btn-xs" data-matchid="@item.MatchId" data-code="JCZQ" id="btnEdit">限制玩法</a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    @if (jclqList != null && jclqList.Count > 0)
+                    {
+                        foreach (var item in jclqList)
+                        {
+                            var currentColor = item.LeagueColor;
+                            <tr>
+                                @*<td>@(index++)</td>*@
+                                <td>1</td>
+                                <td>@item.MatchId</td>
+                                <td>@item.MatchIdName</td>
+                                <td style="background-color:@currentColor">@item.LeagueName</td>
+                                <td>@item.HomeTeamName vs @item.GuestTeamName</td>
+                                <td>@item.StartDateTime.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>@item.FSStopBettingTime.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>
+                                    @{
+                                        if (item.MatchState == 1)
+                                        {
+                                            @(new HtmlString("<span class='layui-badge-dot'></span>比赛取消"));
+                                        }
+                                        else
+                                        {
+                                            var privileArray = item.PrivilegesType.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+
+                                            var strPri = "";
+                                            if (privileArray.Contains("1"))
+                                            {
+                                                strPri += "胜平负单关、";
+                                            }
+                                            if (privileArray.Contains("2"))
+                                            {
+                                                strPri += "胜平负单关、";
+                                            }
+                                            if (privileArray.Contains("3"))
+                                            {
+                                                strPri += "胜平负单关、";
+                                            }
+                                            if (privileArray.Contains("4"))
+                                            {
+                                                strPri += "胜平负单关、";
+                                            }
+                                            if (privileArray.Contains("5"))
+                                            {
+                                                strPri += "胜平负单关、";
+                                            }
+                                            if (privileArray.Contains("6"))
+                                            {
+                                                strPri += "胜平负单关、";
+                                            }
+                                            if (privileArray.Contains("7"))
+                                            {
+                                                strPri += "胜平负单关、";
+                                            }
+                                            if (privileArray.Contains("8"))
+                                            {
+                                                strPri += "胜平负单关、";
+                                            }
+
+                                            strPri = strPri.TrimEnd('、');
+                                            if (privileArray.Length == 8)
+                                            {
+                                                <a onclick='openDetail("@strPri","@item.MatchId")' id="@item.MatchId">@("全部")</a>
+                                            }
+                                            else
+                                            {
+                                                if (strPri.Length > 20)
+                                                {
+                                                    <a onclick='openDetail("@strPri","@item.MatchId")' id="@item.MatchId">@(strPri.Substring(0, 20) + "...")</a>
+                                                }
+                                                else
+                                                {
+                                                    @(strPri)
+                                                }
+                                            }
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @if (ViewBag.jybs)
+                                    {
+                                        <a class="layui-btn layui-btn-normal layui-btn-xs" data-matchid="@item.MatchId" data-code="JCLQ" id="btnEdit">限制玩法</a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    @if (bjdcList != null && bjdcList.Count > 0)
+                    {
+                        foreach (var item in bjdcList)
+                        {
+                            var currentColor = item.LeagueColor;
+                            <tr>
+                                @*<td>@(index++)</td>*@
+                                <td>1</td>
+                                <td>@item.Id</td>
+                                <td>
+                                    @{
+                                        var week = (int)item.StartDateTime.DayOfWeek;
+                                        var str = ViewHelpers.ConvertScreenings(week == 0 ? 7 : week) + item.MatchOrderId;
+                                    }
+                                    @Html.Raw(str)
+                                </td>
+                                <td style="background-color:@currentColor">@item.LeagueName</td>
+                                <td>@item.HomeTeamName vs @item.GuestTeamName</td>
+                                <td>@item.StartDateTime.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>@item.FSStopBettingTime.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>
+                                    @{
+                                        if (item.MatchState == 1)
+                                        {
+                                            @(new HtmlString("<span class='layui-badge-dot'></span>比赛取消"));
+                                        }
+                                        else
+                                        {
+                                            var privileArray = item.PrivilegesType.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+
+                                            var strPri = "";
+                                            if (privileArray.Contains("1"))
+                                            {
+                                                strPri += "比分、";
+                                            }
+                                            if (privileArray.Contains("2"))
+                                            {
+                                                strPri += "半全场、";
+                                            }
+                                            if (privileArray.Contains("3"))
+                                            {
+                                                strPri += "胜平负、";
+                                            }
+                                            if (privileArray.Contains("4"))
+                                            {
+                                                strPri += "上下单双、";
+                                            }
+                                            if (privileArray.Contains("5"))
+                                            {
+                                                strPri += "进球数、";
+                                            }
+
+                                            strPri = strPri.TrimEnd('、');
+                                            if (privileArray.Length == 5)
+                                            {
+                                                <a onclick='openDetail("@strPri","@item.MatchId")' id="@item.MatchId">@("全部")</a>
+                                            }
+                                            else
+                                            {
+                                                if (strPri.Length > 20)
+                                                {
+                                                    <a onclick='openDetail("@strPri","@item.MatchId")' id="@item.Id">@(strPri.Substring(0, 20) + "...")</a>
+                                                }
+                                                else
+                                                {
+                                                    @(strPri)
+                                                }
+                                            }
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @if (ViewBag.jybs)
+                                    {
+                                        <a class="layui-btn layui-btn-normal layui-btn-xs" data-matchid="@item.Id" data-code="BJDC" id="btnEdit">限制玩法</a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+            @*@if (ViewBag.GameCode == "JCZQ")
+                {
+                    @ViewHelpers.Pager(ViewBag.PageIndex, ViewBag.PageSize, jczqList.TotalCount)
+                }
+                else if (ViewBag.GameCode == "JCLQ")
+                {
+                    @ViewHelpers.Pager(ViewBag.PageIndex, ViewBag.PageSize, jclqList.TotalCount)
+                }
+                else if (ViewBag.GameCode == "BJDC")
+                {
+                    @ViewHelpers.Pager(ViewBag.PageIndex, ViewBag.PageSize, bjdcList.TotalCount)
+                }*@
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+
+        var _GameCode = 'JCZQ';
+        //按钮切换
+        $("#GroupButton [type='button']").click(function () {
+            if (!$(this).hasClass('layui-btn-primary')) return;
+
+            var val = $(this).val();
+            _GameCode = val;
+            $(this).removeClass("layui-btn-primary").siblings().removeClass("layui-btn-primary").addClass("layui-btn-primary");
+
+            var params = {
+                GameCode: _GameCode,
+                pageIndex: 1
+            }
+            publicPagingList(params);
+        });
+
+        //限制玩法
+        $(document).on('click', 'a', function () {
+            var $this = $(this);
+            if ($this.attr('id') == 'btnEdit') {//编辑
+                layer.open({
+                    type: 2,// 表示是iframe弹框
+                    title: "限制玩法",
+                    content: "/Lottery/MatchSet?gameCode=" + $this.data('code') + "&matchid=" + $this.data('matchid'),
+                    shadeClose: true,
+                    shade: 0.6,
+                    area: ['700px', '380px'],
+                });
+            }
+        });
+
+        function openDetail(s, id) {
+            layer.tips(s, '#' + id, {
+                tips: [1, '#3595CC'],
+                area: ['300px', 'auto'],
+                time: 4000
+            });
+        }
+
+
+    </script>
+
+}

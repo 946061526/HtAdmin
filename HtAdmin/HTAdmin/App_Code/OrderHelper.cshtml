@@ -1,0 +1,630 @@
+﻿@inherits WebHelper.HelperPage
+@using GameBiz.Core;
+@using Common.Algorithms;
+@helper AnteListView_BDJC(string gameCode, string gameType, Sports_AnteCodeQueryInfoCollection anteList, SchemeBettingCategory schemeCategory = SchemeBettingCategory.GeneralBetting, SingleScheme_AnteCodeQueryInfo singleInfo = null, string issuseNumber = "")
+    {
+    <tr class="tit2">
+        <td width="7%">
+            场次
+        </td>
+        <td>
+            赛事
+        </td>
+        <td>
+            时间
+        </td>
+        <td>
+            主队
+        </td>
+        @{if (gameCode.ToLower() == "jclq")
+          { 
+            <td>
+                比分
+            </td>
+          }
+          else
+          {
+            <td>
+                半场
+            </td>
+            <td>
+                比分
+            </td>
+          }}
+        <td>
+            客队
+        </td>
+        @{if (gameType.ToLower() == "dxf" || (gameType.ToLower() == "hh" && gameCode.ToLower() == "jclq"))
+          {
+            <td>
+                总分(参考)
+            </td>
+          }}
+        @{if (gameType.ToLower() == "rfsf" || (gameType.ToLower() == "hh" && gameCode.ToLower() == "jclq"))
+          {
+            <td>
+                让分(参考)
+            </td>
+          }}
+        @{if (gameType.ToLower() == "spf" || (gameType.ToLower() == "hh" && gameCode.ToLower() == "jczq"))
+          {
+            <td>
+                让球
+            </td>
+          }}
+        @*@{if (gameType.ToLower() == "hh")
+          {<td>
+              玩法
+          </td>}}*@
+        <td>
+            玩法
+        </td>
+        @{
+            if (schemeCategory == SchemeBettingCategory.GeneralBetting || schemeCategory == SchemeBettingCategory.ErXuanYi)
+            { 
+            <td>
+                投注内容
+            </td>
+            <td>
+                设胆
+            </td>  
+            }
+        }
+        <td>
+            彩果
+        </td>
+        @{if (gameCode.ToLower().IndexOf("jc") < 0)
+          {<td>
+              开奖SP
+          </td>}}
+    </tr>
+        foreach (var item in anteList)
+        {
+            //var type = string.IsNullOrEmpty(item.GameType) ? gameType.ToLower() : item.GameType.ToLower();
+            //var matres = "";
+            //if (item.MatchResult.IndexOf("-1") < 0 && !string.IsNullOrEmpty(item.MatchResult))
+            //{
+            //    if (gameType.ToLower() == "dxf")
+            //    {
+            //        var zfs = item.FullResult.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+            //        var czf = OrderManager.SpliteSPList(item.CurrentSp)["YSZF"];
+            //        if (zfs.Length > 1)
+            //        {
+            //            var zf = zfs.Select(a => float.Parse(a)).Sum();
+            //            if (zf > float.Parse(czf))
+            //            { matres = "3"; }
+            //            else
+            //            {
+            //                matres = "0";
+            //            }
+            //        }
+            //    }
+            //    else if (gameType.ToLower() == "rfsf")
+            //    {
+            //        var bfs = item.FullResult.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+            //        var rf = OrderManager.SpliteSPList(item.CurrentSp)["RF"];
+            //        if (bfs.Length > 1)
+            //        {
+            //            var zf = float.Parse(bfs[0]) + float.Parse(rf);
+            //            var ff = float.Parse(bfs[1]);
+            //            if (zf > ff)
+            //            { matres = "3"; }
+            //            else
+            //            {
+            //                matres = "0";
+            //            }
+            //        }
+            //    }
+            //    else
+            //    {
+            //        matres = item.MatchResult;
+            //    }
+            var type = string.IsNullOrEmpty(item.GameType) ? gameType.ToLower() : item.GameType.ToLower();
+            var matres = "";
+            if (item.MatchResult.IndexOf("-1") < 0 && !string.IsNullOrEmpty(item.MatchResult))
+            {
+                if (type == "dxf")
+                {
+                    var zfs = item.FullResult.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                    var czf = !string.IsNullOrEmpty(item.CurrentSp) ? OrderManager.SpliteSPList(item.CurrentSp)["YSZF"] : "0";
+                    if (zfs.Length > 1)
+                    {
+                        var zf = zfs.Select(a => float.Parse(a)).Sum();
+                        if (zf > float.Parse(czf))
+                        { matres = "3"; }
+                        else
+                        {
+                            matres = "0";
+                        }
+                    }
+                }
+                else if (type == "rfsf")
+                {
+                    var bfs = item.FullResult.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                    var rf = !string.IsNullOrEmpty(item.CurrentSp) ? OrderManager.SpliteSPList(item.CurrentSp)["RF"] : "0";
+                    if (bfs.Length > 1)
+                    {
+                        var zf = float.Parse(bfs[0]) + float.Parse(rf);
+                        var ff = float.Parse(bfs[1]);
+                        if (zf > ff)
+                        { matres = "3"; }
+                        else
+                        {
+                            matres = "0";
+                        }
+                    }
+                }
+                else
+                {
+                    matres = item.MatchResult;
+                }
+            }
+         
+    <tr class="ni">
+        <td>@(gameCode.ToLower().IndexOf("jc") >= 0 ? item.MatchIdName : item.MatchId)
+        </td>
+        <td style="background-color: #@item.LeagueColor.Replace("#", ""); color: White;">@item.LeagueName
+        </td>
+        <td>@item.StartTime.ToString("MM-dd HH:mm")
+        </td>
+        <td>
+            <span class="blue">@item.HomeTeamName</span>
+        </td>
+        @{
+                          switch (gameCode.ToLower())
+                          {
+                              case "jclq":
+            <td class="red">
+                @{switch (item.MatchState)
+                  {
+                      case "3":
+                    @("取消")
+                break;
+                      case "4":
+                    @("推迟")
+                break;
+                      default:
+                    @item.FullResult
+               break;
+                  }}
+            </td>
+                  break;
+                              case "jczq":
+            <td>
+                @{switch (item.MatchState)
+                  {
+                      case "3":
+                    @("取消")
+                break;
+                      case "4":
+                    @("推迟")
+                break;
+                      default:
+                    @item.HalfResult
+               break;
+                  }}
+            </td>
+            <td class="red">
+                @{switch (item.MatchState)
+                  {
+                      case "3":
+                    @("取消")
+                break;
+                      case "4":
+                    @("推迟")
+                break;
+                      default:
+                    @item.FullResult
+               break;
+                  }}
+            </td>
+                  break;
+                              case "bjdc":
+            <td>
+                @{switch (item.MatchState)
+                  {
+                      case "Cancel":
+                    @("取消")
+                break;
+                      case "Late":
+                    @("推迟")
+                break;
+                      default:
+                    @item.HalfResult
+               break;
+                  }}
+            </td>
+            <td class="red">
+                @{switch (item.MatchState)
+                  {
+                      case "Cancel":
+                    @("取消")
+                break;
+                      case "Late":
+                    @("推迟")
+                break;
+                      default:
+                    @item.FullResult
+               break;
+                  }}
+            </td>
+                  break;
+                          }
+        }
+        <td>
+            <span class="blue">@item.GuestTeamName</span>
+        </td>
+        @{if (gameType.ToLower() == "dxf" || (gameType.ToLower() == "hh" && gameCode.ToLower() == "jclq"))
+          {
+            <td>
+                @{if (!string.IsNullOrEmpty(item.CurrentSp) && item.CurrentSp.Contains("YSZF"))
+                  {
+                    @(OrderManager.SpliteSPList(item.CurrentSp)["YSZF"])
+                  }}
+            </td>
+          }}
+        @{if (gameType.ToLower() == "rfsf" || (gameType.ToLower() == "hh" && gameCode.ToLower() == "jclq"))
+          {
+            <td>
+                @{if (!string.IsNullOrEmpty(item.CurrentSp) && item.CurrentSp.Contains("RF"))
+                  {
+                    @(OrderManager.SpliteSPList(item.CurrentSp)["RF"])
+                  }}
+            </td>
+          }}
+        @{
+          if (!string.IsNullOrEmpty(item.GameType) && item.GameType.ToUpper() == "BRQSPF")
+          {
+          <td></td>
+          }
+          else
+          {
+              if (gameType.ToLower() == "spf" || (gameType.ToLower() == "hh" && gameCode.ToLower() == "jczq"))
+              {
+            <td class="@(item.LetBall > 0 ? "red" : "green")">@(item.LetBall != 0 ? (item.LetBall > 0 ? "+" + item.LetBall.ToString() : item.LetBall.ToString()) : string.Empty)
+            </td>
+              }
+          }
+        }
+        @*@{if (gameType.ToLower() == "hh")
+          {<td class="green">@(SiteConvert.GameName(gameCode, item.GameType))
+          </td>}}*@
+        <td class="green">@(SiteConvert.GameName(gameCode, item.GameType))
+        </td>
+        @{if (schemeCategory == SchemeBettingCategory.GeneralBetting)
+          { 
+            <td>
+                @{foreach (var code in item.AnteCode.Split(','))
+                  {
+                      if (item.GameType.ToLower() == "spf" && (gameCode.ToLower() == "jczq" || gameCode.ToLower() == "jclq"))
+                      { 
+                    <span class="@((string.IsNullOrEmpty(matres) || code == matres) ? "spitems" : "spitems2")">@("让球" + SiteString.ANTECODES_NAME(type, code))</span>  
+                      }
+                      else
+                      {
+                    <span class="@((string.IsNullOrEmpty(matres) || code == matres) ? "spitems" : "spitems2")">@SiteString.ANTECODES_NAME(type, code)</span>  
+                      }
+                  }}
+            </td>
+            <td>@(item.IsDan ? "胆" : string.Empty)
+            </td>
+          }
+          else if (schemeCategory == SchemeBettingCategory.ErXuanYi)
+          { 
+            <td>
+                @foreach (var code in item.AnteCode.Split(','))
+                {
+                    <div class="touzhu @(string.IsNullOrEmpty(matres) ? "zhong" : code == matres ? "zhong" : "weizhong")">
+                        <span>@(item.LetBall <0 && code == "3" ? "主胜" : item.LetBall <0 && code == "0" ? "客不败" : (item.LetBall >0 && code == "3" ? "主不败" : "客胜"))</span>
+                        @if (!string.IsNullOrEmpty(item.CurrentSp))
+                        {
+                            if (OrderManager.SpliteSPList(item.CurrentSp).ContainsKey(code))
+                            {
+                                // var sp = OrderManager.SpliteSPList(item.CurrentSp)[code];
+                                var sp = string.IsNullOrEmpty(OrderManager.SpliteSPList(item.CurrentSp)[code]) ? "0.000" : double.Parse(OrderManager.SpliteSPList(item.CurrentSp)[code]).ToString("0.000");
+                                var inxsp = sp.Substring(0, sp.IndexOf('.') + 3);
+                            <i odds=" @(OrderManager.SpliteSPList(item.CurrentSp)[code])">@inxsp</i>
+                            }
+
+                        }
+                    </div>
+                }
+            </td>
+            <td>@(item.IsDan ? "胆" : string.Empty)
+            </td>
+          }
+        }
+        <td class="red">
+            @*@SiteString.ANTECODES_NAME(type, matres)*@
+            @{
+          var result = SiteString.ANTECODES_NAME(type, matres);
+            }
+            @if (!string.IsNullOrEmpty(result))
+            {
+                <span class="cg">
+                    @(gameCode.ToLower() == "jclq" && item.GameType.ToLower() == "rfsf" ? "让分" : (gameCode.ToLower() == "jczq" && item.GameType.ToLower() == "spf" ? "让球" : ""))@result
+                </span>
+            }
+        </td>
+        @{if (gameCode.ToLower().IndexOf("jc") < 0)
+          {<td class="bold duckred">@(item.MatchState == "Cancel" ? "取消" : item.MatchState == "Late" ? "推迟" : item.MatchResultSp > 1 ? item.MatchResultSp.ToString("f4") : string.Empty)
+          </td>}}
+    </tr>
+        }
+        if (schemeCategory == SchemeBettingCategory.SingleBetting || schemeCategory == SchemeBettingCategory.FilterBetting)
+        {
+    <tr class="ni">
+        <td colspan="9">
+            <a id="hlFile" href="@(ViewHelpers.websiteroot())/user/schemefile/@singleInfo.SchemeId?gamecode=@gameCode" target="_blank">
+                <span id="hlFileText" style="line-height: 40px;">单式方案，点击查看</span></a>
+        </td>
+    </tr>
+        }
+}
+
+@helper SpliteTicketView(Sports_AnteCodeQueryInfoCollection anteList, string gameCode, string gameType, string playType, int betcount, int amount, decimal betMoney, decimal bonusMoney = 0, SchemeBettingCategory category = SchemeBettingCategory.GeneralBetting)
+    {
+                //方案拆分出票赔率
+    <tr class="tit2">
+        <td width="49%">
+            方案明细
+        </td>
+        <td width="9%">
+            过关方式
+        </td>
+        <td width="9%">
+            方案注数
+        </td>
+        <td width="7%">
+            倍数
+        </td>
+        <td width="10%">
+            金额
+        </td>
+        <td width="10%">
+            奖金
+        </td>
+    </tr>
+    <tr class="ni">
+        <td style="text-align: left; line-height: 18px; color: #666;">
+            @{foreach (var item in anteList)
+              {
+                  var type = string.IsNullOrEmpty(item.GameType) ? gameType.ToLower() : item.GameType.ToLower();
+                  var matres = "";
+                  if (item.MatchResult.IndexOf("-1") < 0 && !string.IsNullOrEmpty(item.MatchResult))
+                  {
+                      if (type == "dxf")
+                      {
+                          var zfs = item.FullResult.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                          var czf = !string.IsNullOrEmpty(item.CurrentSp) ? OrderManager.SpliteSPList(item.CurrentSp)["YSZF"] : "0";
+                          if (zfs.Length > 1)
+                          {
+                              var zf = zfs.Select(a => float.Parse(a)).Sum();
+                              if (zf > float.Parse(czf))
+                              { matres = "3"; }
+                              else
+                              {
+                                  matres = "0";
+                              }
+                          }
+                      }
+                      else if (type == "rfsf")
+                      {
+                          var bfs = item.FullResult.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                          var rf = !string.IsNullOrEmpty(item.CurrentSp) ? OrderManager.SpliteSPList(item.CurrentSp)["RF"] : "0";
+                          if (bfs.Length > 1)
+                          {
+                              var zf = float.Parse(bfs[0]) + float.Parse(rf);
+                              var ff = float.Parse(bfs[1]);
+                              if (zf > ff)
+                              { matres = "3"; }
+                              else
+                              {
+                                  matres = "0";
+                              }
+                          }
+                      }
+                      else
+                      {
+                          matres = item.MatchResult;
+                      }
+                  }
+                <p class="pad5">@item.MatchIdName
+                    <span>@SiteConvert.GameName(gameCode, item.GameType)</span>
+                    @{if (category != SchemeBettingCategory.GeneralBetting)
+                      {
+                          foreach (var spitem in OrderManager.SpliteSPList(item.CurrentSp))
+                          {
+@*<span>@WCFService.GameTypeList(gameCode, item.GameType)</span>*@
+                              if (spitem.Key != "-1")
+                              {
+                        <span class="blue">[@SiteString.ANTECODES_NAME(type, spitem.Key) @spitem.Value]</span>
+                              }
+                          }
+                      }
+                      else
+                      {
+                          foreach (var code in item.AnteCode.Split(','))
+                          { <span class="@(string.IsNullOrEmpty(matres) || code == matres ? "skyblue" : "gray")">
+                              [ <b>@SiteString.ANTECODES_NAME(type, code)</b> @(string.IsNullOrEmpty(item.CurrentSp) || item.CurrentSp == "-" ? string.Empty : !OrderManager.SpliteSPList(item.CurrentSp).ContainsKey(code) ? string.Empty : OrderManager.SpliteSPList(item.CurrentSp)[code])
+                              ] </span>
+                          }
+                      }}
+                    @{if (!string.IsNullOrEmpty(item.CurrentSp))
+                      {
+                          if (gameType.ToLower() == "rfsf")
+                          {
+                        <em class="black">(@(item.CurrentSp == "-" ? "" : !OrderManager.SpliteSPList(item.CurrentSp).ContainsKey("RF") ? string.Empty : OrderManager.SpliteSPList(item.CurrentSp)["RF"]))</em>
+                          }
+                          else if (gameType.ToLower() == "dxf")
+                          {
+                        <em class="black">(@(item.CurrentSp == "-" ? "" : !OrderManager.SpliteSPList(item.CurrentSp).ContainsKey("YSZF") ? string.Empty : OrderManager.SpliteSPList(item.CurrentSp)["YSZF"]))</em>
+                          }
+                      }
+                    }
+                </p>
+              }}
+        </td>
+        <td>@SiteConvert.PlayTypeName(playType)
+        </td>
+        <td>@betcount
+        </td>
+        <td>@amount
+        </td>
+        <td>
+            ￥@betMoney.ToString("f")
+        </td>
+        <td style="color: Red">@(bonusMoney > 0 ? bonusMoney.ToString("f") : string.Empty)
+        </td>
+        <td>
+        </td>
+    </tr>
+    <script type="text/javascript">
+        function displayDetail(clickObj) {
+            clickObj.innerHTML = clickObj.innerHTML == "点击隐藏" ? "点击展开" : "点击隐藏";
+            clickObj.className = clickObj.className == "red" ? "green" : "red";
+            var tb = document.getElementById("tableJingcaiDetail");
+            tb.style.display = tb.style.display == "none" ? "" : "none";
+        }
+    </script>
+}
+@helper WinNumberView(string winNumber)
+    {//转换显示中奖号码
+        if (!string.IsNullOrEmpty(winNumber))
+        {
+            if (winNumber.Contains("|"))
+            {
+                var qNumber = winNumber.Split('|')[0];
+                var bNumber = winNumber.Split('|')[1];
+                foreach (var item in qNumber.Split(','))
+                {
+    <b class="lot-ball redball">@item</b>
+                }
+                foreach (var item in bNumber.Split(','))
+                {
+    <b class="lot-ball blueball">@item</b>
+                }
+            }
+            else
+            {
+                foreach (var item in winNumber.Split(','))
+                {
+    <b class="lot-ball yellowball">@item</b>
+                }
+            }
+        }
+        else
+        {
+    <b class="red">未开奖</b>
+        }
+}
+@helper AnteListView_YouHua(Sports_AnteCodeQueryInfoCollection anteList, string PlayType, string Attach)
+    {
+    <tr>
+        <th align="left">
+            投注内容
+        </th>
+        <th align="left">
+            过关
+        </th>
+        <th align="left">
+            投注注数
+        </th>
+        <th align="left">
+            理论奖金
+        </th>
+        <th align="left">
+            彩果
+        </th>
+    </tr>
+        var gg = SiteConvert.PlayTypeName(PlayType);
+        //150516007_BRQSPF_0|150516009_SPF_0^438,150516009_SPF_0|150516010_BRQSPF_1^425
+        var attsch = Attach.Split(',');
+        foreach (var item in attsch)
+        {
+            var itemArray = item.Split('^');
+            if (itemArray.Length != 2)
+            {
+                continue;
+            }
+            //注数
+            var betcoun = itemArray[1];
+            //一场比赛
+            var matchs = itemArray[0].Split('|');
+            var money = 1M;
+            var htmlList = new List<string>();
+            foreach (var m in matchs)
+            {
+                var mArray = m.Split('_');
+                if (mArray.Length != 3)
+                {
+                    continue;
+                }
+
+                var anteCode = anteList.Where(p => p.MatchId == mArray[0] && p.GameType == mArray[1].ToUpper()).FirstOrDefault();
+                htmlList.Add("<em style='color:#999'>[" + anteCode.MatchIdName + "]</em>" + anteCode.HomeTeamName.Substring(0, 2) + "<i class=" + (anteCode.GameType.ToLower() == "brqspf" ? "font_red" : "green") + ">[" + (anteCode.GameType == "SPF" ? "让" : "") + SiteString.ANTECODES_NAME(anteCode.GameType, mArray[2]) + "]</i>");
+                if (string.IsNullOrEmpty(anteCode.CurrentSp))
+                {
+                    continue;
+                }
+                foreach (var spitem in anteCode.CurrentSp.Split(','))
+                {
+                    //if (spitem.Split('|')[0] == anteCode.AnteCode)
+                    //{
+                    //    money *= decimal.Parse(spitem.Split('|')[1]);
+                    //    break;
+                    //}
+
+                    if (!string.IsNullOrEmpty(anteCode.AnteCode))
+                    {
+                        if (anteCode.AnteCode.Contains(spitem.Split('|')[0]))
+                        {
+                            money *= decimal.Parse(spitem.Split('|')[1]);
+                            break;
+                        }
+                    }
+                }
+            }
+            money *= 2 * decimal.Parse(betcoun);
+    <tr>
+        <td>
+            @Html.Raw(string.Join("x", htmlList.ToArray()))
+        </td>
+        <td>
+            @gg
+        </td>
+        <td>
+            @betcoun
+        </td>
+        <td>
+            @money.ToString("N2")元
+        </td>
+        <td>
+            @{
+       List<string> strMatch = new List<string>();
+       foreach (var m in matchs)
+       {
+           var mArray = m.Split('_');
+           if (mArray.Length != 3)
+           {
+               continue;
+           }
+
+           var anteCode = anteList.Where(p => p.MatchId == mArray[0] && p.GameType == mArray[1].ToUpper()).FirstOrDefault();
+           if (!string.IsNullOrEmpty(anteCode.MatchResult))
+           {
+               strMatch.Add(anteCode.MatchIdName + "[" + SiteString.ANTECODES_NAME(anteCode.GameType, anteCode.MatchResult) + "]");
+           }
+
+       }
+             
+            }
+            @if (strMatch != null && strMatch.Count > 0)
+            {
+                @Html.Raw(string.Join(",", strMatch.ToArray()))
+            }
+        </td>
+    </tr>
+        }
+        
+}

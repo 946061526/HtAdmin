@@ -1,0 +1,238 @@
+﻿
+
+@using GameBiz.Core;
+@{
+
+    var list = ViewBag.List as PushRecordInfoCollection;
+    int index = ((int)ViewBag.PageIndex - 1) * (int)ViewBag.PageSize + 1;
+
+    var sTime = ViewBag.StartTime == null ? "" : Convert.ToDateTime(ViewBag.StartTime).ToString("yyyy-MM-dd HH:mm");
+    var eTime = ViewBag.EndTime == null ? "" : Convert.ToDateTime(ViewBag.EndTime).ToString("yyyy-MM-dd HH:mm");
+}
+@section styles{
+    <style>
+        .width260 {
+            width: 260px;
+        }
+    </style>
+}
+<div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <div class="layui-input-inline" style="width:260px">
+                    <input type="text" id="CreateTime" name="CreateTime" placeholder="创建时间" autocomplete="off" class="layui-input width260" value="@((sTime + eTime)==""? "":sTime+" ~ "+eTime)">
+                </div>
+                <input type="hidden" id="hdStartTime" value="@sTime" />
+                <input type="hidden" id="hdEndTime" value="@eTime" />
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" id="Title" placeholder="标题" autocomplete="off" class="layui-input" maxlength="5" value="@ViewBag.Title">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <select name="label" id="PushType">
+                        <option value="" @(ViewBag.PushType == null ? "selected=selected" : "")>推送方式</option>
+                        <option value="0" @(ViewBag.PushType == PushType.Unicast ? "selected=selected" : "")>单播</option>
+                        <option value="1" @(ViewBag.PushType == PushType.Broadcast ? "selected=selected" : "")>广播</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <select name="label" id="IsMsg">
+                        <option value="" @(ViewBag.IsMsg == -1 ? "selected=selected" : "")>是否消息</option>
+                        <option value="1" @(ViewBag.IsMsg == 1 ? "selected=selected" : "")>是</option>
+                        <option value="0" @(ViewBag.IsMsg == 0 ? "selected=selected" : "")>否</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn" lay-submit lay-filter="btnSearch" id="btnSearch">
+                    查询
+                </button>
+                <button class="layui-btn layui-btn-primary" id="btReset">
+                    重置
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-card-body">
+        <div class="w-margin-t-2">
+            <button class="layui-btn layui-btn-normal" id="btnPush">发送推送</button>
+        </div>
+        <div class="w-margin-t-4">
+            <table class="layui-table w-text-nowrap" lay-skin="line" id="dataList">
+                <colgroup>
+                    <col width="80">
+                    <col width="100">
+                    <col width="150">
+                    <col width="200">
+                    <col width="80">
+                    <col width="80">
+                    <col width="100">
+                    <col width="100">
+                    <col width="150">
+                    <col width="150">
+                    <col width="150">
+                    <col width="150">
+                    <col width="150">
+                    <col width="150">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>创建时间</th>
+                        <th>标题</th>
+                        <th>内容</th>
+                        <th>发送人</th>
+                        <th>消息</th>
+                        <th>推送方式</th>
+                        <th>响应行为</th>
+                        <th>链接/页面/自定义</th>
+                        <th style="text-align: right">推送人数</th>
+                        <th style="text-align: right">到达人数</th>
+                        <th style="text-align: right">打开人数</th>
+                        <th style="text-align: right">到达率</th>
+                        <th style="text-align: right">打开率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in list.RecordList)
+                    {
+                        <tr>
+                            <td>@(index++)</td>
+                            <td>@item.CreateTime.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td title="@item.Title">
+                                @(item.Title.Length > 20 ? item.Title.Substring(0, 20) + "..." : item.Title)
+                            </td>
+                            <td title="@item.Content">
+                                @(item.Content.Length > 20 ? item.Content.Substring(0, 20) + "..." : item.Content)
+                            </td>
+                            <td>@(string.IsNullOrWhiteSpace(item.Sender) ? "--" : item.Sender)</td>
+                            <td>
+                                @(item.IsMsg == 1 ? "是" : "否")
+                            </td>
+                            <td>
+                                @{ switch (item.PushType)
+                                    {
+                                        case PushType.Broadcast:
+                                            @("广播");
+                                            break;
+                                        case PushType.Unicast:
+                                            @("单播");
+                                            break;
+                                    } }
+                            </td>
+                            <td>
+                                @{ switch (item.AfterOpenType)
+                                    {
+                                        case AfterOpenType.GoApp:
+                                            @("唤醒APP");
+                                            break;
+                                        case AfterOpenType.GoUrl:
+                                            @("跳转到URL");
+                                            break;
+                                        case AfterOpenType.GoActivity:
+                                            @("跳转到页面");
+                                            break;
+                                        case AfterOpenType.GoCustom:
+                                            @("自定义内容");
+                                            break;
+                                    }
+                                }
+                            </td>
+                            <td>
+                                @{
+                                    var str = item.Url;
+                                    if (string.IsNullOrEmpty(str))
+                                    {
+                                        str = item.Activity;
+                                        if (string.IsNullOrEmpty(str))
+                                        {
+                                            str = item.Custom;
+                                        }
+                                    }
+                                    @(str ?? "")
+                                }
+                            </td>
+                            <td class="w-text-right">@item.PushCount</td>
+                            <td class="w-text-right">@item.PushSuccessCount</td>
+                            <td class="w-text-right">@item.OpenCount</td>
+                            <td class="w-text-right">@(item.PushCount == 0 || item.PushSuccessCount == 0 ? "0%" : (item.PushSuccessCount * 1.0 / item.PushCount).ToString("p"))</td>
+                            <td class="w-text-right">@(item.PushCount == 0 || item.OpenCount == 0 ? "0%" : (item.OpenCount * 1.0 / item.PushCount).ToString("p"))</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @ViewHelpers.Pager(ViewBag.PageIndex, ViewBag.PageSize, list.TotalCount)
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script>
+
+        //日期时间
+        layui.laydate.render({
+            elem: '#CreateTime'
+            , type: 'datetime'
+            , format: 'yyyy-MM-dd HH:mm'
+            , range: '~'
+            , done: function (value, sDate, endDate) {
+                if (value == '') {
+                    $("#hdStartTime").val('');
+                    $("#hdEndTime").val('');
+                } else {
+                    $("#hdStartTime").val(sDate.year + "-" + sDate.month + "-" + sDate.date + " " + sDate.hours + ":" + sDate.minutes);
+                    $("#hdEndTime").val(endDate.year + "-" + endDate.month + "-" + endDate.date + " " + endDate.hours + ":" + endDate.minutes);
+                }
+            }
+        });
+
+        var params = {
+            StartTime: '',
+            EndTime: '',
+            Title: '',
+            IsMsg: '',
+            PushType: '',
+            pageIndex: 1
+        };
+
+        /* 查询 */
+        $("#btnSearch").click(function () {
+            params.StartTime = $("#hdStartTime").val();
+            params.EndTime = $("#hdEndTime").val();
+            params.Title = $("#Title").val();
+            params.IsMsg = $("#IsMsg").val() == '' ? '-1' : $("#IsMsg").val();
+            params.PushType = $("#PushType").val();
+            params.pageIndex = 1;
+
+            publicPagingList(params);
+        });
+
+        /* 重置 */
+        $("#btReset").click(function () {
+            $("#Title").val("");
+            $("#IsMsg").val('');
+            $("#PushType").val('');
+
+            layui.form.render('select');
+        });
+
+        $("#btnPush").click(function () {
+            layer.open({
+                type: 2,// 表示是iframe弹框
+                title: "发送推送",
+                content: "/Message/MessagePush",
+                shadeClose: true,
+                shade: 0.6,
+                area: ['700px', '646px'],
+            });
+        });
+    </script>
+
+}

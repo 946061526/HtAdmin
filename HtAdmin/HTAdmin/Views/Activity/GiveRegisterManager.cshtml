@@ -1,0 +1,421 @@
+﻿@{
+    ViewBag.Title = "新用户赠送管理";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+    var taglist = ViewBag.TagList as string[];
+    var list = ViewBag.List as GameBiz.Core.RedBagGiveRegisterInfoCollection;
+    var games = new string[] { "FC3D", "PL3", "SSQ", "DLT", "CQSSC", "JX11X5", "SD11X5", "GD11X5", "GDKLSF", "JSKS", "SDKLPK3", "CTZQ", "BJDC", "JCZQ", "JCLQ" };
+    int index = ((int)ViewBag.PageIndex - 1) * (int)ViewBag.PageSize + 1;
+
+    var sTime = ViewBag.StartTime == null ? DateTime.Today.AddDays(-3).ToString("yyyy-MM-dd HH:mm") : Convert.ToDateTime(ViewBag.StartTime).ToString("yyyy-MM-dd HH:mm");
+    var eTime = ViewBag.EndTime == null ? DateTime.Today.AddDays(1).AddSeconds(-1).ToString("yyyy-MM-dd HH:mm") : Convert.ToDateTime(ViewBag.EndTime).ToString("yyyy-MM-dd HH:mm");
+}
+@section styles{
+    <style>
+        .width260 {
+            width: 260px;
+        }
+    </style>
+}
+<div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <div class="layui-input-inline" style="width:260px">
+                    <input type="text" id="CreateTime" name="CreateTime" placeholder="创建时间" autocomplete="off" class="layui-input width260" value="@(sTime+" ~ "+eTime)">
+                </div>
+                <input type="hidden" id="hdStartTime" value="@sTime" />
+                <input type="hidden" id="hdEndTime" value="@eTime" />
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" name="txt_RedBagCopTemId" id="txt_RedBagCopTemId" placeholder="红包模板ID" autocomplete="off" class="layui-input" maxlength="5" value="@ViewBag.txt_RedBagCopTemId">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" name="txt_couponName" id="txt_couponName" placeholder="红包名称" autocomplete="off" class="layui-input" maxlength="16" value="@ViewBag.txt_couponName">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="number" name="txt_couponMoney" id="txt_couponMoney" placeholder="面值" autocomplete="off" class="layui-input" value="@(ViewBag.txt_couponMoney.ToString()=="0" ? "" : ViewBag.txt_couponMoney.ToString())">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn" lay-submit lay-filter="LAY-app-contlist-search" id="btn_Search">
+                    查询
+                </button>
+                <button class="layui-btn layui-btn-primary" id="bt_build">
+                    重置
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-card-body">
+        <div class="w-margin-t-2">
+            <button class="layui-btn layui-btn-normal" id="btn_addnew" lay-filter="btnAdd">新增红包模板</button>
+        </div>
+        <div class="w-margin-t-4">
+            <table class="layui-table w-text-nowrap" lay-skin="line" id="dataList">
+                <colgroup>
+                    <col width="100">
+                    <col width="160">
+                    <col width="240">
+                    <col width="160">
+                    <col width="200">
+                    <col width="200">
+                    <col width="200">
+                    <col width="200">
+                    <col width="200">
+                    <col width="200">
+                    <col width="200">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>
+                            序号
+                        </th>
+                        <th>
+                            红包模板ID
+                        </th>
+                        <th>
+                            红包名称
+                        </th>
+                        <th style="text-align: right">
+                            面值
+                        </th>
+                        <th style="text-align: right">
+                            金额限制
+                        </th>
+                        <th>
+                            彩种限制
+                        </th>
+                        <th style="text-align: right">
+                            已发放数量
+                        </th>
+                        <th style="text-align: right">
+                            已使用数量
+                        </th>
+                        <th style="text-align: right">
+                            使用率
+                        </th>
+                        <th style="text-align: right">
+                            今日发放数量
+                        </th>
+                        <th>
+                            操作
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < list.RedBagGiveRegisterList.Count; i++)
+                    {
+                        var item = list.RedBagGiveRegisterList[i];
+                        <tr>
+                            <td>
+                                @(index++)
+                            </td>
+                            <td>
+                                @item.RedBagCouponTemplateInfo.RedBagCouponTemplateId
+                            </td>
+                            <td>
+                                @item.RedBagCouponTemplateInfo.RedBagCouponName
+                            </td>
+                            <td class="w-text-right">
+                                @item.RedBagCouponTemplateInfo.CouponMoney.ToString("C")
+                            </td>
+                            <td class="w-text-right">
+                                @(item.RedBagCouponTemplateInfo.FillMoney == 0 ? "--" : item.RedBagCouponTemplateInfo.FillMoney.ToString("C"))
+                            </td>
+                            <td>
+                                @{
+                                    List<string> gconfig = item.RedBagCouponTemplateInfo.GameConfigs;
+                                    bool isall = true;
+                                    string gstr = null;
+                                    foreach (var igames in games)
+                                    {
+                                        if (!gconfig.Contains(igames))
+                                        {
+                                            isall = false;
+                                            continue;
+                                        }
+                                    }
+                                    if (isall)
+                                    {
+                                        @("全部彩种");
+                                    }
+                                    else
+                                    {
+                                        if (gconfig.Contains("FC3D") && gconfig.Contains("PL3") && gconfig.Contains("SSQ") && gconfig.Contains("DLT"))
+                                        {
+                                            gstr = "数字彩";
+                                        }
+                                        else
+                                        {
+                                            if (gconfig.Contains("FC3D"))
+                                            {
+                                                if (string.IsNullOrEmpty(gstr))
+                                                { gstr = "福彩3D"; }
+                                            }
+                                            if (gconfig.Contains("PL3"))
+                                            {
+                                                if (string.IsNullOrEmpty(gstr))
+                                                { gstr = "排列3"; }
+                                                else
+                                                { gstr += "、排列3"; }
+                                            }
+                                            if (gconfig.Contains("SSQ"))
+                                            {
+                                                if (string.IsNullOrEmpty(gstr))
+                                                { gstr = "双色球"; }
+                                                else
+                                                { gstr += "、双色球"; }
+                                            }
+                                            if (gconfig.Contains("DLT"))
+                                            {
+                                                if (string.IsNullOrEmpty(gstr))
+                                                { gstr = "大乐透"; }
+                                                else
+                                                { gstr += "、大乐透"; }
+                                            }
+                                        }
+                                        if (gconfig.Contains("CQSSC") && gconfig.Contains("JX11X5") && gconfig.Contains("SD11X5") && gconfig.Contains("GD11X5") && gconfig.Contains("GDKLSF") && gconfig.Contains("JSKS") && gconfig.Contains("SDKLPK3"))
+                                        {
+                                            if (string.IsNullOrEmpty(gstr))
+                                            { gstr = "高频彩"; }
+                                            else
+                                            { gstr += "、高频彩"; }
+                                        }
+                                        else
+                                        {
+                                            if (gconfig.Contains("CQSSC"))
+                                            {
+                                                if (string.IsNullOrEmpty(gstr))
+                                                { gstr = "重庆时时彩"; }
+                                                else
+                                                { gstr += "、重庆时时彩"; }
+                                            }
+                                            if (gconfig.Contains("JX11X5"))
+                                            {
+                                                if (string.IsNullOrEmpty(gstr))
+                                                { gstr = "江西11选5"; }
+                                                else
+                                                { gstr += "、江西11选5"; }
+                                            }
+                                            if (gconfig.Contains("SD11X5"))
+                                            {
+                                                if (string.IsNullOrEmpty(gstr))
+                                                { gstr = "山东11选5"; }
+                                                else
+                                                { gstr += "、山东11选5"; }
+                                            }
+                                            if (gconfig.Contains("GD11X5"))
+                                            {
+                                                if (string.IsNullOrEmpty(gstr))
+                                                { gstr = "广东11选5"; }
+                                                else
+                                                { gstr += "、广东11选5"; }
+                                            }
+                                            if (gconfig.Contains("GDKLSF"))
+                                            {
+                                                if (string.IsNullOrEmpty(gstr))
+                                                { gstr = "广东快乐十分"; }
+                                                else
+                                                { gstr += "、广东快乐十分"; }
+                                            }
+                                            if (gconfig.Contains("JSKS"))
+                                            {
+                                                if (string.IsNullOrEmpty(gstr))
+                                                { gstr = "江苏快三"; }
+                                                else
+                                                { gstr += "、江苏快三"; }
+                                            }
+                                            if (gconfig.Contains("SDKLPK3"))
+                                            {
+                                                if (string.IsNullOrEmpty(gstr))
+                                                { gstr = "山东快乐扑克3"; }
+                                                else
+                                                { gstr += "、山东快乐扑克3"; }
+                                            }
+                                        }
+                                        if (gconfig.Contains("CTZQ") && gconfig.Contains("BJDC") && gconfig.Contains("JCZQ") && gconfig.Contains("JCLQ"))
+                                        {
+                                            if (string.IsNullOrEmpty(gstr))
+                                            { gstr = "竞技彩"; }
+                                            else
+                                            { gstr += "、竞技彩"; }
+                                        }
+                                        else
+                                        {
+                                            if (gconfig.Contains("CTZQ"))
+                                            {
+                                                if (string.IsNullOrEmpty(gstr))
+                                                { gstr = "传统足球"; }
+                                                else
+                                                { gstr += "、传统足球"; }
+                                            }
+                                            if (gconfig.Contains("BJDC"))
+                                            {
+                                                if (string.IsNullOrEmpty(gstr))
+                                                { gstr = "北京单场"; }
+                                                else
+                                                { gstr += "、北京单场"; }
+                                            }
+                                            if (gconfig.Contains("JCZQ"))
+                                            {
+                                                if (string.IsNullOrEmpty(gstr))
+                                                { gstr = "竞彩足球"; }
+                                                else
+                                                { gstr += "、竞彩足球"; }
+                                            }
+                                            if (gconfig.Contains("JCLQ"))
+                                            {
+                                                if (string.IsNullOrEmpty(gstr))
+                                                { gstr = "竞彩篮球"; }
+                                                else
+                                                { gstr += "、竞彩篮球"; }
+                                            }
+                                        }
+                                        if (string.IsNullOrEmpty(gstr))
+                                        { @("未选彩种");
+                                    }
+                                    else
+                                    { @(gstr);
+                                }
+                            }
+                                }
+                            </td>
+                            <td class="w-text-right">
+                                @(item.CreateNum)
+                            </td>
+                            <td class="w-text-right">
+                                @(item.UseNum)
+                            </td>
+                            <td class="w-text-right">
+                                @(item.CreateNum == 0 ? "0.00%" : ((Convert.ToDouble(item.UseNum) / Convert.ToDouble(item.CreateNum))).ToString("p"))
+                            </td>
+                            <td class="w-text-right">
+                                @(item.CreateNumToDay)
+                            </td>
+                            <td>
+                                <a class="layui-btn layui-btn-normal layui-btn-xs" onclick="OpenDetail(@item.RedBagCouponTemplateInfo.RedBagCouponTemplateId)">
+                                    @*<i class="layui-icon layui-icon-list"></i>*@
+                                    明细
+                                </a>
+                                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del" onclick="del(@item.Id,@item.RedBagCouponTemplateInfo.RedBagCouponTemplateId)">
+                                    @*<i class="layui-icon layui-icon-delete"></i>*@删除
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @ViewHelpers.Pager(ViewBag.PageIndex, ViewBag.PageSize, list.TotalCount)
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        //日期时间
+        layui.laydate.render({
+            elem: '#CreateTime'
+            , type: 'datetime'
+            , format: 'yyyy-MM-dd HH:mm'
+            , range: '~'
+            , done: function (value, sDate, endDate) {
+                $("#hdStartTime").val(sDate.year + "-" + sDate.month + "-" + sDate.date + " " + sDate.hours + ":" + sDate.minutes);
+                $("#hdEndTime").val(endDate.year + "-" + endDate.month + "-" + endDate.date + " " + endDate.hours + ":" + endDate.minutes);
+            }
+        });
+
+        /* 查询 */
+        var params = {
+            txt_RedBagCopTemId: '',
+            txt_couponName: '',
+            txt_couponMoney: '',
+            startTime: '',
+            endTime: '',
+            pageIndex: 1
+        };
+        $("#btn_Search").click(function () {
+
+            var RedBagCopTemId = $("#txt_RedBagCopTemId").val(),
+                couponName = $("#txt_couponName").val(),
+                couponMoney = $("#txt_couponMoney").val(),
+                startTime = $("#hdStartTime").val(),
+                endTime = $("#hdEndTime").val();
+
+            if (RedBagCopTemId) {
+                params.txt_RedBagCopTemId = RedBagCopTemId;
+            }
+            if (couponName) {
+                params.txt_couponName = couponName;
+            }
+            if (couponMoney) {
+                params.txt_couponMoney = couponMoney;
+            }
+            if (startTime) {
+                params.startTime = startTime;
+            }
+            if (endTime) {
+                params.endTime = endTime;
+            }
+            params.pageIndex = 1;
+            publicPagingList(params);
+        });
+
+        /* 重置 */
+        $("#bt_build").click(function () {
+            $("#txt_RedBagCopTemId").val("");
+            $("#txt_couponName").val("");
+            $("#txt_couponMoney").val("");
+        });
+        /* 新增红包模板 */
+        $("#btn_addnew").click(function () {
+            layer.open({
+                type: 2,// 表示是iframe弹框
+                title: "新增红包模板",
+                content: "/Activity/AddGiveRegister",
+                shadeClose: true,
+                shade: 0.6,
+                area: ['440px', '172px'],
+            });
+        });
+        /* 明细 */
+        function OpenDetail(mid) {
+            layer.open({
+                type: 2,// 表示是iframe弹框
+                title: "发放记录",
+                content: "/Activity/RedBagCouponList?txt_RedBagCopTemId=" + mid + "&&sel_RedBagSources=注册送红包",
+                maxmin: true,
+                area: ['98%', '98%']
+            });
+        }
+        //删除
+        function del(regId, tmpId) {
+
+            ShowConfirm('确定删除吗', function (index) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Activity/DelRedBagGiveRegister",
+                    data: {
+                        id: regId,
+                        tempId: tmpId
+                    },
+                    success: function (res) {
+                        if (res.IsSuccess) {
+                            ShowSuccessMsg('删除成功', false, false, function () {
+                                window.location.reload();
+                            });
+                        } else {
+                            ShowErrorMsg('删除失败:' + res.Msg);
+                        }
+                    }
+                });
+            });
+        }
+    </script>
+}

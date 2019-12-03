@@ -1,0 +1,315 @@
+﻿@using Common
+@using HTAdmin.Models
+@{
+    ViewBag.Title = "资讯管理 - 后台管理系统 - " + GlobalCache.WebSiteName;
+    var gameList = ViewBag.GameList as GameBiz.Core.GameInfoCollection;
+    var admins = ViewBag.Admins as GameBiz.Core.SystemUserInfoList;
+}
+@section styles{
+    <link rel="stylesheet" href="@Url.Content("~/lay/style/vendor.css")" media="all">
+    <link href="~/Content/bootstrap.min.css" type="text/css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-submenu.min.css" type="text/css" rel="stylesheet" />
+    <link href="~/Content/htmleaf-demo.css" type="text/css" rel="stylesheet" />
+    <link href="~/lay/style/admin.css" type="text/css" rel="stylesheet" />
+    <style>
+        .layui-form-label {
+            padding: 0;
+        }
+
+        .layui-form-switch {
+            height: 25px;
+        }
+    </style>
+}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+            <form class="layui-form">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <div class="dropdown m-b">
+                                <button class="btn" id="btnCategory" style="width:100%;text-align:left;" type="button" data-toggle="dropdown">
+                                    <span>请选择类别</span>
+                                    <i class="caret" style="position:relative;float:right;margin-top:6px;"></i>
+                                </button>
+                                <ul class="dropdown-menu" role="menu" id="categoryDiv">
+                                    <li value="ALL"><a tabindex="0">所有类别</a></li>
+                                    <li value="Lottery_GameCode" class="dropdown-submenu">
+                                        <a tabindex="0" data-toggle="dropdown">彩种资讯</a>
+                                        <ul class="dropdown-menu">
+                                            @foreach (var item in gameList)
+                                            {
+                                                <li value="@item.GameCode"><a tabindex="0">@item.DisplayName</a></li>
+                                            }
+                                        </ul>
+                                    </li>
+                                    <li value="CPZJ"><a tabindex="0">彩票中奖</a></li>
+                                    <li value="HOT"><a tabindex="0">热点资讯</a></li>
+                                    <li value="FocusCMS"><a tabindex="0">焦点新闻</a></li>
+                                    <li value="ZDZT"><a tabindex="0">置顶主题</a></li>
+                                    <li value="ZQDP"><a tabindex="0">足球点评</a></li>
+                                    <li value="LQDP"><a tabindex="0">篮球点评</a></li>
+                                    <li value="INFO"><a tabindex="0">赛事资讯</a></li>
+                                    <li value="SZZX"><a tabindex="0">数字资讯</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" name="Title" placeholder="标题" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline" style="width:300px;">
+                        <div class="layui-input-inline" style="width:300px;">
+                            <input type="text" id="creationDate" name="CreationDate" placeholder="创建时间" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <select name="Admin">
+                                <option value="">请选择人员</option>
+                                @foreach (var item in admins.SystemUserInfos)
+                                {
+                                    <option value="@item.UserId">@item.LoginName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <select name="Status">
+                                <option value="">请选择状态</option>
+                                <option value="1">正常</option>
+                                <option value="0">禁用</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layui-btn-normal" lay-submit lay-filter="*">
+                            查询
+                        </button>
+                        <button class="layui-btn layui-btn-primary" type="reset">
+                            重置
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="layui-card-body">
+
+            <div class="w-margin-t-2">
+                @if (ViewBag.Publish)
+                {
+                    <button class="layui-btn layui-btn-normal" id="btnAddArticle">新增资讯</button>
+                }
+            </div>
+            <div class="w-margin-t-4">
+                <table class="layui-table w-text-nowrap" lay-skin="line" id="table"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/bootstrap-submenu.min.js"></script>
+    <script type="text/javascript">
+         $(function () {
+            var form=layui.form;
+            var table = layui.table,laydate = layui.laydate;
+            var options = {
+                elem: '#table'
+                , url: '/ContentManage/GetArticleInfos'
+                , request: {
+                    pageName: 'PageIndex', //页码的参数名称，默认：page
+                    limitName: 'PageSize' //每页数据量的参数名，默认：limit
+                }
+                , cellMinWidth: 200
+                , skin: 'line'
+                , loading: true
+                , cols: [[{ field: 'Id', width: '60', title: '序号', sort: false }
+                    , { field: 'Category', width: '100', title: '类别', sort: false }
+                    , { field: 'Title',  title: '标题', sort: false }
+                    , { field: 'CreateTime',  title: '创建时间', sort: false }
+                    , { field: 'UpdateUserDisplayName', width: '100',  title: '操作人' }
+                    , { field: 'IsPutTop',  title: '是否置顶', width: '100', sort: false,templet:function(row){
+                        if (row.IsPutTop) {
+                                return "是";
+                             }
+                             else{return "否";}
+                      }}
+                    , { field: 'Status',  title: '状态', width: '100', templet: function (row) {
+                            if (row.Status == 1) {
+                                return "<span class='layui-badge-dot layui-bg-green'></span> " + "启用";
+                            }
+                            else {
+                                return "<span class='layui-badge-dot'></span> " + "暂停";
+                            }
+                        }}
+                    , {
+                        field: 'Operation', title: '操作', sort: false, templet: function (r) {
+                            var html = '';
+                            html += '<a class="layui-btn layui-btn-normal layui-btn-xs" view articleid="' + r.ArticleId + '" href="' + r.StaticPath + '" target="_blank">查看</a>';
+                            if (Boolean(@ViewBag.Update.ToString().ToLower())) {
+                                html += '<a class="layui-btn layui-btn-normal layui-btn-xs" href="javascript:;" edit articleid="' + r.ArticleId + '">编辑</a>';
+                            }
+                            if (Boolean(@ViewBag.Update.ToString().ToLower())) {
+                                if (r.Status == 1) {
+                                    html += '<a class="layui-btn layui-btn-success layui-btn-xs" href="javascript:;" status="0" articleid="' + r.ArticleId + '" gamecode =' + r.GameCode + '>暂停</a>';
+                                }
+                                else {
+                                    html += '<a class="layui-btn layui-btn-success layui-btn-xs" href="javascript:;" status="1" articleid="' + r.ArticleId + '" gamecode =' + r.GameCode + '>启用</a>';
+                                }
+                            }
+                            if (Boolean(@ViewBag.Delete.ToString().ToLower()) && r.Status == 0) {
+                                html += ' <a class="layui-btn layui-btn-danger layui-btn-xs" href="javascript:;" delete articleid="' + r.ArticleId + '" gamecode =' + r.GameCode + '>删除</a>';
+                            }
+                        return html;
+                    }
+                }
+                ]]
+                , page: true
+                , limits: [10, 20, 50, 100]
+                , limit: 20
+                , done: function (res, curr, count) {
+                    if (typeof (count) == "number" && count <= 20) {
+                        $(".layui-table-page").css("display", "none");
+                    }
+                    $("a[edit]").on("click", function () {
+                        layer.open({
+                            title: '编辑资讯',
+                            type: 2,
+                            area: ['700px', '800px'],
+                            content: "/ContentManage/ArticleInfo?articleId=" + $(this).attr("articleid"),
+                            done: function (index) {
+                                layer.close(index);
+                                window.location.reload(true);
+                            }
+                        });
+                    });
+                    $("a[status]").click(function () {
+                        var url = "/ContentManage/EnableArticle";
+                        var $th = $(this);
+                        var id = $th.attr("articleid")
+                            , status = $th.attr("status")
+                            , gameCode = $th.attr("gamecode");
+                        var tip = status == '0' ? '暂停' : '启用';
+                        ShowConfirm('确定' + tip + '吗', function () {
+                            $.post(url, { id: id, status: status, gameCode: gameCode }, function (result) {
+                                if (result.status == 1) {
+                                    ShowSuccessMsg(tip + '成功', false, false, function () {
+                                        window.location.reload(true);
+                                    })
+                                } else {
+                                    ShowErrorMsg(tip+'失败:'+res.message);
+                                }
+                            });
+                        })
+
+                    });
+                    $("a[delete]").click(function () {
+                        var $th = $(this);
+                        var id = $th.attr("articleid")
+                            , gameCode = $th.attr("gamecode");
+                        ShowConfirm('确定删除吗', function () {
+                            var url = "/ContentManage/DeleteArticle";
+                            $.post(url, { id: id, gameCode: gameCode }, function (result) {
+                                if (result.status == 1) {
+                                    ShowSuccessMsg( '删除成功', false, false, function () {
+                                        window.location.reload(true);
+                                    })
+                                } else {
+                                    ShowErrorMsg(tip + '失败:' +res.message);
+                                }
+                            });
+                        })
+                    });
+                }
+            };
+            var tableObj = table.render(options);
+             form.on("submit(*)", function (data) {
+                 var creationDate = $("input[name='CreationDate']").val();
+                 var arr = [];
+                 if (creationDate && creationDate.indexOf("~")>=0) {
+                     arr = creationDate.split("~");
+                 }
+                 options.where = {
+                     Title: $("input[name='Title']").val(),
+                     StartCreationDate: arr.length > 0 ? arr[0]:null,
+                     EndCreationDate: arr.length > 1 ? arr[1] : null,
+                     CreatorUserId: $("select[name='Admin']").val(),
+                     Status: $("select[name='Status']").val() == "" ? "-1" : $("select[name='Status']").val(),
+                     GameCode: $("#btnCategory span").attr("gameCode"),//$("select[name='GameCode']").val(),
+                     Category: $("#btnCategory span").attr("category"),//$("select[name='Category']").val()
+                 };
+                 options.page = {
+                     curr: 1 //重新从第 1 页开始
+                 };
+                 tableObj.reload(options);
+                 $("table").css("width", "100%");
+                return false;
+             });
+
+             table.on('row(table)', function (obj) {
+                 var data = obj.data;
+
+                 layer.alert(JSON.stringify(data), {
+                     title: '当前行数据：'
+                 });
+
+                 //标注选中样式
+                 obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+             });
+
+             //日期时间范围选择
+             laydate.render({
+                 elem: '#creationDate'
+                 , type: 'datetime'
+                 , format: 'yyyy-MM-dd HH:mm'
+                 , range: '~' //或 range: '~' 来自定义分割字符
+             });
+
+             $("#btnAddArticle").click(function () {
+                layer.open({
+                    title: '新增资讯',
+                    type: 2,
+                    maxmin: true,
+                    area: ['700px', '800px'],
+                    content: "/ContentManage/ArticleInfo",
+                    end: function () {
+                        window.location.reload(true);
+                    }
+                });
+             });
+             $('.dropdown-submenu > a').submenupicker();
+             $("#categoryDiv li").click(function () {
+                 var $th = $(this);
+                 var b = $th.hasClass("dropdown-submenu");
+                 if (!b) {
+                     $("#btnCategory span").text($th.text());
+                     var lot = "Lottery_GameCode";
+                     var $liVal=$th.parents("li").attr("value");
+                     if ("ALL" == $liVal) {
+                         $("#btnCategory span").removeAttr("gameCode");
+                         $("#btnCategory span").removeAttr("category");
+                     }
+                     else if (lot == $liVal) {
+                         $("#btnCategory span").attr("gameCode", $th.attr("value"));
+                         $("#btnCategory span").attr("category", lot);
+                     }
+                     else {
+                         $("#btnCategory span").attr("gameCode", "");
+                         $("#btnCategory span").attr("category", $th.attr("value"));
+                     }
+                 }
+             });
+        });
+        $(document).ready(function () {
+            $("table").css("width", "100%");
+        });
+    </script>
+}
+

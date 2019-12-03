@@ -1,0 +1,223 @@
+﻿@{
+    var Game = ViewBag.Game as GameBiz.Core.LotteryGameInfo;
+}
+
+<style>
+    /*.textWidth300 {
+        width: 300px
+    }
+
+    .textWidth800 {
+        width: 800px
+    }
+
+    .labelWidth {
+        width: 120px
+    }*/
+</style>
+
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form">
+            <input type="hidden" id="hdID" value="@Game.GameCode" />
+            <input type="hidden" id="hdStatus" value="@((int)Game.EnableStatus)" />
+            <input type="hidden" id="hdSort" value="@Game.Sort" />
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">彩种名称</label>
+                <div class="layui-input-block">
+                    <input type="text" autocomplete="off" class="layui-input" maxlength="10" disabled style="width:500px;" value="@Game.DisplayName">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">PC端状态</label>
+                <div class="layui-input-block">
+                    <div class="layui-btn-group" id="PCGroupButton">
+                        <button class="layui-btn @(Game.PCEnableStatus==Common.PCEnableStatus.Enable?"":"layui-btn-primary")" type="button" value="0">启用</button>
+                        <button class="layui-btn @(Game.PCEnableStatus==Common.PCEnableStatus.NotBuy?"":"layui-btn-primary")" type="button" value="10">暂停购买</button>
+                        <button class="layui-btn @(Game.PCEnableStatus==Common.PCEnableStatus.Disable?"":"layui-btn-primary")" type="button" value="1">禁用</button>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">APP端状态</label>
+                <div class="layui-input-block">
+                    <div class="layui-btn-group" id="APPGroupButton">
+                        <button class="layui-btn @(Game.APPEnableStatus==Common.APPEnableStatus.Enable?"":"layui-btn-primary")" type="button" value="0">启用</button>
+                        <button class="layui-btn @(Game.APPEnableStatus==Common.APPEnableStatus.NotBuy?"":"layui-btn-primary")" type="button" value="10">暂停购买</button>
+                        <button class="layui-btn @(Game.APPEnableStatus==Common.APPEnableStatus.Disable?"":"layui-btn-primary")" type="button" value="1">禁用</button>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label labelWidth">WAP端状态</label>
+                <div class="layui-input-block">
+                    <div class="layui-btn-group" id="WAPGroupButton">
+                        <button class="layui-btn @(Game.WAPEnableStatus==Common.WAPEnableStatus.Enable?"":"layui-btn-primary")" type="button" value="0">启用</button>
+                        <button class="layui-btn @(Game.WAPEnableStatus==Common.WAPEnableStatus.NotBuy?"":"layui-btn-primary")" type="button" value="10">暂停购买</button>
+                        <button class="layui-btn @(Game.WAPEnableStatus==Common.WAPEnableStatus.Disable?"":"layui-btn-primary")" type="button" value="1">禁用</button>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label ">队伍图标</label>
+                <div class="layui-input-block">
+                    <div class="layui-upload-drag" id="upload">
+                        <i class="layui-icon"></i>
+                        <p>点击上传</p>
+                    </div>
+                    <input type="hidden" name="imgPath" id="imgPath" value="@Game.APPImgUrl" />
+                    <div style="display:inline-block; vertical-align:top;" id="btnUpload">
+                        @if (!string.IsNullOrEmpty(Game.APPImgUrl))
+                        {
+                            var url = Game.APPImgUrl;
+                            if (!url.Contains(ViewBag.ImgSite))
+                            {
+                                url = ViewBag.ImgSite + Game.APPImgUrl;
+                            }
+                            <img src="@(url)" style="width:100px;height:100px;" />
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item" pane="">
+                <label class="layui-form-label labelWidth">宣传标语</label>
+                <div class="layui-input-block">
+                    <input type="text" id="GameAppTxt" placeholder="宣传标语" autocomplete="off" class="layui-input" maxlength="100" style="width:500px;" value="@Game.GameAppTxt">
+                </div>
+            </div>
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-block">
+                    <div class="layui-footer" style="text-align:right;">
+                        <button type="button" class="layui-btn layui-btn-primary" id="btnCancel">取消</button>
+                        <button type="button" class="layui-btn layui-btn-normal" lay-filter="add" id="btnSave" style="margin-right:20px;">提交</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+
+        //上传
+        var uploadInst = layui.upload.render({
+            elem: '#upload', //绑定元素
+            accept: 'images', //允许上传的文件类型
+            multiple: false, //允许多文件上传
+            auto: true, //选完文件后不要自动上传
+            number: 1,
+            field: 'imgFile',
+            //url: '/UpLoad/UploadImage', //上传接口
+            url: '/UpLoad/UploadImageNew',
+            size: 2 * 1024,// 大小限制  单位  kb
+            done: function (res) {
+                //上传完毕回调
+                if (res.code == 0) {
+                    var imgobj = new Image(); //创建新img对象
+                    imgobj.src = res.fullpath; //指定数据源
+                    imgobj.className = 'thumb';
+                    imgobj.style = "width:100px;height:100px;";
+                    var prev = document.getElementById("btnUpload");
+                    while (prev.hasChildNodes()) {
+                        prev.removeChild(prev.firstChild);
+                    }
+                    prev.appendChild(imgobj);
+                    $("input[name='imgPath']").val(res.path);
+                } else {
+                    ShowErrorMsg('上传失败');
+                }
+            },
+            error: function (r) {
+                //请求异常回调
+                ShowErrorMsg('上传失败');
+            }
+        });
+
+        var GameCode = $("#hdID").val(),
+            PCStatus = '',
+            APPStatus = '',
+            WapStatus = '',
+            ImgPath = '',
+            GameAppTxt = '',
+            _isSubmitting = false;
+
+        //按钮切换
+        $("#PCGroupButton [type='button']").click(function () {
+            $(this).removeClass("layui-btn-primary").siblings().removeClass("layui-btn-primary").addClass("layui-btn-primary");
+            PCStatus = $(this).val();
+        });
+        $("#APPGroupButton [type='button']").click(function () {
+            $(this).removeClass("layui-btn-primary").siblings().removeClass("layui-btn-primary").addClass("layui-btn-primary");
+            APPStatus = $(this).val();
+        });
+        $("#WAPGroupButton [type='button']").click(function () {
+            $(this).removeClass("layui-btn-primary").siblings().removeClass("layui-btn-primary").addClass("layui-btn-primary");
+            WapStatus = $(this).val();
+        });
+
+        //保存
+        $("#btnSave").click(function () {
+            if (_isSubmitting) return;
+            _isSubmitting = true;
+
+            if (!GameCode) {
+                ShowWarnningMsg('参数错误，提交失败');
+                _isSubmitting = false;
+                return false;
+            }
+            ImgPath = $('#imgPath').val();
+            if (!ImgPath) {
+                ShowWarnningMsg('请上传图标');
+                _isSubmitting = false;
+                return false;
+            }
+            GameAppTxt = $('#GameAppTxt').val();
+            if (!GameAppTxt) {
+                ShowWarnningMsg('请填写宣传标语');
+                _isSubmitting = false;
+                return false;
+            }
+            var Status = $("#hdStatus").val();
+            var Sort = $("#hdSort").val();
+            PCStatus = $("#PCGroupButton").children(":not(.layui-btn-primary)").val();
+            APPStatus = $("#APPGroupButton").children(":not(.layui-btn-primary)").val();
+            WapStatus = $("#WAPGroupButton").children(":not(.layui-btn-primary)").val();
+            var data = {
+                GameCode: GameCode,
+                PCStatus: PCStatus,
+                APPStatus: APPStatus,
+                WapStatus: WapStatus,
+                ImgPath: ImgPath,
+                GameAppTxt: GameAppTxt,
+                Status: Status,
+                Sort: Sort
+            };
+            _isSubmitting = true;
+            $.ajax({
+                type: "POST",
+                url: "/Lottery/LotteryStatusEditJson",
+                data: data,
+                success: function (res) {
+                    if (res.IsSuccess) {
+                        ShowSuccessMsg('提交成功', true, true);
+                    } else {
+                        ShowErrorMsg('提交失败');
+                    }
+                },
+                error: function (msg) {
+                    ShowErrorMsg('提交失败: ' + msg);
+                },
+                complete: function () {
+                    _isSubmitting = false;
+                }
+            });
+        });
+        //取消
+        $("#btnCancel").click(function () {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);//关闭当前页
+        });
+
+    </script>
+}

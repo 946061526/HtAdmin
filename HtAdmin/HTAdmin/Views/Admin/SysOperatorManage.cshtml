@@ -1,0 +1,235 @@
+﻿
+@{
+    ViewBag.Title = "系统人员管理";
+    var roleList = ViewBag.RoleListInfo as List<HTAdmin.Models.RoleModel>;
+}
+@section styles{
+    <link rel="stylesheet" href="@Url.Content("~/lay/style/vendor.css")" media="all">
+    <style>
+        .hide {
+            display: none;
+        }
+    </style>
+}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+            <form class="layui-form">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" name="RealName" placeholder="姓名" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" name="Mobile" placeholder="手机号码" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <select name="RoleId">
+                                <option value="">请选择角色</option>
+                                @foreach (var item in roleList)
+                                {
+                                    <option value="@item.RoleId">@item.RoleName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" name="Ip" placeholder="IP" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    @*<div class="layui-inline">
+                            <div class="layui-input-inline">
+                                <input type="text" id="laydate" name="LoginTime" placeholder="上次登录时间" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>*@
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <select name="Enabled">
+                                <option value="">请选择状态</option>
+                                <option value="1">启动</option>
+                                <option value="0">禁用</option>
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <div class="layui-inline">
+                        <button class="layui-btn" lay-submit lay-filter="*">
+                            查询
+                        </button>
+                        <button class="layui-btn layui-btn-primary" type="reset">
+                            重置
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="layui-card-body">
+            <div class="w-margin-t-2">
+                @if (ViewBag.AddUser)
+                {
+                    <button class="layui-btn layui-btn-normal" id="btnAddUser">新增人员</button>
+                }
+            </div>
+            <div class="w-margin-t-4">
+                <table class="layui-table w-text-nowrap" lay-skin="line" id="table"></table>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+
+        $( function () {
+                var form=layui.form;
+                var table = layui.table;
+                var options = {
+                    elem: '#table'
+                    , url: '/Admin/GetSystemUsers'
+                    , skin: 'line'
+                    , cellMinWidth: 50
+                    , loading: true
+                    , cols: [[{ field: 'RowId',  title: 'Id', sort: false }
+                        , { field: 'LoginName',  title: '用户名', sort: false }
+                        , { field: 'RealName',  title: '姓名', sort: false }
+                        , { field: 'Mobile',  title: '手机' }
+                        , { field: 'RoleName',  title: '所属角色', sort: false }
+                        , { field: 'LoginTime',  title: '上次登录' }
+                        , { field: 'LoginIp',  title: 'IP', templet: function (row) {
+                                if (row.LoginIp) {
+                                    return row.LoginIp + "(" + row.IpDisplayName + ")";
+                                }
+                                else {
+                                    return "";
+                                }
+                              }
+                           }
+                        , { field: 'Enabled', title: '状态', sort: false,templet: function (r) {
+                                if (r.IsEnable) {
+                                    return "<span class='layui-badge-dot layui-bg-green'></span> " + "启用";
+                                }
+                                else {
+                                    if (r.LoginName != 'admin') {
+                                        return "<span class='layui-badge-dot'></span> " + "禁用";
+                                    }
+                                    return "";
+                                }
+                             }
+                          }
+                        , {
+                            field: 'Operation', title: '操作', sort: false, templet: function (r) {
+                                var html = '';
+                                if (Boolean(@ViewBag.UpdateUser.ToString().ToLower())) {
+                                        html += '<a class="layui-btn layui-btn-normal layui-btn-xs" href="javascript:;" edit userid="' + r.UserId + '">编辑</a>';
+                                }
+                                debugger;
+                                if (r.IsEnable) {
+                                    if (r.LoginName != 'admin') {
+                                        html += '<a class="layui-btn layui-btn-success layui-btn-xs" href="javascript:;" enabled="' + r.IsEnable + '" userid="' + r.UserId + '">禁用</a>';
+                                    }
+                                }
+                                else {
+                                    html += '<a class="layui-btn layui-btn-success layui-btn-xs" href="javascript:;" enabled="' + r.IsEnable + '" userid="' + r.UserId + '">启用</a>';
+                                    if (r.LoginName != 'admin') {
+                                        html += ' <a class="layui-btn layui-btn-danger layui-btn-xs" href="javascript:;" delete userid="' + r.UserId + '">删除</a>';
+                                    }
+                                }
+
+                            return html;
+                        }
+                    }
+                    ]]
+                    , page: true
+                    , limits: [10, 20, 50, 100]
+                    , limit: 20
+                    , done: function (res, curr, count) {
+                        debugger;
+                        if (res.count >= count) {
+                            $("#table.layui-table-page").addClass("hide");
+                        }
+                        else{
+                            $("#table.layui-table-page").removeClass("hide");
+                        }
+                        $("a[edit]").on("click", function () {
+                            layer.open({
+                                title: '编辑人员',
+                                type: 2,
+                                area: ['440px', '460px'],
+                                content: "/Admin/AddSystemUser?userid=" + $(this).attr("userid"),
+                                //done: function (index) {
+                                //    layer.close(index);
+                                //    window.location.reload(true);
+                                //}
+                            });
+                        });
+                        $("a[enabled]").click(function () {
+                            var url = "/Admin/EnableSystemUser";
+                            $.post(url, { userid: $(this).attr("userid"), enable: $(this).attr("enabled") }, function (result) {
+                                if (result.code == 200) {
+                                    ShowSuccessMsg(result.message, false, false, function () { window.location.reload(true); });
+                                } else {
+                                    ShowErrorMsg(result.message);
+                                }
+                            });
+                        });
+                        $("a[delete]").click(function () {
+                            var $th = $(this);
+                            ShowConfirm('确定删除吗', function () {
+                                var url = "/Admin/DeleteSystemUser";
+                                $.post(url, { userid: $th.attr("userid") }, function (result) {
+                                    if (result.code == 200) {
+                                        ShowSuccessMsg('删除成功', false, false, function () { window.location.reload(true); });
+                                    } else {
+                                        ShowErrorMsg(result.message);
+                                    }
+                                });
+                            });
+                        });
+                    }
+                };
+                var tableObj = table.render(options);
+                form.on("submit(*)", function (data) {
+                    var enabled = $("select[name='Enabled']").val();
+                    var isEnabled = null;
+                    if (enabled != '') {
+                        isEnabled =Boolean(parseInt(enabled));
+                    }
+                    options.where = {
+                        RealName: $("input[name='RealName']").val(),
+                        RoleId: $("select[name='RoleId']").val(),
+                        Mobile: $("input[name='Mobile']").val(),
+                        IsEnable: isEnabled,
+                        LoginIp: $("input[name='Ip']").val()
+                    }
+                    tableObj.reload(options);
+                    return false;
+                });
+
+
+                //常规用法
+                layui.laydate.render({
+                    elem: '#laydate'
+                    });
+
+            $("#btnAddUser").click(function () {
+                layer.open({
+                    title: '新增人员',
+                    type: 2,
+                    area: ['440px', '460px'],
+                    content: "/Admin/AddSystemUser",
+                    //done: function (index) {
+                    //    layer.close(index);
+                    //    window.location.reload(true);
+                    //}
+                });
+            });
+        });
+    </script>
+}

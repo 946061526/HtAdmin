@@ -1,0 +1,326 @@
+﻿
+@{
+    ViewBag.Title = "UserDetailInfo";
+    var userRebate = ViewBag.List as External.Core.Agnet.OCAgentRebateInfoCollection;
+    //竞彩足球
+    var jczq_brqspf = userRebate.FirstOrDefault(p => p.GameCode == "JCZQ" && p.GameType == "BRQSPF" && p.RebateType == 0);
+    var jczq_spf = userRebate.FirstOrDefault(p => p.GameCode == "JCZQ" && p.GameType == "SPF" && p.RebateType == 0);
+    var jczq_bf = userRebate.FirstOrDefault(p => p.GameCode == "JCZQ" && p.GameType == "BF" && p.RebateType == 0);
+    var jczq_zjq = userRebate.FirstOrDefault(p => p.GameCode == "JCZQ" && p.GameType == "ZJQ" && p.RebateType == 0);
+    var jczq_bqc = userRebate.FirstOrDefault(p => p.GameCode == "JCZQ" && p.GameType == "BQC" && p.RebateType == 0);
+    var jczq_hh = userRebate.FirstOrDefault(p => p.GameCode == "JCZQ" && p.GameType == "HH" && p.RebateType == 0);
+
+    var jczq_brqspf_dg = userRebate.FirstOrDefault(p => p.GameCode == "JCZQ" && p.GameType == "BRQSPF" && p.RebateType == 1);
+    var jczq_spf_dg = userRebate.FirstOrDefault(p => p.GameCode == "JCZQ" && p.GameType == "SPF" && p.RebateType == 1);
+    var jczq_bf_dg = userRebate.FirstOrDefault(p => p.GameCode == "JCZQ" && p.GameType == "BF" && p.RebateType == 1);
+    var jczq_zjq_dg = userRebate.FirstOrDefault(p => p.GameCode == "JCZQ" && p.GameType == "ZJQ" && p.RebateType == 1);
+    var jczq_bqc_dg = userRebate.FirstOrDefault(p => p.GameCode == "JCZQ" && p.GameType == "BQC" && p.RebateType == 1);
+    var jczq_hh_dg = userRebate.FirstOrDefault(p => p.GameCode == "JCZQ" && p.GameType == "HH" && p.RebateType == 1);
+
+
+    //北京单场
+    var bjdc_spf = userRebate.FirstOrDefault(p => p.GameCode == "BJDC" && p.GameType == "SPF" && p.RebateType == 0);
+    var bjdc_zjq = userRebate.FirstOrDefault(p => p.GameCode == "BJDC" && p.GameType == "ZJQ" && p.RebateType == 0);
+    var bjdc_sxds = userRebate.FirstOrDefault(p => p.GameCode == "BJDC" && p.GameType == "SXDS" && p.RebateType == 0);
+    var bjdc_bf = userRebate.FirstOrDefault(p => p.GameCode == "BJDC" && p.GameType == "BF" && p.RebateType == 0);
+    var bjdc_bqc = userRebate.FirstOrDefault(p => p.GameCode == "BJDC" && p.GameType == "BQC" && p.RebateType == 0);
+
+    var bjdc_spf_dg = userRebate.FirstOrDefault(p => p.GameCode == "BJDC" && p.GameType == "SPF" && p.RebateType == 1);
+    var bjdc_zjq_dg = userRebate.FirstOrDefault(p => p.GameCode == "BJDC" && p.GameType == "ZJQ" && p.RebateType == 1);
+    var bjdc_sxds_dg = userRebate.FirstOrDefault(p => p.GameCode == "BJDC" && p.GameType == "SXDS" && p.RebateType == 1);
+    var bjdc_bf_dg = userRebate.FirstOrDefault(p => p.GameCode == "BJDC" && p.GameType == "BF" && p.RebateType == 1);
+    var bjdc_bqc_dg = userRebate.FirstOrDefault(p => p.GameCode == "BJDC" && p.GameType == "BQC" && p.RebateType == 1);
+
+
+    //竞彩篮球
+    var jclq_sf = userRebate.FirstOrDefault(p => p.GameCode == "JCLQ" && p.GameType == "SF" && p.RebateType == 0);
+    var jclq_rfsf = userRebate.FirstOrDefault(p => p.GameCode == "JCLQ" && p.GameType == "RFSF" && p.RebateType == 0);
+    var jclq_sfc = userRebate.FirstOrDefault(p => p.GameCode == "JCLQ" && p.GameType == "SFC" && p.RebateType == 0);
+    var jclq_dxf = userRebate.FirstOrDefault(p => p.GameCode == "JCLQ" && p.GameType == "DXF" && p.RebateType == 0);
+    var jclq_hh = userRebate.FirstOrDefault(p => p.GameCode == "JCLQ" && p.GameType == "HH" && p.RebateType == 0);
+
+    var jclq_sf_dg = userRebate.FirstOrDefault(p => p.GameCode == "JCLQ" && p.GameType == "SF" && p.RebateType == 1);
+    var jclq_rfsf_dg = userRebate.FirstOrDefault(p => p.GameCode == "JCLQ" && p.GameType == "RFSF" && p.RebateType == 1);
+    var jclq_sfc_dg = userRebate.FirstOrDefault(p => p.GameCode == "JCLQ" && p.GameType == "SFC" && p.RebateType == 1);
+    var jclq_dxf_dg = userRebate.FirstOrDefault(p => p.GameCode == "JCLQ" && p.GameType == "DXF" && p.RebateType == 1);
+    var jclq_hh_dg = userRebate.FirstOrDefault(p => p.GameCode == "JCLQ" && p.GameType == "HH" && p.RebateType == 1);
+
+
+    //传统足球
+    var ctzq_t14c = userRebate.FirstOrDefault(p => p.GameCode == "CTZQ" && p.GameType == "T14C");
+    var ctzq_tr9 = userRebate.FirstOrDefault(p => p.GameCode == "CTZQ" && p.GameType == "TR9");
+    var ctzq_t6bqc = userRebate.FirstOrDefault(p => p.GameCode == "CTZQ" && p.GameType == "T6BQC");
+    var ctzq_t4cjq = userRebate.FirstOrDefault(p => p.GameCode == "CTZQ" && p.GameType == "T4CJQ");
+    //排列三大乐透
+    var tycp_dlt = userRebate.FirstOrDefault(p => p.GameCode == "DLT" && p.GameType == "");
+    var tycp_pl3 = userRebate.FirstOrDefault(p => p.GameCode == "PL3" && p.GameType == "");
+    //福彩三D双色球
+    var fc3d = userRebate.FirstOrDefault(p => p.GameCode == "FC3D" && p.GameType == "");
+    var ssq = userRebate.FirstOrDefault(p => p.GameCode == "SSQ" && p.GameType == "");
+    //高频彩
+    var gpc_sd11x5 = userRebate.FirstOrDefault(p => p.GameCode == "SD11X5" && p.GameType == "");
+    var gpc_gd11x5 = userRebate.FirstOrDefault(p => p.GameCode == "GD11X5" && p.GameType == "");
+    var gpc_gdklsf = userRebate.FirstOrDefault(p => p.GameCode == "GDKLSF" && p.GameType == "");
+    var gpc_jsks = userRebate.FirstOrDefault(p => p.GameCode == "JSKS" && p.GameType == "");
+    var gpc_sdklpk3 = userRebate.FirstOrDefault(p => p.GameCode == "SDKLPK3" && p.GameType == "");
+    var gpc_bjpk10 = userRebate.FirstOrDefault(p => p.GameCode == "BJPK10" && p.GameType == "");
+    var gpc_cqssc = userRebate.FirstOrDefault(p => p.GameCode == "CQSSC" && p.GameType == "");
+    var gpc_jx11x5 = userRebate.FirstOrDefault(p => p.GameCode == "JX11X5" && p.GameType == "");
+}
+@section styles{
+    <style>
+        .select {
+            width: 100%;
+            padding: 8px 5px;
+            display: block;
+            border: solid 1px #eaeaea;
+        }
+
+        .pd {
+            padding: 20px 10px 20px 0;
+        }
+
+        .layui-form-label {
+            width: 90px;
+        }
+
+        .li-wd-200 {
+            float: left;
+            width: 200px;
+        }
+    </style>
+}
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header" style="font-weight:bolder">竞彩足球</div>
+                <div class="layui-card-body">
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            【单关】胜平负：@(jczq_brqspf_dg != null ? jczq_brqspf_dg.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【单关】让球胜平负：@(jczq_spf_dg != null ? jczq_spf_dg.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【单关】比分：@(jczq_bf_dg != null ? jczq_bf_dg.Rebate.ToString("N0") : "0")%
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            【单关】总进球：@(jczq_zjq_dg != null ? jczq_zjq_dg.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【单关】半全场：@(jczq_bqc_dg != null ? jczq_bqc_dg.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【单关】混合投注：@(jczq_hh_dg != null ? jczq_hh_dg.Rebate.ToString("N0") : "0")%
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            【串关】胜平负：@(jczq_brqspf != null ? jczq_brqspf.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【串关】让球胜平负：@(jczq_spf != null ? jczq_spf.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【串关】比分：@(jczq_bf != null ? jczq_bf.Rebate.ToString("N0") : "0")%
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            【串关】总进球：@(jczq_zjq != null ? jczq_zjq.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【串关】半全场：@(jczq_bqc != null ? jczq_bqc.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【串关】混合投注：@(jczq_hh != null ? jczq_hh.Rebate.ToString("N0") : "0")%
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <span style="font-weight:bolder">竞彩篮球</span>
+                </div>
+                <div class="layui-card-body">
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            【单关】胜负：@(jclq_sf_dg != null ? jclq_sf_dg.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【单关】让分胜负：@(jclq_rfsf_dg != null ? jclq_rfsf_dg.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【单关】胜负差：@(jclq_sfc_dg != null ? jclq_sfc_dg.Rebate.ToString("N0") : "00")%
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            【单关】大小分：@(jclq_dxf_dg != null ? jclq_dxf_dg.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【单关】混合过关：@(jclq_hh_dg != null ? jclq_hh_dg.Rebate.ToString("N0") : "0")%
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            【串关】胜负：@(jclq_sf != null ? jclq_sf.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【串关】让分胜负：@(jclq_rfsf != null ? jclq_rfsf.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【串关】胜负差：@(jclq_sfc != null ? jclq_sfc.Rebate.ToString("N0") : "00")%
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            【串关】大小分：@(jclq_dxf != null ? jclq_dxf.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【串关】混合过关：@(jclq_hh != null ? jclq_hh.Rebate.ToString("N0") : "0")%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <span style="font-weight:bolder">北京单场</span>
+                </div>
+                <div class="layui-card-body">
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            【单关】胜平负：@(bjdc_spf_dg != null ? bjdc_spf_dg.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【单关】进球数：@(bjdc_zjq_dg != null ? bjdc_zjq_dg.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【单关】上下单双：@(bjdc_sxds_dg != null ? bjdc_sxds_dg.Rebate.ToString("N0") : "0")%
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            【单关】比分：@(bjdc_bf_dg != null ? bjdc_bf_dg.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【单关】半全场：@(bjdc_bqc_dg != null ? bjdc_bqc_dg.Rebate.ToString("N0") : "0")%
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            【串关】胜平负：@(bjdc_spf != null ? bjdc_spf.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【串关】进球数：@(bjdc_zjq != null ? bjdc_zjq.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【串关】上下单双：@(bjdc_sxds != null ? bjdc_sxds.Rebate.ToString("N0") : "0")%
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            【串关】比分：@(bjdc_bf != null ? bjdc_bf_dg.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            【串关】半全场：@(bjdc_bqc != null ? bjdc_bqc.Rebate.ToString("N0") : "0")%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header" style="font-weight:bolder">传统足球</div>
+                <div class="layui-card-body">
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            14场胜负：@(ctzq_t14c != null ? ctzq_t14c.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            胜负任9：@(ctzq_tr9 != null ? ctzq_tr9.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            6场半全：@(ctzq_t6bqc != null ? ctzq_t6bqc.Rebate.ToString("N0") : "0")%
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            4场进球：@(ctzq_t4cjq != null ? ctzq_t4cjq.Rebate.ToString("N0") : "0")%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header" style="font-weight:bolder">数字彩</div>
+                <div class="layui-card-body">
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            大乐透：@(tycp_dlt != null ? tycp_dlt.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            排列三：@(tycp_pl3 != null ? tycp_pl3.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            双色球：@(ssq != null ? ssq.Rebate.ToString("N0") : "0")%
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            福彩3D：@(fc3d != null ? fc3d.Rebate.ToString("N0") : "0")%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header" style="font-weight:bolder">高频彩</div>
+                <div class="layui-card-body">
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            重庆时时彩：@(gpc_cqssc != null ? gpc_cqssc.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            江西11选5：@(gpc_jx11x5 != null ? gpc_jx11x5.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            江苏快三：@(gpc_jsks != null ? gpc_jsks.Rebate.ToString("N0") : "0")%
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            广东11选5：@(gpc_gd11x5 != null ? gpc_gd11x5.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            山东11选5：@(gpc_sd11x5 != null ? gpc_sd11x5.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            山东快乐扑克3：@(gpc_sdklpk3 != null ? gpc_sdklpk3.Rebate.ToString("N0") : "0")%
+                        </div>
+                    </div>
+                    <div class="layui-row">
+                        <div class="li-wd-200">
+                            广东快乐十分：@(gpc_gdklsf != null ? gpc_gdklsf.Rebate.ToString("N0") : "0")%
+                        </div>
+                        <div class="li-wd-200">
+                            北京PK10：@(gpc_bjpk10 != null ? gpc_bjpk10.Rebate.ToString("N0") : "0")%
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+   
+}

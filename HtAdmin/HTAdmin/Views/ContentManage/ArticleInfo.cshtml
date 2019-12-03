@@ -1,0 +1,356 @@
+﻿@{
+    var article = ViewBag.Article as External.Core.SiteMessage.ArticleInfo_Query;
+    var gameList = ViewBag.GameList as GameBiz.Core.GameInfoCollection;
+    string id = string.Empty;
+    bool edit = false;
+    if (article != null)
+    {
+        id = article.Id;
+        edit = true;
+    }
+}
+@section styles{
+    <link href="~/Content/bootstrap.min.css" type="text/css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-submenu.min.css" type="text/css" rel="stylesheet" />
+    <link href="~/Content/htmleaf-demo.css" type="text/css" rel="stylesheet" />
+    <link href="~/lay/style/admin.css" type="text/css" rel="stylesheet" />
+    <style>
+        .layui-form-label {
+            padding: 0;
+        }
+
+        .layui-form-switch {
+            height: 25px;
+        }
+    </style>
+}
+<div class="layui-fluid" style="padding:0 0 50px 0;background-color:white;">
+    <div class="layui-card">
+        <br />
+        <div class="layui-card-body">
+            <form class="layui-form">
+                <input type="hidden" value="@id" name="Id" />
+                <div class="layui-form-item">
+                    <label class="layui-form-label">类别</label>
+                    <div class="layui-input-block">
+                        <div class="dropdown m-b">
+                            <button class="btn btn-primary" id="btnCategory" style="width:100%;text-align:left;" type="button" data-toggle="dropdown">
+                                @if (edit)
+                                {
+                                    if ((string.IsNullOrWhiteSpace(article.Category) || "Lottery_GameCode" == article.Category))
+                                    {
+                                        <span category="Lottery_GameCode" gameCode="@article.GameCode">
+                                            @GlobalCache.GetGameCodeName(article.GameCode)
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span category="@article.Category" gameCode="">
+                                            @GlobalCache.GetArticleCategory(article.Category)
+                                        </span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span>请选择类别</span>
+                                }
+                                <i class="caret" style="position:relative;float:right;margin-top:6px;"></i>
+                            </button>
+                            <ul class="dropdown-menu" role="menu" id="categoryDiv">
+                                <li value="Lottery_GameCode" class="dropdown-submenu">
+                                    <a tabindex="0" data-toggle="dropdown">彩种资讯</a>
+                                    <ul class="dropdown-menu">
+                                        @if (edit)
+                                        {
+                                            foreach (var item in gameList)
+                                            {
+                                                <li value="@item.GameCode"><a tabindex="0">@item.DisplayName</a></li>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            foreach (var item in gameList)
+                                            {
+                                                <li value="@item.GameCode"><a tabindex="0">@item.DisplayName</a></li>
+                                            }
+                                        }
+                                    </ul>
+                                </li>
+                                <li value="CPZJ"><a tabindex="0">彩票中奖</a></li>
+                                <li value="HOT"><a tabindex="0">热点资讯</a></li>
+                                <li value="FocusCMS"><a tabindex="0">焦点新闻</a></li>
+                                <li value="ZDZT"><a tabindex="0">置顶主题</a></li>
+                                <li value="ZQDP"><a tabindex="0">足球点评</a></li>
+                                <li value="LQDP"><a tabindex="0">篮球点评</a></li>
+                                <li value="INFO"><a tabindex="0">赛事资讯</a></li>
+                                <li value="SZZX"><a tabindex="0">数字资讯</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">标题</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="Title" value="@(edit?article.Title:"")" lay-verify="required" autocomplete="off" placeholder="请输入标题" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">描述</label>
+                    <div class="layui-input-block">
+                        <textarea rows="10" cols="70" style="height:150px;" name="Summary" lay-verify="required" autocomplete="off" placeholder="请输入摘要" class="layui-input">@(edit? article.DescContent:"")</textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">关键字</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="Keyword" value="@(edit?article.KeyWords:"")" autocomplete="off" placeholder="请输入关键字" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">内容</label>
+                    <div class="layui-input-block">
+                        <script name="Description" id="editor" type="text/plain" placeholder="请输入内容" style="height:350px;">
+                            @Html.Raw(article == null ? null : article.Description.Trim())
+                        </script>           
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">封面图</label>
+                    <div class="layui-input-block  layui-col-md4">
+                        <div class="layui-btn-group" id="groupButton">
+                            <button class="layui-btn @(!edit || article.ImgType=="1"?"":"layui-btn-primary" )" type="button" value="1">单图</button>
+                            <button class="layui-btn @(edit && article.ImgType=="3"?"":"layui-btn-primary" )" type="button" value="3">三图</button>
+                            <button class="layui-btn @(edit && article.ImgType=="0"?"":"layui-btn-primary" )" type="button" value="0">无图</button>
+                        </div>
+                        <input type="hidden" name="ImgType" value="@(edit? article.ImgType:"")" />
+                    </div>
+                </div>
+                <div class="layui-form-item uploadImg" style='@(edit && article.ImgType == "0"?"display:none":"" )'>
+                    <label class="layui-form-label">上传图片</label>
+                    <div class="layui-input-block">
+                        <div class="layui-upload"  style='@(!edit || article.ImgType == "1"?"":"display:none" )'>
+                            <button type="button" class="layui-btn" id="test1">单张图片</button>
+                            <div class="layui-upload-list">
+                                @if (article.ImgType == "1")
+                                {
+                                    <img class="layui-upload-img" id="demo1" alt="@article.Title" title="@article.Title" src="@article.Url" style="width:100px;" />
+                                }
+                            </div>
+                        </div>
+                        <div class="layui-upload"  style='@(edit && article.ImgType == "3"?"":"display:none" )'>
+                            <button type="button" class="layui-btn" id="test2">多张图片</button>
+                            <div class="layui-upload-list" id="demo2">
+                                @if (article.ImgType == "3")
+                                {
+                                    <img src="@article.Url" title="@article.Title" alt="@article.Title" style="width:100px;" />
+                                    <img src="@article.Url1" title="@article.Title" alt="@article.Title" style="width:100px;" />
+                                    <img src="@article.Url2" title="@article.Title" alt="@article.Title" style="width:100px;" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否置顶</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" @(edit && article.IsPutTop ? "checked=checked" : "") name="IsPutTop" lay-skin="switch" lay-text="置顶|不置顶">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否启用</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" @(edit && article.Status == 0 ? "" : "checked=checked") name="Status" lay-skin="switch" lay-text="启用|不启用">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">发布时间</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="PublishTime" id="publishTime" value="@(edit?article.PublishTime.ToString("yyyy-MM-dd HH:mm"):"")" lay-verify="required" autocomplete="off" placeholder="请选择发布时间" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-footer" style="background-color:white;padding-bottom:10px;text-align:right;z-index:8888">
+                    <div class="layui-btngroup" style="width:auto;float:right;padding:5px 30px 5px 5px;">
+                        <button class="layui-btn layui-btn-primary" id="btnCancel">取消</button>
+                        <button class="layui-btn layui-btn-normal" lay-submit lay-filter="*" id="btnOk">
+                            @if (edit)
+                            {
+                                @("提交")
+                            }
+                            else
+                            {
+                                @("保存")
+                            }
+                        </button>
+                    </div>
+                </div>
+                
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/bootstrap-submenu.min.js"></script>
+    @ViewHelpers.js_oocai("kindeditor-min.js")
+    @ViewHelpers.js_oocai1("zh_CN.js")
+    <script type="text/javascript">
+        $('.dropdown-submenu > a').submenupicker();
+        $(function () {
+            var layer = layui.layer,
+                upload = layui.upload,
+                form = layui.form,
+                laydate = layui.laydate;
+
+            var ue = UE.getEditor('editor');
+
+            //自定义日期格式
+            laydate.render({
+                elem: '#publishTime'
+                , type: 'datetime'
+                , format: 'yyyy-MM-dd HH:mm' //可任意组合
+            });
+           // var ue = UE.getEditor('editor');
+
+            var editor = KindEditor.create('#description', {
+                allowFileManager: true,                                            //是否可以浏览上传文件
+                allowUpload: true,                                                     //是否可以上传
+                fileManagerJson: '/UpLoad/UpLoadFile',      //浏览文件方法
+                uploadJson: '/UpLoad/UploadImage'                    //上传文件方法  //注意这两个路径
+            });
+
+            var uploadInst = upload.render({
+                elem: '#test1', //绑定元素
+                accept: 'images', //允许上传的文件类型
+                multiple: true, //允许多文件上传
+                auto: true, //选完文件后不要自动上传
+                number: 3,
+                field: 'imgFile',
+                //bindAction: '#btnOk', //指定一个按钮触发上传
+                url: '/UpLoad/UploadImage', //上传接口
+                size: 2 * 1024,// 大小限制  单位  kb
+                choose: function (obj) {
+                },
+                done: function (res) {
+                    //上传完毕回调
+                    $("#demo1").attr("src", res.url).css({ "width": "100px" });
+                },
+                error: function (r) {
+                    //请求异常回调
+                    ShowErrorMsg('图片上传失败');
+                }
+            });
+
+            //多图片上传
+            upload.render({
+                elem: '#test2'
+                , url: '/UpLoad/UploadImage'
+                , multiple: true
+                , size: 2 * 1024
+                , field: 'imgFile'
+                , before: function (obj) {
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function (index, file, result) {
+                        $('#demo2').html("");
+                        $('#demo2').append('<img src="' + result + '" alt="' + file.name + '" class="layui-upload-img" width="100px">')
+                    });
+                }
+                , done: function (res) {
+                    //上传完毕
+                }
+            });
+
+            $("#categoryDiv li").click(function () {
+                var $th = $(this);
+                var b = $th.hasClass("dropdown-submenu");
+                if (!b) {
+                    $("#btnCategory span").text($th.text());
+                    var lot = "Lottery_GameCode";
+                    if (lot == $th.parents("li").attr("value")) {
+                        $("#btnCategory span").attr("gameCode", $th.attr("value"));
+                        $("#btnCategory span").attr("category", lot);
+                    }
+                    else {
+                        $("#btnCategory span").attr("gameCode", "");
+                        $("#btnCategory span").attr("category", $th.attr("value"));
+                    }
+                }
+            });
+
+            $("#btnCancel").click(function () {
+                var index = parent.layer.getFrameIndex(window.name);
+                parent.layer.close(index);//关闭当前页
+            });
+
+            form.on("submit(*)", function (data) {
+                var content = ue.getContent();
+                if (!content) {
+                    ShowWarnningMsg('内容为必填');
+                    return false;
+                }
+                var url = "";
+                var url1 = "";
+                var url2 = "";
+                var imgType = $("input[name='ImgType']").val();
+                if (imgType == 1) {
+                    url = $("#demo1").attr("src");
+                }
+                else if (imgType == 3) {
+                    var imgs = $("#demo2 img");
+                    url = $(imgs[0]).attr("src");
+                    url1 = $(imgs[1]).attr("src");
+                    url2 = $(imgs[2]).attr("src");
+                }
+                console.log(url + url1 + url2);
+                var indexLoading = ShowLoading("保存中");
+                var data = {
+                    Title: $("input[name='Title']").val(),
+                    Description: content,
+                    Priority: 1,
+                    IsPutTop: $("input[name='IsPutTop']").prop("checked"),
+                    Status: $("input[name='Status']").prop("checked") ? 1 : 0,
+                    Id: '@id',
+                    IsRedTitle: false,
+                    chkBuildStatic: true,
+                    ImgType: imgType,
+                    Url: url,
+                    Url1: url1,
+                    Url2: url2,
+                    DescContent: $("textarea[name='Summary']").val(),
+                    KeyWords: $("input[name='Keyword']").val(),
+                    GameCode: $("#btnCategory span").attr("gameCode"),
+                    Category: $("#btnCategory span").attr("category"),
+                    OriginalCategory: $("input[name='OriginalCategory']").val(),
+                    PublishTime: $("input[name='PublishTime']").val()
+                };
+                $.post("/ContentManage/ArticleOperate", data, function (r) {
+                    if (r.code == 200) {
+                        ShowSuccessMsg(r.message, true, true);
+                    } else {
+                        ShowErrorMsg(r.message);
+                    }
+                    layer.close(indexLoading);
+                });
+                return false;
+            });
+
+            $("#groupButton [type='button']").click(function () {
+                $(this).removeClass("layui-btn-primary").siblings().removeClass("layui-btn-primary").addClass("layui-btn-primary");
+                $("input[name=ImgType]").val($(this).val());
+                var size = $(this).val();
+                if (size == 3) {
+                    $(".uploadImg").css("display", "block");
+                    $(".layui-upload:eq(0)").css("display", "none");
+                    $(".layui-upload:eq(1)").css("display", "block");
+                }
+                else if (size == 1) {
+                    $(".uploadImg").css("display", "block");
+                    $(".layui-upload:eq(0)").css("display", "block");
+                    $(".layui-upload:eq(1)").css("display", "none");
+                }
+                else { $(".uploadImg").css("display", "none");}
+            });
+        });
+    </script>
+}

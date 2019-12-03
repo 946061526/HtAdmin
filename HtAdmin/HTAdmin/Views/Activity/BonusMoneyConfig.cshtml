@@ -1,0 +1,146 @@
+﻿
+@{
+    ViewBag.Title = "BonusMoneyConfig";
+    var list = ViewBag.ConfigListPagination as Activity.Core.BonusMoneyConfigPagination;
+}
+
+<div class="layui-card">
+    <div class="layui-card-body">
+        <div class="w-margin-t-2">
+            @*if (ViewBag.CZJJPZ_TJGZ)
+                {
+                    <button class="layui-btn layui-btn-normal" id="btnAddBonusActivity">新增加奖活动</button>
+                }*@
+        </div>
+        <div class="w-margin-t-4">
+            <table class="layui-table w-text-nowrap" lay-skin="line">
+                <colgroup>
+                    <col width="50">
+                    <col width="100">
+                    <col width="150">
+                    <col width="150">
+                    <col width="100">
+                    <col width="100">
+                    <col width="150">
+                    <col width="150">
+                    <col width="150">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>
+                            <span>ID</span>
+                        </th>
+                        <th>
+                            彩种类型
+                        </th>
+                        <th>
+                            彩种名称
+                        </th>
+                        <th>
+                            彩种玩法
+                        </th>
+                        <th>
+                            过关方式
+                        </th>
+                        <th style="text-align: right">
+                            加奖比例
+                        </th>
+                        <th style="text-align: right">
+                            最大嘉奖金额
+                        </th>
+                        <th>
+                            奖金入账户
+                        </th>
+                        <th>
+                            匹配活动
+                        </th>
+                        @*<th>
+                                操作
+                            </th>*@
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (list != null && list.Data != null)
+                    {
+                        foreach (var item in list.Data)
+                        {
+                            <tr>
+                                <td>
+                                    @item.OrderIndex
+                                </td>
+                                <td>
+                                    @GlobalCache.GetLotteryType(item.GameCode)
+                                </td>
+                                <td>
+                                    @GlobalCache.GetLotteryName(item.GameCode)
+                                </td>
+                                <td>
+                                    @ViewHelpers.ConvertGameType(item.GameType)
+                                </td>
+                                <td>
+                                    @switch (item.PlayType)
+                                    {
+                                        case "PM_1":
+                                            @Html.Raw("过关");
+                                            break;
+                                        case "P1_1":
+                                            @Html.Raw("单关");
+                                            break;
+                                        default:
+                                            @Html.Raw("不限");
+                                            break;
+                                    }
+                                </td>
+                                <td class="w-text-right">
+                                    @item.AddBonusMoneyPercent.ToString("N2")%
+                                </td>
+                                <td class="w-text-right">
+                                    @item.MaxAddBonusMoney.ToString("c")
+                                </td>
+                                <td>
+                                    @(string.IsNullOrEmpty(item.AddMoneyWay) ? "无" : (item.AddMoneyWay == "10" ? "奖金" : "奖励金"))
+                                </td>
+                                <td>
+                                    @item.ActivityName
+                                </td>
+                                @*<td bonus-id="@item.Id">
+                                        <a class="layui-btn layui-btn-normal layui-btn-xs">
+                                            <i class="layui-icon layui-icon-edit"></i>编辑
+                                        </a>
+                                        <a class="layui-btn layui-btn-danger layui-btn-xs">
+                                            <i class="layui-icon layui-icon-delete"></i>删除
+                                        </a>
+                                    </td>*@
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+            @ViewHelpers.Pager(ViewBag.PageIndex, ViewBag.PageSize, list.Count)
+        </div>
+    </div>
+</div>
+
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            layer = layui.layer;
+            // 添加角色
+            $("#btnAddBonusActivity").click(function () {
+                layer.open({
+                    type: 2,// 表示是iframe弹框
+                    title: "新增加奖活动",
+                    content: "/Activity/AddBonusActivity",
+                    maxmin: true,
+                    area: ['50%', '50%'],
+                    end: function () {
+                        window.location.reload();
+                    }
+                });
+            });
+
+
+        });
+    </script>
+}
